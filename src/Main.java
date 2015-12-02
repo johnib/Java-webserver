@@ -1,27 +1,34 @@
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Created by Jonathan Yaniv on 30/11/2015.
  * Copyright (c) 2015 Jonathan Yaniv. All rights reserved.
  */
 public class Main {
-    static int i;
 
-    public static void main(String[] args) {
+    /* TEMP CONFIG.INI VALUES */
+    private static final int port = 8080;
+    private static final String root = "~/wwwroot/";
+    private static final String defaultPage = "index.html";
+    private static final int maxThreads = 10;
+
+    public static void main(String[] args) throws IOException {
+
+        //TODO: parse config file (for the meantime we have the relevant properties).
 
 
-        ThreadPool tPool = new ThreadPool(10);
-        tPool.start();
+        File f = new File(new File(".").getCanonicalPath() + "/config.ini");
+        Parser parser = new Parser(f);
 
-        for (i = 0; i < 100000; i++) {
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    System.out.println(i);
-                }
-            };
+        int port = 0;
+        port = Integer.parseInt(parser.getValue("port"));
+        String root = parser.getValue("root");
+        String defaultPage = parser.getValue("defaultPage");
+        int maxThreads = Integer.parseInt(parser.getValue("maxThreads"));
 
-            tPool.addTask(r);
-        }
 
-        tPool.terminate();
+        System.out.printf("%s\n%s\n%s\n%s\n", port, root, defaultPage, maxThreads);
+
     }
 }
