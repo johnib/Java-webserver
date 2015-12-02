@@ -17,7 +17,7 @@ public class Parser {
     private final static String bad_line = "Bad config line on line %d:\t %s\n";
 
     /* Private fields */
-    private final Map<String, String> dict = new HashMap<String, String>();
+    private final Map<String, String> dict = new HashMap<>();
 
     /**
      * Constructs a new parser given a File object.
@@ -30,7 +30,7 @@ public class Parser {
         try {
             BufferedReader configFileReader = new BufferedReader(new FileReader(configFile));
 
-            String line = null;
+            String line;
             while ((line = configFileReader.readLine()) != null) {
                 Matcher m = p.matcher(line);
 
@@ -54,5 +54,10 @@ public class Parser {
      */
     public String getValue(String key) {
         return this.dict.get(key);
+    }
+
+    @Override
+    public String toString() {
+        return this.dict.toString();
     }
 }

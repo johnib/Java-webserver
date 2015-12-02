@@ -7,28 +7,21 @@ import java.io.IOException;
  */
 public class Main {
 
-    /* TEMP CONFIG.INI VALUES */
-    private static final int port = 8080;
-    private static final String root = "~/wwwroot/";
-    private static final String defaultPage = "index.html";
-    private static final int maxThreads = 10;
+    /* Constants */
+
 
     public static void main(String[] args) throws IOException {
 
-        //TODO: parse config file (for the meantime we have the relevant properties).
+        /* parsing config file */
+        Parser parser = new Parser(new File(new File(".").getCanonicalPath() + "/config.ini"));
 
-
-        File f = new File(new File(".").getCanonicalPath() + "/config.ini");
-        Parser parser = new Parser(f);
-
-        int port = 0;
-        port = Integer.parseInt(parser.getValue("port"));
+        int port = Integer.parseInt(parser.getValue("port"));
+        int maxThreads = Integer.parseInt(parser.getValue("maxThreads"));
         String root = parser.getValue("root");
         String defaultPage = parser.getValue("defaultPage");
-        int maxThreads = Integer.parseInt(parser.getValue("maxThreads"));
 
+        System.out.printf("Parsed config file, got:\n%s", parser.toString());
 
-        System.out.printf("%s\n%s\n%s\n%s\n", port, root, defaultPage, maxThreads);
 
     }
 }
