@@ -8,6 +8,7 @@ import java.io.IOException;
 public class Main {
 
     /* Constants */
+    private final static String parsed_config = "Parsed config file, got:\n%s\n";
 
 
     public static void main(String[] args) throws IOException {
@@ -20,8 +21,7 @@ public class Main {
         String root = parser.getValue("root");
         String defaultPage = parser.getValue("defaultPage");
 
-        System.out.printf("Parsed config file, got:\n%s", parser.toString());
-
+        System.out.printf(parsed_config, parser.toString());
 
     }
 }

@@ -1,10 +1,9 @@
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by Jonathan Yaniv on 30/11/2015.
- * Copyright (c) 2015 Jonathan Yaniv. All rights reserved.
+ * Created by Jonathan Yaniv and Nitsan Bracha on 30/11/2015.
  */
-public class PoolThread extends Thread {
+public class CustomThread extends Thread {
 
     /* Constants */
     private static final String intrpt_msg = "Thread-%d was interrupted.\n";
@@ -23,7 +22,7 @@ public class PoolThread extends Thread {
      * Constructs a new pool thread.
      * @param queue the tasks queue.
      */
-    public PoolThread(LinkedBlockingQueue<Runnable> queue) {
+    public CustomThread(LinkedBlockingQueue<Runnable> queue) {
         super();
         this.queue = queue;
 
