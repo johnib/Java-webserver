@@ -9,12 +9,13 @@ public class Main {
 
     /* Constants */
     private final static String parsed_config = "Parsed config file, got:\n%s\n";
+    private final static String regex_config = "(.+)=(.+)";
 
 
     public static void main(String[] args) throws IOException {
 
         /* parsing config file */
-        Parser parser = new Parser(new File(new File(".").getCanonicalPath() + "/config.ini"));
+        Parser parser = new Parser(new File(new File(".").getCanonicalPath() + "/config.ini"), regex_config);
 
         int port = Integer.parseInt(parser.getValue("port"));
         int maxThreads = Integer.parseInt(parser.getValue("maxThreads"));

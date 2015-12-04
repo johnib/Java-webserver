@@ -14,36 +14,53 @@ import java.util.regex.Pattern;
 public class Parser {
 
     /* Constants */
-    private final static String bad_line = "Bad config line on line %d:\t %s\n";
+    private final static String bad_line = "Bad line on line %d:\t %s\n";
 
     /* Private fields */
-    private final Map<String, String> dict = new HashMap<>();
+    private Map<String, String> dict = new HashMap<>();
+    private final Pattern regexPattern;
 
     /**
      * Constructs a new parser given a File object.
      *
      * @param configFile the File object of the config file.
      */
-    public Parser(File configFile) {
-        Pattern p = Pattern.compile("(.+)=(.+)");
-        int count = 0;
+    public Parser(File configFile, String regex) {
+        regexPattern = Pattern.compile(regex);
+
+        this.dict = this.parse(configFile);
+    }
+
+
+    /**
+     * Performs the parsing and creates a dictionary consisting of all key-value pairs processed
+     * @param file the file to parse
+     * @return a dictionary consisting of all key-value pairs.
+     */
+    private Map<String, String> parse(File file) {
+        Map<String, String> dict = new HashMap<>();
+        int lineCounter = 0;
+
         try {
-            BufferedReader configFileReader = new BufferedReader(new FileReader(configFile));
+            BufferedReader reader = new BufferedReader(new FileReader(file));
 
             String line;
-            while ((line = configFileReader.readLine()) != null) {
-                Matcher m = p.matcher(line);
+            while ((line = reader.readLine()) != null) {
+                Matcher m = regexPattern.matcher(line);
 
                 if (m.find()) {
                     dict.put(m.group(1), m.group(2));
                 } else {
-                    System.err.printf(bad_line, count, line);
+                    System.err.printf(bad_line, lineCounter, line);
                 }
-                count++;
+
+                lineCounter++;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return dict;
     }
 
     /**
