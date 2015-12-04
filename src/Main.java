@@ -2,9 +2,10 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by Jonathan Yaniv on 30/11/2015.
- * Copyright (c) 2015 Jonathan Yaniv. All rights reserved.
+ * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
+ * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
+
 public class Main {
 
     /* Constants */

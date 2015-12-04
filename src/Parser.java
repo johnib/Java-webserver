@@ -8,9 +8,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by Jonathan Yaniv on 03/12/2015.
- * Copyright (c) 2015 Jonathan Yaniv. All rights reserved.
+ * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
+ * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
+
 public class Parser {
 
     /* Constants */
