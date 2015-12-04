@@ -1,10 +1,8 @@
-import java.nio.channels.IllegalSelectorException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by Jonathan Yaniv on 30/11/2015.
- * Copyright (c) 2015 Jonathan Yaniv. All rights reserved.
+ * Created by Jonathan Yaniv and Nitsan Bracha on 30/11/2015.
  */
 public class ThreadPool {
 
@@ -26,8 +24,9 @@ public class ThreadPool {
     private LinkedBlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>(queue_size);
 
     private static final int queue_size = 10;
+
     // the threads array
-    private ArrayList<PoolThread> threads;
+    private ArrayList<CustomThread> threads;
     private boolean isRunning;
 
     /**
@@ -39,7 +38,7 @@ public class ThreadPool {
         this.threads = new ArrayList<>(numOfThreads);
 
         for (int i = 0; i < numOfThreads; i++) {
-            threads.add(new PoolThread(tasks));
+            threads.add(new CustomThread(tasks));
         }
 
         System.out.printf(init_msg);
@@ -89,25 +88,32 @@ public class ThreadPool {
     /**
      * Terminates the thread pool by terminating each of the threads running.
      */
-    public void terminate() {
+    public synchronized void terminate() {
         if (this.isRunning) {
             System.out.printf(tPool_terminating);
 
-            for (PoolThread t : threads) t.interrupt();
+            // Stopping all the treads even in the middle of a run
+            for (CustomThread t : threads) t.interrupt();
 
             System.out.printf(tPool_terminated);
-        }
 
-        System.err.printf(terminated_err);
+            // Indicate that the threads are not running any more
+            this.isRunning = false;
+        } else {
+            System.err.printf(terminated_err);
+        }
     }
 
     /**
      * Starts the Thread pool, by starting each of the threads available.
      */
-    public void start() {
+    public synchronized void start() {
         if (!this.isRunning) {
+
+            // Going over the threads and starting them
             for (Thread t : threads) t.start();
 
+            // Indicate that the threads are running
             this.isRunning = true;
 
             System.out.printf(tPool_started);

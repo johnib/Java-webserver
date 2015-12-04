@@ -11,11 +11,12 @@ public class Main {
         ThreadPool tPool = new ThreadPool(10);
         tPool.start();
 
-        for (i = 0; i < 100000; i++) {
+        for (i = 0; i < 20; i++) {
+            final int local = i;
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
-                    System.out.println(i);
+                    System.out.println(local);
                 }
             };
 
