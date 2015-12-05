@@ -9,21 +9,28 @@ import java.io.IOException;
 public class Main {
 
     /* Constants */
-    private final static String parsed_config = "Parsed config file, got:\n%s\n";
-    private final static String regex_config = "(.+)=(.+)";
+    private final static String fatal_error = "FATAL error, exiting\n";
 
+    public static void main(String[] args) {
 
-    public static void main(String[] args) throws IOException {
+        File configFile = null;
+        try {
+            configFile = new File(new File(".").getCanonicalPath() + "/config.ini");
 
-        /* parsing config file */
-        Parser parser = new Parser(new File(new File(".").getCanonicalPath() + "/config.ini"), regex_config);
+        } catch (IOException e) {
+            System.err.printf("%s\n%s\n", e.getCause(), e.getMessage());
+            e.printStackTrace();
 
-        int port = Integer.parseInt(parser.getValue("port"));
-        int maxThreads = Integer.parseInt(parser.getValue("maxThreads"));
-        String root = parser.getValue("root");
-        String defaultPage = parser.getValue("defaultPage");
+            System.err.printf(fatal_error);
+            System.exit(-1);
+        }
 
-        System.out.printf(parsed_config, parser.toString());
+        @SuppressWarnings("unused")
+        Server server = new Server(configFile)
+                .start()
+                .listen();
+
 
     }
+
 }

@@ -9,8 +9,8 @@ public class ThreadPool {
 
     /* Constants */
     private static final String init_msg = "Thread pool initialized\n";
-    private static final String task_add = "Task added, current number of tasks in queue: %d\n";
-    private static final String capacity_err = "Cannot add task:\n%s\ndue to capacity issue, current count: %d/%d\n";
+    private static final String task_added = "Task added, current number of tasksQueue in queue: %d\n";
+    private static final String capacity_err = "Cannot add task:\n%s\ndue to capacity issue, current handledTasksCount: %d/%d\n";
     private static final String null_err = "Cannot add NULL task.\n";
     private static final String not_running = "ThreadPool is not running\n";
     private static final String tPool_started = "Thread pool started, all threads started\n";
@@ -21,13 +21,13 @@ public class ThreadPool {
 
     /* Private fields */
 
-    // the tasks queue
-    private LinkedBlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>(queue_size);
+    // the tasksQueue queue
+    private LinkedBlockingQueue<Runnable> tasksQueue = new LinkedBlockingQueue<>(queue_size);
 
     private static final int queue_size = 10;
 
     // the threads array
-    private ArrayList<CustomThread> threads;
+    private ArrayList<ClientThread> threads;
     private boolean isRunning;
 
     /**
@@ -39,14 +39,14 @@ public class ThreadPool {
         this.threads = new ArrayList<>(numOfThreads);
 
         for (int i = 0; i < numOfThreads; i++) {
-            threads.add(new CustomThread(tasks));
+            threads.add(new ClientThread(tasksQueue));
         }
 
         System.out.printf(init_msg);
     }
 
     /**
-     * This method adds a new task to the tasks queue
+     * This method adds a new task to the tasksQueue queue
      *
      * @param task the task
      * @return true if task added successfully and false otherwise
@@ -56,10 +56,10 @@ public class ThreadPool {
             throw new IllegalStateException(not_running);
 
         try {
-            this.tasks.put(task);
+            // non-blocking method, can't hold the server thread if queue is full
+            this.tasksQueue.add(task);
         } catch (IllegalStateException e) {
-            System.err.printf(capacity_err, task.toString(), tasks.size(), queue_size);
-            e.printStackTrace();
+            System.err.printf(capacity_err, task.toString(), tasksQueue.size(), queue_size);
 
             return false;
         } catch (ClassCastException e) {
@@ -68,20 +68,15 @@ public class ThreadPool {
             return false;
         } catch (NullPointerException e) {
             System.err.printf(null_err);
-            e.printStackTrace();
 
             return false;
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
 
             return false;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-
-            return false;
         }
 
-        System.out.printf(task_add, tasks.size());
+        System.out.printf(task_added, tasksQueue.size());
 
         return true;
     }
@@ -94,7 +89,7 @@ public class ThreadPool {
             System.out.printf(tPool_terminating);
 
             // Stopping all the treads even in the middle of a run
-            for (CustomThread t : threads) t.interrupt();
+            for (ClientThread t : threads) t.interrupt();
 
             System.out.printf(tPool_terminated);
 

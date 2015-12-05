@@ -4,11 +4,10 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
-public class CustomThread extends Thread {
+public class ClientThread extends Thread {
 
     /* Constants */
     private static final String intrpt_msg = "Thread-%d was interrupted.\n";
-    private static final String init_msg = "Thread constructed\n";
     private static final String started_msg = "Thread-%d started\n";
     private static final String task_picked = "Thread-%d picked a task\n";
     private static final String task_finished = "Thread-%d finished running task\n";
@@ -17,24 +16,24 @@ public class CustomThread extends Thread {
     // the tasks queue
     private LinkedBlockingQueue<Runnable> queue;
 
-    public int count = 0;
+    public int handledTasksCount = 0;
 
     /**
      * Constructs a new pool thread.
+     *
      * @param queue the tasks queue.
      */
-    public CustomThread(LinkedBlockingQueue<Runnable> queue) {
+    public ClientThread(LinkedBlockingQueue<Runnable> queue) {
         super();
         this.queue = queue;
-
-        System.out.printf(init_msg);
     }
 
     @SuppressWarnings("InfiniteLoopStatement")
     public void run() {
         System.out.printf(started_msg, Thread.currentThread().getId());
-        while (true) {
-            try {
+
+        try {
+            while (true) {
                 // get the next task and handle it
                 System.out.printf(task_pop, Thread.currentThread().getId());
                 Runnable task = queue.take();
@@ -42,15 +41,15 @@ public class CustomThread extends Thread {
                 System.out.printf(task_picked, Thread.currentThread().getId());
 
                 task.run();
-                count++;
+                handledTasksCount++;
 
                 System.out.printf(task_finished, Thread.currentThread().getId());
-            } catch (InterruptedException e) {
-                System.out.printf(intrpt_msg, Thread.currentThread().getId());
-//                e.printStackTrace();
-
-                break;
             }
+        } catch (InterruptedException e) {
+            System.out.printf(intrpt_msg, Thread.currentThread().getId());
+        } catch (Exception e) {
+            //TODO: consider a mechanism for reinstantiating new thread in case of lost ones.
+
         }
     }
 }
