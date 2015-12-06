@@ -26,9 +26,9 @@ public class Main {
         }
 
         @SuppressWarnings("unused")
-        Server server = new Server(configFile)
-                .start()
-                .listen();
+        Server server = new Server(configFile);
+        if (server.start())
+            server.listen();
 
 
     }

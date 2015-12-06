@@ -20,6 +20,7 @@ public class Server {
 
     /* private fields */
     private int port;
+    private int maxThreads;
     private String root; // root directory
     private String defaultPage;
     private final ThreadPool pool;
@@ -36,7 +37,7 @@ public class Server {
         Parser parser = new Parser(configuration, regex_string);
 
         this.port = Integer.parseInt(parser.getValue("port"));
-        int maxThreads = Integer.parseInt(parser.getValue("maxThreads"));
+        this.maxThreads = Integer.parseInt(parser.getValue("maxThreads"));
         this.root = parser.getValue("root");
         this.defaultPage = parser.getValue("defaultPage");
 
@@ -51,15 +52,13 @@ public class Server {
     /**
      * Starts the server.
      */
-    public Server start() {
-        /* start threads in pool */
-        this.pool.start();
-
+    public boolean start() {
         /* start server */
         try {
             serverSocket = new ServerSocket(port);
 
             serverRunning = true;
+            System.out.printf(server_started);
         } catch (IOException e) {
             System.err.printf(server_error, port, e.getCause());
             e.printStackTrace();
@@ -68,18 +67,20 @@ public class Server {
             serverRunning = false;
         }
 
-        System.out.printf(server_started);
+        if (serverRunning) {
+            /* start threads in pool */
+            this.pool.start();
+        }
 
-        return this;
+        return serverRunning;
     }
 
     /**
      * This method makes the server listen on it's port.
      */
-    public Server listen() {
+    public void listen() {
         if (!serverRunning) {
             System.err.printf(listen_fail);
-            return this;
         }
 
         try {
@@ -94,8 +95,6 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return this;
     }
 
     /**
@@ -111,27 +110,5 @@ public class Server {
         }
 
         pool.terminate();
-    }
-
-    /**
-     * This class is a Runnable wrapper for the client socket, this way it can be processed by other threads.
-     */
-    private class RunnableClient implements Runnable {
-
-        /* private fields */
-        private final Socket socket;
-
-        /**
-         * Creates a Runnable wrapper for the given socket.
-         * @param clientSocket the socket
-         */
-        public RunnableClient(Socket clientSocket) {
-            this.socket = clientSocket;
-        }
-
-        @Override
-        public void run() {
-            //TODO: implement client-request-response lifecycle
-        }
     }
 }
