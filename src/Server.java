@@ -4,7 +4,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
+ * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 public class Server {
@@ -17,13 +17,12 @@ public class Server {
     private final static String init_success = "Server: instantiated successfully with configuration:\n%s\n";
     private final static String server_started = "Server: Started successfully\n";
     private final static String listen_fail = "Server cannot listen, not running\n";
-
+    private final ThreadPool pool;
     /* private fields */
     private int port;
     private int maxThreads;
     private String root; // root directory
     private String defaultPage;
-    private final ThreadPool pool;
     private boolean serverRunning;
     private ServerSocket serverSocket;
 

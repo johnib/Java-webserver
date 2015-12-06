@@ -1,7 +1,7 @@
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
+ * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 public class ClientThread extends Thread {
@@ -12,11 +12,9 @@ public class ClientThread extends Thread {
     private static final String task_picked = "Thread-%d picked a task\n";
     private static final String task_finished = "Thread-%d finished running task\n";
 //    private static final String task_pop = "Thread-%d popping task\n";
-
+    public int handledTasksCount = 0;
     // the tasks queue
     private LinkedBlockingQueue<Runnable> queue;
-
-    public int handledTasksCount = 0;
 
     /**
      * Constructs a new pool thread.

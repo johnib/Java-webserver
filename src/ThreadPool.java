@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
+ * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 public class ThreadPool {
@@ -20,12 +20,9 @@ public class ThreadPool {
     private static final String started_err ="Thread pool already started.\n";
 
     /* Private fields */
-
+    private static final int queue_size = 10;
     // the tasksQueue queue
     private LinkedBlockingQueue<Runnable> tasksQueue = new LinkedBlockingQueue<>(queue_size);
-
-    private static final int queue_size = 10;
-
     // the threads array
     private ArrayList<ClientThread> threads;
     private boolean isRunning;

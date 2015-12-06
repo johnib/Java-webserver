@@ -8,18 +8,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
+ * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
-
 public class Parser {
 
     /* Constants */
     private final static String bad_line = "Bad line on line %d:\t %s\n";
-
+    private final Pattern regexPattern;
     /* Private fields */
     private Map<String, String> dict = new HashMap<>();
-    private final Pattern regexPattern;
 
     /**
      * Constructs a new parser given a File object.
