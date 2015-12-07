@@ -14,49 +14,32 @@ import java.util.regex.Pattern;
 public class Parser {
 
     /* Constants */
-    private final static String bad_line = "Bad line on line %d:\t %s\n";
-    private final Pattern regexPattern;
+    protected final Pattern regexPattern;
+
     /* Private fields */
-    private Map<String, String> dict = new HashMap<>();
+    protected Map<String, String> dict = new HashMap<>();
 
     /**
      * Constructs a new parser given a File object.
      *
-     * @param configFile the File object of the config file.
+     * @param regex the regex string to be compiled
      */
-    public Parser(File configFile, String regex) {
-        regexPattern = Pattern.compile(regex);
-
-        this.dict = this.parse(configFile);
+    public Parser(String regex) {
+        this.regexPattern = Pattern.compile(regex);
     }
 
 
     /**
      * Performs the parsing and creates a dictionary consisting of all key-value pairs processed
-     * @param file the file to parse
+     *
+     * @param text the string to be parsed.
      * @return a dictionary consisting of all key-value pairs.
      */
-    private Map<String, String> parse(File file) {
-        Map<String, String> dict = new HashMap<>();
-        int lineCounter = 0;
+    public Map<String, String> parse(String text) {
+        Matcher m = regexPattern.matcher(text);
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Matcher m = regexPattern.matcher(line);
-
-                if (m.find()) {
-                    dict.put(m.group(1), m.group(2));
-                } else {
-                    System.err.printf(bad_line, lineCounter, line);
-                }
-
-                lineCounter++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (m.find()) {
+            dict.put(m.group(1), m.group(2));
         }
 
         return dict;
@@ -75,5 +58,9 @@ public class Parser {
     @Override
     public String toString() {
         return this.dict.toString();
+    }
+
+    public Map<String, String> getDictionary() {
+        return dict;
     }
 }

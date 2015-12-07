@@ -20,6 +20,7 @@ public class RunnableClient implements Runnable {
     /* Constants */
     private final static String closed_by_the_client = "Connection was forced closed by the client\n";
     private final static String empty_request = "The client request was empty\n";
+    private final static String connection_reset = "Thread-%d: Connection reset\n";
 
     // response constants
     private final static String CRLF = "\r\n";
@@ -33,10 +34,6 @@ public class RunnableClient implements Runnable {
 
     /* private fields */
     private final Socket socket;
-
-    enum RequestType {
-        GET, POST, TRACE, HEAD, Not_supported
-    }
 
     /**
      * Creates a Runnable wrapper for the given socket.
@@ -61,16 +58,23 @@ public class RunnableClient implements Runnable {
         String requestString = this.readRequest();
         System.out.println(requestString);
 
-        RequestType type = getRequestType(requestString);
+        Parser parser = new HTTPParser();
+        parser.parse(requestString);
 
-        switch (type) {
+        //TODO: after the parser dictionary is ready - change
+        HTTPRequest htreq = new HTTPRequest(parser.getDictionary());
+
+        switch (htreq.getMethod()) {
             case GET:
+                this.sendResponse("hello");
                 break;
             case POST:
                 break;
             case TRACE:
+                //TODO: echo the http request back to client
                 break;
             case HEAD:
+                //TODO: send only headers, not body
                 break;
             case Not_supported:
             default:
@@ -82,10 +86,10 @@ public class RunnableClient implements Runnable {
     }
 
     private void sendResponseBadRequest() {
-        sendResponse(CreateResponceHeaders(400, "Bad Request", new Date().toString(), 0, "text/html"));
+        sendResponse(CreateResponseHeaders(400, "Bad Request", new Date().toString(), 0, "text/html"));
     }
 
-    private void sendResponse(String response){
+    private void sendResponse(String response) {
         try {
             DataOutputStream outToClient = new DataOutputStream(this.socket.getOutputStream());
 
@@ -96,11 +100,13 @@ public class RunnableClient implements Runnable {
             outToClient.flush();
 
         } catch (IOException e) {
+            //TODO: implement
             e.printStackTrace();
         }
     }
 
-    private String CreateResponceHeaders(int statusCode, String statusCodeKeyword, String lastModified, int contentLength, String contentType) {
+    //TODO: implement a dictionary to contain all status codes and their corresponding keywords.
+    private String CreateResponseHeaders(int statusCode, String statusCodeKeyword, String lastModified, int contentLength, String contentType) {
 
         Date UtcNow = new Date();
         StringBuilder sb = new StringBuilder();
@@ -116,32 +122,23 @@ public class RunnableClient implements Runnable {
         return sb.toString();
     }
 
-    private RequestType getRequestType(String requestString) {
-        String[] lines = requestString.split(CRLF);
-        if (lines.length == 0) {
-            System.out.println(empty_request);
-            return RequestType.Not_supported;
-        }
-
-        String[] parameters = lines[0].split(" ");
-        if (parameters.length == 0) {
-            System.out.println(empty_request);
-            return RequestType.Not_supported;
-        }
-
-        RequestType result = searchEnum(parameters[0]);
-        if (result == null) return RequestType.Not_supported;
-        return result;
-    }
-
-    public static RequestType searchEnum(String search) {
-        for (RequestType each : RequestType.class.getEnumConstants()) {
-            if (each.name().compareToIgnoreCase(search) == 0) {
-                return each;
-            }
-        }
-        return null;
-    }
+//    private RequestType getRequestType(String requestString) {
+//        String[] lines = requestString.split(CRLF);
+//        if (lines.length == 0) {
+//            System.out.println(empty_request);
+//            return RequestType.Not_supported;
+//        }
+//
+//        String[] parameters = lines[0].split(" ");
+//        if (parameters.length == 0) {
+//            System.out.println(empty_request);
+//            return RequestType.Not_supported;
+//        }
+//
+//        RequestType result = searchEnum(parameters[0]);
+//        if (result == null) return RequestType.Not_supported;
+//        return result;
+//    }
 
     public String readRequest() {
         String requestLine = null;
@@ -159,7 +156,7 @@ public class RunnableClient implements Runnable {
 
         } catch (IOException e) {
             //TODO: implement
-            System.out.printf("Thread-%d: Connection reset\n", Thread.currentThread().getId());
+            System.out.printf(connection_reset, Thread.currentThread().getId());
         }
 
         return requestLine + sb.toString();
@@ -177,6 +174,5 @@ public class RunnableClient implements Runnable {
             }
 
         }
-
     }
 }

@@ -1,4 +1,8 @@
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
@@ -15,9 +19,11 @@ public class Configuration {
     private final String root;
     private final String defaultPage;
 
-    public Configuration (File configuration) {
+    public Configuration(File configuration) throws IOException {
         /* parse config */
-        Parser parser = new Parser(configuration, regex_string);
+        Parser parser = new Parser(regex_string);
+        String fileContents = new String(Files.readAllBytes(configuration.toPath()));
+        parser.parse(fileContents);
 
         this.port = Integer.parseInt(parser.getValue("port"));
         this.maxThreads = Integer.parseInt(parser.getValue("maxThreads"));

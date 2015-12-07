@@ -1,8 +1,5 @@
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Formatter;
-import java.util.Locale;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
@@ -27,7 +24,14 @@ public class Main {
         }
 
         @SuppressWarnings("unused")
-        Server server = new Server(new Configuration(configFile));
+        Server server = null;
+        try {
+            server = new Server(new Configuration(configFile));
+        } catch (IOException e) {
+            System.out.printf(fatal_error);
+            System.exit(-1);
+        }
+
         if (server.start())
             server.listen();
     }
