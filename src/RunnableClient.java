@@ -1,7 +1,12 @@
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.Formatter;
+import java.util.Locale;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
@@ -12,10 +17,26 @@ import java.net.Socket;
  * This class is a Runnable wrapper for the client socket, this way it can be processed by other threads.
  */
 public class RunnableClient implements Runnable {
+    /* Constants */
+    private final static String closed_by_the_client = "Connection was forced closed by the client\n";
+    private final static String empty_request = "The client request was empty\n";
+
+    // response constants
+    private final static String CRLF = "\r\n";
+    private final static String statusLine = "HTTP/1.1 %1d %2s" + CRLF + "Date: %3s" + CRLF;
+    private final static String generalHeaders = "Connection: close" + CRLF;
+    private final static String responseHeaders = "Server: ShekerServer/1.0" + CRLF;
+    private final static String entityHeaders = "Last-Modified: %1s" + CRLF +
+            "Content-Length: %2d" + CRLF +
+            "Content-Type: %3s" + CRLF;
+
 
     /* private fields */
     private final Socket socket;
-    private static final String CRLF = "\r\n";
+
+    enum RequestType {
+        GET, POST, TRACE, HEAD, Not_supported
+    }
 
     /**
      * Creates a Runnable wrapper for the given socket.
@@ -30,12 +51,96 @@ public class RunnableClient implements Runnable {
     public void run() {
         //TODO: implement client-request-response lifecycle
 
+        // The client closed the connection
+        if (socket == null || socket.isClosed()) {
+            System.out.println(closed_by_the_client);
+            return;
+        }
+
         /* read the request from client and print it */
         String requestString = this.readRequest();
         System.out.println(requestString);
 
+        RequestType type = getRequestType(requestString);
+
+        switch (type) {
+            case GET:
+                break;
+            case POST:
+                break;
+            case TRACE:
+                break;
+            case HEAD:
+                break;
+            case Not_supported:
+            default:
+                sendResponseBadRequest();
+                break;
+        }
 
         this.close();
+    }
+
+    private void sendResponseBadRequest() {
+        sendResponse(CreateResponceHeaders(400, "Bad Request", new Date().toString(), 0, "text/html"));
+    }
+
+    private void sendResponse(String response){
+        try {
+            DataOutputStream outToClient = new DataOutputStream(this.socket.getOutputStream());
+
+            // output server opening message
+            String s = response + CRLF;
+            byte[] b = s.getBytes(StandardCharsets.US_ASCII);
+            outToClient.write(b);
+            outToClient.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String CreateResponceHeaders(int statusCode, String statusCodeKeyword, String lastModified, int contentLength, String contentType) {
+
+        Date UtcNow = new Date();
+        StringBuilder sb = new StringBuilder();
+
+        // Send all output to the Appendable object sb
+        Formatter formatter = new Formatter(sb, Locale.US);
+        formatter.format(statusLine, statusCode, statusCodeKeyword, UtcNow.toString());
+        formatter.format(generalHeaders);
+        formatter.format(responseHeaders);
+        formatter.format(entityHeaders, lastModified, contentLength, contentType);
+
+
+        return sb.toString();
+    }
+
+    private RequestType getRequestType(String requestString) {
+        String[] lines = requestString.split(CRLF);
+        if (lines.length == 0) {
+            System.out.println(empty_request);
+            return RequestType.Not_supported;
+        }
+
+        String[] parameters = lines[0].split(" ");
+        if (parameters.length == 0) {
+            System.out.println(empty_request);
+            return RequestType.Not_supported;
+        }
+
+        RequestType result = searchEnum(parameters[0]);
+        if (result == null) return RequestType.Not_supported;
+        return result;
+    }
+
+    public static RequestType searchEnum(String search) {
+        for (RequestType each : RequestType.class.getEnumConstants()) {
+            if (each.name().compareToIgnoreCase(search) == 0) {
+                return each;
+            }
+        }
+        return null;
     }
 
     public String readRequest() {

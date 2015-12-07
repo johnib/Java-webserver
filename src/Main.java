@@ -1,5 +1,8 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
+import java.util.Formatter;
+import java.util.Locale;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
@@ -11,7 +14,6 @@ public class Main {
     private final static String fatal_error = "FATAL error, exiting\n";
 
     public static void main(String[] args) {
-
         File configFile = null;
         try {
             configFile = new File(new File(".").getCanonicalPath() + "/config.ini");
@@ -28,8 +30,5 @@ public class Main {
         Server server = new Server(new Configuration(configFile));
         if (server.start())
             server.listen();
-
-
     }
-
 }
