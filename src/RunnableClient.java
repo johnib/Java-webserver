@@ -1,5 +1,3 @@
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -122,19 +120,21 @@ public class RunnableClient implements Runnable {
     }
 
     private void sendTextFile(File file, HTTPRequest httpRequest, Configuration config) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     private void sendIconFile(File file, HTTPRequest httpRequest, Configuration config) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Not implemented yet");
+
     }
 
     private void sendGetImageFile(File file, HTTPRequest httpRequest, Configuration config) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Not implemented yet");
+
     }
 
     private void sendFileNotFound() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     private void sendTraceResponse(HTTPRequest httpRequest) {
