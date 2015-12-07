@@ -9,35 +9,39 @@ import java.util.regex.Pattern;
  */
 public class HTTPParser extends Parser {
     /* Constants */
-    private static final String default_method_regex = "(\\S+)\\s+([^?\\s]+)((?:[?&][^&\\s]+)*)\\s+HTTP\\/(.+)|(\\S+)\\:\\s+(.+)";
+    private static String default_http_regex = "(\\S+)\\s+([^?\\s]+)((?:[?&][^&\\s]+)*)\\s+HTTP\\/(.+)";
+    private static String default_header_regex = "(\\S+)\\:\\s+(.+)";
+    private Pattern regexHttp;
+
 
     private HTTPParser(String regex) {
         super(regex);
     }
 
     public HTTPParser () {
-        this(default_method_regex);
+        this(default_header_regex);
+        regexHttp = Pattern.compile(default_http_regex);
     }
 
     @Override
     public Map<String, String> parse(String text) {
-        Matcher m = super.regexPattern.matcher(text);
+        String firstLine = text.substring(0, text.indexOf(Common.CRLF));
+
+        Matcher matcher = regexHttp.matcher(firstLine);
         Map<String, String> dict = new HashMap<>();
 
-        if (m.find()) {
-            dict.put("METHOD", m.group(1));
-            dict.put("FILE_PATH", m.group(2));
-            dict.put("PARAMS", m.group(3));
-            dict.put("VERSION", m.group(4));
+        if (matcher.find()) {
+            dict.put("METHOD", matcher.group(1));
+            dict.put("FILE_PATH", matcher.group(2));
+            dict.put("PARAMS", matcher.group(3));
+            dict.put("VERSION", matcher.group(4));
         } else {
             //TODO: method line could not be processed
             System.out.printf("");
         }
 
-        while (m.find()) {
-            dict.put(m.group(5), m.group(6));
-        }
-
+        // Adding all the headers data
+        dict.putAll(super.parse(text));
         return dict;
     }
 }
