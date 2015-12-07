@@ -10,19 +10,16 @@ import java.net.Socket;
 public class Server {
 
     /* Constants */
-    private final static String parsed_config = "Parsed config file, got:\n%s\n";
-    private final static String regex_string = "(.+)=(.+)";
+
     private final static String server_error = "Error listening on: %s\nFor reason: %s\n Try a different port?\n";
     private final static String fatal_error = "FATAL error, exiting\n";
     private final static String init_success = "Server: instantiated successfully with configuration:\n%s\n";
     private final static String server_started = "Server: Started successfully\n";
     private final static String listen_fail = "Server cannot listen, not running\n";
-    private final ThreadPool pool;
+
     /* private fields */
-    private int port;
-    private int maxThreads;
-    private String root; // root directory
-    private String defaultPage;
+    private final ThreadPool pool;
+    private final Configuration config;
     private boolean serverRunning;
     private ServerSocket serverSocket;
 
@@ -31,21 +28,13 @@ public class Server {
      *
      * @param configuration the server configuration must consist of port, maxThreads, root, defaultPage keys.
      */
-    public Server(File configuration) {
-        /* parse config */
-        Parser parser = new Parser(configuration, regex_string);
-
-        this.port = Integer.parseInt(parser.getValue("port"));
-        this.maxThreads = Integer.parseInt(parser.getValue("maxThreads"));
-        this.root = parser.getValue("root");
-        this.defaultPage = parser.getValue("defaultPage");
-
-        System.out.printf(parsed_config, parser.toString());
+    public Server(Configuration configuration) {
+        this.config = configuration;
 
         /* create thread pool */
-        this.pool = new ThreadPool(maxThreads);
+        this.pool = new ThreadPool(config.getMaxThreads());
 
-        System.out.printf(init_success, parser.toString());
+        //System.out.printf(init_success, parser.toString());
     }
 
     /**
@@ -54,12 +43,12 @@ public class Server {
     public boolean start() {
         /* start server */
         try {
-            serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(config.getPort());
 
             serverRunning = true;
             System.out.printf(server_started);
         } catch (IOException e) {
-            System.err.printf(server_error, port, e.getCause());
+            System.err.printf(server_error, config.getPort(), e.getCause());
             e.printStackTrace();
 
             System.err.printf(fatal_error);
@@ -105,7 +94,7 @@ public class Server {
         try {
             serverSocket.close();
         } catch (IOException ignored) {
-
+            // Left empty
         }
 
         pool.terminate();

@@ -25,7 +25,7 @@ public class Main {
         }
 
         @SuppressWarnings("unused")
-        Server server = new Server(configFile);
+        Server server = new Server(new Configuration(configFile));
         if (server.start())
             server.listen();
 

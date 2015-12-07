@@ -54,6 +54,9 @@ public class ThreadPool {
 
         try {
             // non-blocking method, can't hold the server thread if queue is full
+            // This queue is non-blocking because the capacity is {@link Integer#MAX_VALUE},
+            // in case there are more then {@link Integer#MAX_VALUE} there is a need to drop the new
+            // connections.
             this.tasksQueue.add(task);
         } catch (IllegalStateException e) {
             System.err.printf(capacity_err, task.toString(), tasksQueue.size(), queue_size);
