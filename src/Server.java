@@ -75,7 +75,7 @@ public class Server {
             while (serverRunning) {
                 /* start listening */
                 Socket clientSocket = serverSocket.accept();
-                Runnable client = new RunnableClient(clientSocket);
+                Runnable client = new RunnableClient(clientSocket, config);
 
                 /* submit task */
                 pool.addTask(client);

@@ -31,10 +31,10 @@ public class HTTPParser extends Parser {
         Map<String, String> dict = new HashMap<>();
 
         if (matcher.find()) {
-            dict.put("METHOD", matcher.group(1));
-            dict.put("FILE_PATH", matcher.group(2));
-            dict.put("PARAMS", matcher.group(3));
-            dict.put("VERSION", matcher.group(4));
+            dict.put(Common.http_parser_method, matcher.group(1));
+            dict.put(Common.http_parser_path, matcher.group(2));
+            dict.put(Common.http_parser_params, matcher.group(3));
+            dict.put(Common.http_parser_version, matcher.group(4));
         } else {
             //TODO: method line could not be processed
             System.out.printf("");

@@ -10,8 +10,7 @@ import java.util.Map;
  */
 public class HTTPRequest {
     /* Constants */
-    private final static String connection_reset = "Thread-%d: Connection reset\n";
-    private final static String method = "METHOD";
+    private static String connection_reset = "Thread-%d: Connection reset\n";
 
     /* Static */
     private static Parser parser = new HTTPParser();
@@ -20,6 +19,7 @@ public class HTTPRequest {
     private Map<String, String> dict;
     private String fullRequest;
     private RequestType methodField = null;
+    private String path = null;
 
     public HTTPRequest(Socket socket) {
         fullRequest = readRequest(socket);
@@ -33,7 +33,7 @@ public class HTTPRequest {
         if (methodField != null) return methodField;
 
         // Checking if the method exist in the connection
-        String value = dict.get(method);
+        String value = dict.get(Common.http_parser_method);
         if (value == null || value.isEmpty()) {
             System.err.printf("Why null or empty?");
             methodField = RequestType.Bad_Request;
@@ -48,6 +48,14 @@ public class HTTPRequest {
         }
 
         return methodField;
+    }
+
+    public String getFullRequest() {
+        return fullRequest;
+    }
+
+    public String getPath() {
+        return this.dict.get(Common.http_parser_path);
     }
 
     /* Private methods */
@@ -86,10 +94,6 @@ public class HTTPRequest {
         }
 
         return null;
-    }
-
-    public String getFullRequest() {
-        return fullRequest;
     }
 }
 

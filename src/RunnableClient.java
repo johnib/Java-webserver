@@ -1,4 +1,7 @@
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -31,14 +34,17 @@ public class RunnableClient implements Runnable {
 
     /* private fields */
     private final Socket socket;
+    private Configuration config;
 
     /**
      * Creates a Runnable wrapper for the given socket.
      *
      * @param clientSocket the socket
+     * @param config The server configuration
      */
-    public RunnableClient(Socket clientSocket) {
+    public RunnableClient(Socket clientSocket, Configuration config) {
         this.socket = clientSocket;
+        this.config = config;
     }
 
     @Override
@@ -56,26 +62,79 @@ public class RunnableClient implements Runnable {
 
         switch (httpRequest.getMethod()) {
             case GET:
-                this.sendResponse("hello", new byte[0]);
+                this.sendGetResponse(httpRequest);
                 break;
             case POST:
                 break;
             case TRACE:
-                sendTraceResponse(httpRequest);
+                this.sendTraceResponse(httpRequest);
                 break;
             case HEAD:
                 //TODO: send only headers, not body
                 break;
             case Not_Implemented:
-                sendResponseNotImplemented();
+                this.sendResponseNotImplemented();
                 break;
             case Bad_Request:
             default:
-                sendResponseBadRequest();
+                this.sendResponseBadRequest();
                 break;
         }
 
         this.close();
+    }
+
+    private void sendGetResponse(HTTPRequest httpRequest) {
+        String path = httpRequest.getPath();
+        File file = new File(config.getRoot(), path);
+
+        // First, make sure the path exists
+        if (!file.exists()) {
+            // return File Not Found (Even if it's a directory)
+            sendFileNotFound();
+            return;
+        }
+
+        // If it is a directory take the default file
+        if (file.isDirectory()) {
+            file = new File(file.getAbsolutePath(), config.getDefaultPage());
+
+            // In case the default file was not present
+            if (!file.exists()) {
+                sendFileNotFound();
+                return;
+            }
+        }
+
+        // Check the file type
+        int extIndex = file.getName().lastIndexOf('.');
+        if (extIndex > 0) {
+            String ext = file.getName().substring(extIndex);
+            if (".bmp, .gif, .png, .jpg".contains(ext)) {
+                sendGetImageFile(file, httpRequest, config);
+            } else if (ext.endsWith(".ico")) {
+                sendIconFile(file, httpRequest, config);
+            }
+        }
+
+        // This is the default behavior
+        sendTextFile(file, httpRequest, config);
+    }
+
+    private void sendTextFile(File file, HTTPRequest httpRequest, Configuration config) {
+        throw new NotImplementedException();
+    }
+
+    private void sendIconFile(File file, HTTPRequest httpRequest, Configuration config) {
+        throw new NotImplementedException();
+    }
+
+    private void sendGetImageFile(File file, HTTPRequest httpRequest, Configuration config) {
+        throw new NotImplementedException();
+    }
+
+    private void sendFileNotFound() {
+        sendResponse(CreateResponseHeaders(404, new Date().toString(), 0, "text/html"), new byte[0]);
     }
 
     private void sendTraceResponse(HTTPRequest httpRequest) {
@@ -106,7 +165,7 @@ public class RunnableClient implements Runnable {
             byte[] headersBytes = responseHeaders.getBytes(StandardCharsets.US_ASCII);
             outToClient.write(headersBytes);
             outToClient.write(responseBody);
-            outToClient.write(Common.CRLFbyte);
+            outToClient.write(Common.CRLF_BYTES);
             outToClient.flush();
 
         } catch (IOException e) {
