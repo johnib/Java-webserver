@@ -134,7 +134,7 @@ public class RunnableClient implements Runnable {
     }
 
     private void sendFileNotFound() {
-        sendResponse(CreateResponseHeaders(404, new Date().toString(), 0, "text/html"), new byte[0]);
+        throw new NotImplementedException();
     }
 
     private void sendTraceResponse(HTTPRequest httpRequest) {
