@@ -1,7 +1,5 @@
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -20,13 +18,12 @@ public class RunnableClient implements Runnable {
     /* Constants */
     private final static String closed_by_the_client = "Connection was forced closed by the client\n";
     private final static String empty_request = "The client request was empty\n";
-    private final static String connection_reset = "Thread-%d: Connection reset\n";
 
     // response constants
-    private final static String CRLF = "\r\n";
+    private static final String CRLF = "\r\n";
     private final static String statusLine = "HTTP/1.1 %1d %2s" + CRLF + "Date: %3s" + CRLF;
     private final static String generalHeaders = "Connection: close" + CRLF;
-    private final static String responseHeaders = "Server: ShekerServer/1.0" + CRLF;
+    private final static String responseHeaders = "Server: ShekerKolshoServer/1.0" + CRLF;
     private final static String entityHeaders = "Last-Modified: %1s" + CRLF +
             "Content-Length: %2d" + CRLF +
             "Content-Type: %3s" + CRLF;
@@ -54,29 +51,25 @@ public class RunnableClient implements Runnable {
             return;
         }
 
-        /* read the request from client and print it */
-        String requestString = this.readRequest();
-        System.out.println(requestString);
-
-        Parser parser = new HTTPParser();
-        parser.parse(requestString);
-
         //TODO: after the parser dictionary is ready - change
-        HTTPRequest htreq = new HTTPRequest(parser.getDictionary());
+        HTTPRequest httpRequest = new HTTPRequest(this.socket);
 
-        switch (htreq.getMethod()) {
+        switch (httpRequest.getMethod()) {
             case GET:
-                this.sendResponse("hello");
+                this.sendResponse("hello", new byte[0]);
                 break;
             case POST:
                 break;
             case TRACE:
-                //TODO: echo the http request back to client
+                sendTraceResponse(httpRequest);
                 break;
             case HEAD:
                 //TODO: send only headers, not body
                 break;
-            case Not_supported:
+            case Not_Implemented:
+                sendResponseNotImplemented();
+                break;
+            case Bad_Request:
             default:
                 sendResponseBadRequest();
                 break;
@@ -85,18 +78,35 @@ public class RunnableClient implements Runnable {
         this.close();
     }
 
-    private void sendResponseBadRequest() {
-        sendResponse(CreateResponseHeaders(400, "Bad Request", new Date().toString(), 0, "text/html"));
+    private void sendTraceResponse(HTTPRequest httpRequest) {
+        String value = httpRequest.getFullRequest();
+
+        sendResponse(
+                CreateResponseHeaders(200, new Date().toString(), value.getBytes(StandardCharsets.US_ASCII).length, "message/http"),
+                value);
     }
 
-    private void sendResponse(String response) {
+    private void sendResponseNotImplemented() {
+        sendResponse(CreateResponseHeaders(501, new Date().toString(), 0, "text/html"), new byte[0]);
+    }
+
+    private void sendResponseBadRequest() {
+        sendResponse(CreateResponseHeaders(400, new Date().toString(), 0, "text/html"), new byte[0]);
+    }
+
+    private void sendResponse(String responseHeaders, String responseBody) {
+        sendResponse(responseHeaders, responseBody.getBytes(StandardCharsets.US_ASCII));
+    }
+
+    private void sendResponse(String responseHeaders, byte[] responseBody) {
         try {
             DataOutputStream outToClient = new DataOutputStream(this.socket.getOutputStream());
 
             // output server opening message
-            String s = response + CRLF;
-            byte[] b = s.getBytes(StandardCharsets.US_ASCII);
-            outToClient.write(b);
+            byte[] headersBytes = responseHeaders.getBytes(StandardCharsets.US_ASCII);
+            outToClient.write(headersBytes);
+            outToClient.write(responseBody);
+            outToClient.write(Common.CRLFbyte);
             outToClient.flush();
 
         } catch (IOException e) {
@@ -106,60 +116,20 @@ public class RunnableClient implements Runnable {
     }
 
     //TODO: implement a dictionary to contain all status codes and their corresponding keywords.
-    private String CreateResponseHeaders(int statusCode, String statusCodeKeyword, String lastModified, int contentLength, String contentType) {
+    private String CreateResponseHeaders(int statusCode, String lastModified, int contentLength, String contentType) {
 
         Date UtcNow = new Date();
         StringBuilder sb = new StringBuilder();
 
-        // Send all output to the Appendable object sb
+        // Send all output to the appendable object sb
         Formatter formatter = new Formatter(sb, Locale.US);
-        formatter.format(statusLine, statusCode, statusCodeKeyword, UtcNow.toString());
+        formatter.format(statusLine, statusCode, Common.getHttpStatusName(statusCode), UtcNow.toString());
         formatter.format(generalHeaders);
         formatter.format(responseHeaders);
         formatter.format(entityHeaders, lastModified, contentLength, contentType);
 
 
         return sb.toString();
-    }
-
-//    private RequestType getRequestType(String requestString) {
-//        String[] lines = requestString.split(CRLF);
-//        if (lines.length == 0) {
-//            System.out.println(empty_request);
-//            return RequestType.Not_supported;
-//        }
-//
-//        String[] parameters = lines[0].split(" ");
-//        if (parameters.length == 0) {
-//            System.out.println(empty_request);
-//            return RequestType.Not_supported;
-//        }
-//
-//        RequestType result = searchEnum(parameters[0]);
-//        if (result == null) return RequestType.Not_supported;
-//        return result;
-//    }
-
-    public String readRequest() {
-        String requestLine = null;
-        StringBuilder sb = new StringBuilder("");
-
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            requestLine = reader.readLine() + CRLF;
-
-            String header;
-            while (!(header = reader.readLine()).isEmpty()) {
-                sb.append(header);
-                sb.append(CRLF);
-            }
-
-        } catch (IOException e) {
-            //TODO: implement
-            System.out.printf(connection_reset, Thread.currentThread().getId());
-        }
-
-        return requestLine + sb.toString();
     }
 
     /**

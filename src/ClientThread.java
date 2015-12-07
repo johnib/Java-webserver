@@ -47,7 +47,7 @@ public class ClientThread extends Thread {
             System.out.printf(intrpt_msg, Thread.currentThread().getId());
         } catch (Exception e) {
             //TODO: consider a mechanism for reinstantiating new thread in case of lost ones.
-
+            e.printStackTrace();
         }
     }
 }

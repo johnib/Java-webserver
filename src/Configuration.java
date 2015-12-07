@@ -3,6 +3,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
@@ -23,12 +25,12 @@ public class Configuration {
         /* parse config */
         Parser parser = new Parser(regex_string);
         String fileContents = new String(Files.readAllBytes(configuration.toPath()));
-        parser.parse(fileContents);
+        Map<String, String> dict = parser.parse(fileContents);
 
-        this.port = Integer.parseInt(parser.getValue("port"));
-        this.maxThreads = Integer.parseInt(parser.getValue("maxThreads"));
-        this.root = parser.getValue("root");
-        this.defaultPage = parser.getValue("defaultPage");
+        this.port = Integer.parseInt(dict.get("port"));
+        this.maxThreads = Integer.parseInt(dict.get("maxThreads"));
+        this.root = dict.get("root");
+        this.defaultPage = dict.get("defaultPage");
 
         System.out.printf(parsed_config, parser.toString());
     }
