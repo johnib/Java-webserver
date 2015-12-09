@@ -3,9 +3,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.Formatter;
-import java.util.Locale;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
@@ -21,18 +18,17 @@ public class RunnableClient implements Runnable {
     private final static String empty_request = "The client request was empty\n";
 
     // response constants
-    private static final String CRLF = "\r\n";
-    private final static String statusLine = "HTTP/1.1 %1d %2s" + CRLF + "Date: %3s" + CRLF;
-    private final static String generalHeaders = "Connection: close" + CRLF;
-    private final static String responseHeaders = "Server: ShekerKolshoServer/1.0" + CRLF;
-    private final static String entityHeaders = "Last-Modified: %1s" + CRLF +
-            "Content-Length: %2d" + CRLF +
-            "Content-Type: %3s" + CRLF;
+    private static final String CRLF = Common.CRLF;
+
+
+
 
 
     /* private fields */
     private final Socket socket;
     private Configuration config;
+    private HTTPRequest httpRequest;
+    private boolean isErrorOccurred = false;
 
     /**
      * Creates a Runnable wrapper for the given socket.
@@ -55,20 +51,22 @@ public class RunnableClient implements Runnable {
             return;
         }
 
-        //TODO: after the parser dictionary is ready - change
-        HTTPRequest httpRequest = new HTTPRequest(this.socket);
+        this.httpRequest = new HTTPRequest(this.socket);
 
         switch (httpRequest.getMethod()) {
             case GET:
-                this.sendGetResponse(httpRequest);
+                this.sendGetResponse();
                 break;
             case POST:
                 break;
             case TRACE:
-                this.sendTraceResponse(httpRequest);
+                this.sendTraceResponse();
                 break;
             case HEAD:
                 //TODO: send only headers, not body
+                this.sendHead();
+                break;
+            case OPTIONS:
                 break;
             case Not_Implemented:
                 this.sendResponseNotImplemented();
@@ -82,15 +80,27 @@ public class RunnableClient implements Runnable {
         this.close();
     }
 
-    private void sendGetResponse(HTTPRequest httpRequest) {
+    private void sendHead() {
+        sendResponse(parseGetResponse(this.httpRequest).getHerders());
+    }
+
+    private void sendGetResponse() {
+        HttpResponse response = parseGetResponse(httpRequest);
+        sendResponse(response);
+    }
+
+    private HttpResponse parseGetResponse(HTTPRequest httpRequest) {
         String path = httpRequest.getPath();
-        File file = new File(config.getRoot(), path);
+        File file = new File(config.getRoot(httpRequest), path);
+
+        if (isPathTraversalAttack(file, httpRequest, config)) {
+            return getResponseBadRequest();
+        }
 
         // First, make sure the path exists
         if (!file.exists()) {
             // return File Not Found (Even if it's a directory)
-            sendFileNotFound();
-            return;
+            return getResponseFileNotFound();
         }
 
         // If it is a directory take the default file
@@ -99,8 +109,7 @@ public class RunnableClient implements Runnable {
 
             // In case the default file was not present
             if (!file.exists()) {
-                sendFileNotFound();
-                return;
+                return getResponseFileNotFound();
             }
         }
 
@@ -109,86 +118,120 @@ public class RunnableClient implements Runnable {
         if (extIndex > 0) {
             String ext = file.getName().substring(extIndex);
             if (".bmp, .gif, .png, .jpg".contains(ext)) {
-                sendGetImageFile(file, httpRequest, config);
+                return getResponseImageFile(file);
             } else if (ext.endsWith(".ico")) {
-                sendIconFile(file, httpRequest, config);
+                return getResponseIconFile(file);
+            } else if (".html, .htm, .php, .js".contains(ext)) {
+                return getResponseTextFile(file);
             }
         }
 
         // This is the default behavior
-        sendTextFile(file, httpRequest, config);
+        return getResponseGeneralFile(file);
     }
 
-    private void sendTextFile(File file, HTTPRequest httpRequest, Configuration config) {
+    private boolean isPathTraversalAttack(File file, HTTPRequest httpRequest, Configuration config) {
+        try {
+            // Get the default path of the web site
+            String root = config.getRootAbsolutePath(httpRequest);
+
+            // Returns true if the file path is not in the right subdirectory
+            return !file.getCanonicalPath().startsWith(root);
+        } catch (IOException e) {
+            System.out.println("Error in isPathTraversalAttack");
+        }
+
+        // Security error or IOError
+        return true;
+    }
+
+    private HttpResponse getResponseGeneralFile(File file) {
+        return getResponseFile(file, "application/octet-stream");
+    }
+
+    private HttpResponse getResponseTextFile(File file) {
+        return getResponseFile(file, "text/html");
+    }
+
+    private HttpResponse getResponseIconFile(File file) {
+        return getResponseFile(file, "icon");
+    }
+
+    private HttpResponse getResponseImageFile(File file) {
+        return getResponseFile(file, "image");
+    }
+
+    private HttpResponse getResponseFile(File file, String contentType) {
+        return new HttpResponse(file, 200, contentType, this.httpRequest, this.config);
+    }
+
+    private void sendInternalServerError() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    private void sendIconFile(File file, HTTPRequest httpRequest, Configuration config) {
-        throw new UnsupportedOperationException("Not implemented yet");
-
-    }
-
-    private void sendGetImageFile(File file, HTTPRequest httpRequest, Configuration config) {
-        throw new UnsupportedOperationException("Not implemented yet");
-
-    }
 
     private void sendFileNotFound() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        sendResponse(getResponseFileNotFound());
     }
 
-    private void sendTraceResponse(HTTPRequest httpRequest) {
-        String value = httpRequest.getFullRequest();
+    private HttpResponse getResponseFileNotFound() {
+        return new HttpResponse((File)null, 404, "text/html", httpRequest, config);
+    }
 
-        sendResponse(
-                CreateResponseHeaders(200, new Date().toString(), value.getBytes(StandardCharsets.US_ASCII).length, "message/http"),
-                value);
+
+    private void sendTraceResponse() {
+        String value = httpRequest.getFullRequest();
+        sendResponse(getResponseTrace(value));
+    }
+
+    private HttpResponse getResponseTrace(String value) {
+        return new HttpResponse(value.getBytes(StandardCharsets.US_ASCII), 200, "message/http", httpRequest, config);
     }
 
     private void sendResponseNotImplemented() {
-        sendResponse(CreateResponseHeaders(501, new Date().toString(), 0, "text/html"), new byte[0]);
+        sendResponse(getResponseNotImplemented());
+    }
+
+    private HttpResponse getResponseNotImplemented() {
+        return new HttpResponse((File)null, 501, null, httpRequest, config);
     }
 
     private void sendResponseBadRequest() {
-        sendResponse(CreateResponseHeaders(400, new Date().toString(), 0, "text/html"), new byte[0]);
+        sendResponse(getResponseBadRequest());
     }
 
-    private void sendResponse(String responseHeaders, String responseBody) {
-        sendResponse(responseHeaders, responseBody.getBytes(StandardCharsets.US_ASCII));
+    public HttpResponse getResponseBadRequest() {
+        return new HttpResponse((File)null, 400, "text/html", httpRequest, config);
     }
 
-    private void sendResponse(String responseHeaders, byte[] responseBody) {
+    private void sendResponse(HttpResponse response) {
         try {
+            sendResponse(response.CreateResponse());
+        } catch (IOException e) {
+            if (!isErrorOccurred) {
+                isErrorOccurred = true;
+                sendInternalServerError();
+            }
+        }
+    }
+        private void sendResponse(byte[] response) {
+        try {
+            if (this.socket == null || this.socket.isClosed()) return;
             DataOutputStream outToClient = new DataOutputStream(this.socket.getOutputStream());
 
             // output server opening message
-            byte[] headersBytes = responseHeaders.getBytes(StandardCharsets.US_ASCII);
-            outToClient.write(headersBytes);
-            outToClient.write(responseBody);
-            outToClient.write(Common.CRLF_BYTES);
+            outToClient.write(response);
             outToClient.flush();
+            outToClient.close();
+
+            System.out.println("--Response--");
+            System.out.println(new String(response, StandardCharsets.US_ASCII));
+            System.out.println();
 
         } catch (IOException e) {
             //TODO: implement
             e.printStackTrace();
         }
-    }
-
-    //TODO: implement a dictionary to contain all status codes and their corresponding keywords.
-    private String CreateResponseHeaders(int statusCode, String lastModified, int contentLength, String contentType) {
-
-        Date UtcNow = new Date();
-        StringBuilder sb = new StringBuilder();
-
-        // Send all output to the appendable object sb
-        Formatter formatter = new Formatter(sb, Locale.US);
-        formatter.format(statusLine, statusCode, Common.getHttpStatusName(statusCode), UtcNow.toString());
-        formatter.format(generalHeaders);
-        formatter.format(responseHeaders);
-        formatter.format(entityHeaders, lastModified, contentLength, contentType);
-
-
-        return sb.toString();
     }
 
     /**
@@ -197,6 +240,7 @@ public class RunnableClient implements Runnable {
     public void close() {
         if (!socket.isClosed()) {
             try {
+                System.out.println("Closing socket");
                 socket.close();
             } catch (IOException e) {
                 //TODO: implement

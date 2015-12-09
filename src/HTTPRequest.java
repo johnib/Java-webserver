@@ -23,6 +23,7 @@ public class HTTPRequest {
 
     public HTTPRequest(Socket socket) {
         fullRequest = readRequest(socket);
+        System.out.println("--Request--");
         System.out.println(fullRequest);
         dict = parser.parse(fullRequest);
     }
@@ -68,7 +69,7 @@ public class HTTPRequest {
             requestLine = reader.readLine() + Common.CRLF;
 
             String header;
-            while (!(header = reader.readLine()).isEmpty()) {
+            while (reader != null && !(header = reader.readLine()).isEmpty()) {
                 sb.append(header);
                 sb.append(Common.CRLF);
             }
@@ -94,6 +95,10 @@ public class HTTPRequest {
         }
 
         return null;
+    }
+
+    public String getHost() {
+        return this.dict.get(Common.http_parser_host);
     }
 }
 

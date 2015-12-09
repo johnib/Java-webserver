@@ -20,6 +20,7 @@ public class Configuration {
     private final int maxThreads;
     private final String root;
     private final String defaultPage;
+    private String rootAbsolutePath = null;
 
     public Configuration(File configuration) throws IOException {
         /* parse config */
@@ -43,11 +44,31 @@ public class Configuration {
         return maxThreads;
     }
 
-    public String getRoot() {
-        return root;
+    public String getRoot(HTTPRequest httpRequest) {
+        String hostName = httpRequest.getHost();
+
+        Configuration hostConfig = this.getHostConfiguration(hostName);
+        
+        return hostConfig.root;
     }
 
     public String getDefaultPage() {
         return defaultPage;
+    }
+
+    /* TODO: change this when we do the bonus multi host names */
+    public Configuration getHostConfiguration(String hostName) {
+        return this;
+    }
+
+    public String getRootAbsolutePath(HTTPRequest httpRequest) throws IOException {
+        if (rootAbsolutePath != null) return rootAbsolutePath;
+
+        // Getting the system absolute path.
+        Configuration config = getHostConfiguration(httpRequest.getHost());
+        File file = new File(config.getRoot(httpRequest));
+        rootAbsolutePath = file.getCanonicalFile().getAbsolutePath();
+
+        return rootAbsolutePath;
     }
 }

@@ -30,10 +30,10 @@ public class ClientThread extends Thread {
     public void run() {
         System.out.printf(started_msg, Thread.currentThread().getId());
 
-        try {
-            while (true) {
+        while (true) {
+            try {
                 // get the next task and handle it
-//                System.out.printf(task_pop, Thread.currentThread().getId());
+                // System.out.printf(task_pop, Thread.currentThread().getId());
                 Runnable task = queue.take();
 
                 System.out.printf(task_picked, Thread.currentThread().getId());
@@ -42,12 +42,13 @@ public class ClientThread extends Thread {
                 handledTasksCount++;
 
                 System.out.printf(task_finished, Thread.currentThread().getId());
+            } catch (InterruptedException e) {
+                System.out.printf(intrpt_msg, Thread.currentThread().getId());
+            } catch (Exception e) {
+                //TODO: consider a mechanism for reinstantiating new thread in case of lost ones.
+                e.printStackTrace();
             }
-        } catch (InterruptedException e) {
-            System.out.printf(intrpt_msg, Thread.currentThread().getId());
-        } catch (Exception e) {
-            //TODO: consider a mechanism for reinstantiating new thread in case of lost ones.
-            e.printStackTrace();
         }
+
     }
 }

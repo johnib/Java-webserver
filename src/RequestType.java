@@ -1,3 +1,3 @@
 public enum RequestType {
-    GET, POST, TRACE, HEAD, Not_Implemented, Bad_Request
+    GET, POST, TRACE, HEAD, OPTIONS, Not_Implemented, Bad_Request
 }

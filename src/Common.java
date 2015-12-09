@@ -1,4 +1,5 @@
-import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/7/2015.
@@ -17,13 +18,27 @@ public class Common {
 
     public static final String CRLF = "\r\n";
     public static final byte[] CRLF_BYTES =  new byte[]{0x0d, 0x0a};
+    public static final byte[] END_COMMUNICATION_BYTES = new byte[] {0x00, 0x00};
     public static final String http_parser_method = "METHOD";
     public static final String http_parser_path = "FILE_PATH";
     public static final String http_parser_params = "PARAMS";
     public static final String http_parser_version = "VERSION";
+    public static final String http_parser_host = "HOST";
 
 
     public static String getHttpStatusName(int statusCode) {
         return httpStatuses.get(statusCode);
+    }
+
+    public static String ConvertLongToTimeString(long lastModified) {
+
+        return toISO2616DateFormat(new Date(lastModified));
+    }
+
+    public static String toISO2616DateFormat(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return dateFormat.format(date);
     }
 }
