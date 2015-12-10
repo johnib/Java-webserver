@@ -62,13 +62,13 @@ public class Configuration {
     }
 
     public String getRootAbsolutePath(HTTPRequest httpRequest) throws IOException {
-        if (rootAbsolutePath != null) return rootAbsolutePath;
+        if (this.rootAbsolutePath != null) return this.rootAbsolutePath;
 
         // Getting the system absolute path.
         Configuration config = getHostConfiguration(httpRequest.getHost());
         File file = new File(config.getRoot(httpRequest));
-        rootAbsolutePath = file.getCanonicalFile().getAbsolutePath();
+        this.rootAbsolutePath = file.getCanonicalFile().getAbsolutePath();
 
-        return rootAbsolutePath;
+        return this.rootAbsolutePath;
     }
 }

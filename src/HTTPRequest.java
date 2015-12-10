@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class HTTPRequest {
     /* Constants */
-    private static String connection_reset = "Thread-%d: Connection reset\n";
+    private final static String connection_reset = "Thread-%d: Connection reset\n";
 
     /* Static */
     private static Parser parser = new HTTPParser();
