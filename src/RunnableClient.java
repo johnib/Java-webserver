@@ -78,7 +78,7 @@ public class RunnableClient implements Runnable {
     }
 
     private void sendHead() {
-        sendResponse(parseGetResponse(this.httpRequest).getHerders());
+        sendResponse(parseGetResponse(this.httpRequest).getHeaders());
     }
 
     private void sendGetResponse() {
