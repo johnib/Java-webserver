@@ -21,9 +21,6 @@ public class RunnableClient implements Runnable {
     private static final String CRLF = Common.CRLF;
 
 
-
-
-
     /* private fields */
     private final Socket socket;
     private Configuration config;
@@ -175,7 +172,7 @@ public class RunnableClient implements Runnable {
     }
 
     private HttpResponse getResponseFileNotFound() {
-        return new HttpResponse((File)null, 404, "text/html", httpRequest, config);
+        return new HttpResponse((File) null, 404, "text/html", httpRequest, config);
     }
 
 
@@ -193,7 +190,7 @@ public class RunnableClient implements Runnable {
     }
 
     private HttpResponse getResponseNotImplemented() {
-        return new HttpResponse((File)null, 501, null, httpRequest, config);
+        return new HttpResponse((File) null, 501, null, httpRequest, config);
     }
 
     private void sendResponseBadRequest() {
@@ -201,7 +198,7 @@ public class RunnableClient implements Runnable {
     }
 
     public HttpResponse getResponseBadRequest() {
-        return new HttpResponse((File)null, 400, "text/html", httpRequest, config);
+        return new HttpResponse((File) null, 400, "text/html", httpRequest, config);
     }
 
     private void sendResponse(HttpResponse response) {
@@ -214,7 +211,8 @@ public class RunnableClient implements Runnable {
             }
         }
     }
-        private void sendResponse(byte[] response) {
+
+    private void sendResponse(byte[] response) {
         try {
             if (this.socket == null || this.socket.isClosed()) return;
             DataOutputStream outToClient = new DataOutputStream(this.socket.getOutputStream());

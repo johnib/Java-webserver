@@ -12,11 +12,11 @@ import java.util.Locale;
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 public class HttpResponse {
-    /**/
+    /* Constants */
     private final static String CRLF = Common.CRLF;
     private final static String statusLine = "HTTP/1.1 %1d %2s" + CRLF + "Date: %3s" + CRLF;
     private final static String generalHeaders = "Connection: close" + CRLF;
-    private final static String responseHeaders = "Server: ShekerKolshoServer/1.0" + CRLF;
+    private final static String responseHeaders = "Server: CoolServer/1.0" + CRLF;
     private final static String entityHeadersNoContent = "Content-Length: 0" + CRLF;
     private final static String entityHeaders = "Last-Modified: %1s" + CRLF +
             "Content-Type: %2s" + CRLF +
@@ -27,7 +27,6 @@ public class HttpResponse {
     private final static String badRequestFile = "BadRequest.html";
 
 
-    /**/
     private File file;
     private int statusCode;
     private String lastModified = null;
@@ -35,15 +34,15 @@ public class HttpResponse {
     private final HTTPRequest request;
     private byte[] body = null;
 
-    public HttpResponse(File file, int statusCode, String contentType, HTTPRequest request, Configuration config){
+    public HttpResponse(File file, int statusCode, String contentType, HTTPRequest request, Configuration config) {
 
         this.file = file;
         this.statusCode = statusCode;
         this.contentType = contentType;
         this.request = request;
 
-        if (file == null){
-            switch (this.statusCode){
+        if (file == null) {
+            switch (this.statusCode) {
                 case 404:
                     this.file = new File(config.getRoot(request), fileNotFoundFile);
                     break;
@@ -54,7 +53,7 @@ public class HttpResponse {
     }
 
     public HttpResponse(byte[] body, int statusCode, String contentType, HTTPRequest request, Configuration config) {
-        this((File)null, statusCode, contentType, request, config);
+        this((File) null, statusCode, contentType, request, config);
         this.body = body;
     }
 
@@ -122,13 +121,14 @@ public class HttpResponse {
         if (this.body == null) body = Files.readAllBytes(file.toPath());
         else body = this.body;
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(headers);
         outputStream.write(Common.CRLF_BYTES);
         outputStream.write(body);
 
         return outputStream.toByteArray();
     }
+
 
 
     private String CreateResponseHeaders() {
@@ -142,13 +142,16 @@ public class HttpResponse {
         formatter.format(generalHeaders);
         formatter.format(responseHeaders);
 
-        if (getContentLength() > 0) formatter.format(entityHeaders, getLastModified(), getContentType(), getContentLength());
-        else formatter.format(entityHeadersNoContent);
+        if (getContentLength() > 0) {
+            formatter.format(entityHeaders, getLastModified(), getContentType(), getContentLength());
+        } else {
+            formatter.format(entityHeadersNoContent);
+        }
 
         return sb.toString();
     }
 
-    public byte[] getHerders() {
-        return CreateResponseHeaders().getBytes(StandardCharsets.US_ASCII);
+    public byte[] getHeaders() {
+        return this.CreateResponseHeaders().getBytes(StandardCharsets.US_ASCII);
     }
 }
