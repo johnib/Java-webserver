@@ -11,7 +11,7 @@ public class ClientThread extends Thread {
     private static final String started_msg = "Thread-%d started\n";
     private static final String task_picked = "Thread-%d picked a task\n";
     private static final String task_finished = "Thread-%d finished running task\n";
-//    private static final String task_pop = "Thread-%d popping task\n";
+    //    private static final String task_pop = "Thread-%d popping task\n";
     public int handledTasksCount = 0;
     // the tasks queue
     private LinkedBlockingQueue<Runnable> queue;
@@ -30,8 +30,8 @@ public class ClientThread extends Thread {
     public void run() {
         System.out.printf(started_msg, Thread.currentThread().getId());
 
-        while (true) {
-            try {
+        try {
+            while (true) {
                 // get the next task and handle it
                 // System.out.printf(task_pop, Thread.currentThread().getId());
                 Runnable task = queue.take();
@@ -42,12 +42,12 @@ public class ClientThread extends Thread {
                 handledTasksCount++;
 
                 System.out.printf(task_finished, Thread.currentThread().getId());
-            } catch (InterruptedException e) {
-                System.out.printf(intrpt_msg, Thread.currentThread().getId());
-            } catch (Exception e) {
-                //TODO: consider a mechanism for reinstantiating new thread in case of lost ones.
-                e.printStackTrace();
             }
+        } catch (InterruptedException e) {
+            System.out.printf(intrpt_msg, Thread.currentThread().getId());
+        } catch (Exception e) {
+            //TODO: consider a mechanism for reinstantiating new thread in case of lost ones.
+            e.printStackTrace();
         }
 
     }
