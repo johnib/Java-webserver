@@ -34,15 +34,16 @@ public class HTTPRequest {
         if (methodField != null) return methodField;
 
         // Checking if the method exist in the connection
-        String value = dict.get(Common.http_parser_method);
-        if (value == null || value.isEmpty()) {
+        String httpMethod = dict.get(Common.http_parser_method);
+        if (httpMethod == null || httpMethod.isEmpty()) {
+            //TODO: format strings
             System.err.printf("Why null or empty?");
             methodField = RequestType.Bad_Request;
             return methodField;
         }
 
         // Trying to parse the method
-        RequestType result = searchEnum(value);
+        RequestType result = searchEnum(httpMethod);
         methodField = result;
         if (result == null) {
             methodField = RequestType.Not_Implemented;
@@ -69,7 +70,7 @@ public class HTTPRequest {
             requestLine = reader.readLine() + Common.CRLF;
 
             String header;
-            while (reader != null && !(header = reader.readLine()).isEmpty()) {
+            while (!(header = reader.readLine()).isEmpty()) {
                 sb.append(header);
                 sb.append(Common.CRLF);
             }

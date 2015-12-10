@@ -1,9 +1,7 @@
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -22,6 +20,12 @@ public class Configuration {
     private final String defaultPage;
     private String rootAbsolutePath = null;
 
+    /**
+     * Creates a configuration object with all the details regarding the server settings.
+     *
+     * @param configuration the configuration file.
+     * @throws IOException when file cannot be accessed for some reason.
+     */
     public Configuration(File configuration) throws IOException {
         /* parse config */
         Parser parser = new Parser(regex_string);
@@ -30,12 +34,13 @@ public class Configuration {
 
         this.port = Integer.parseInt(dict.get("port"));
         this.maxThreads = Integer.parseInt(dict.get("maxThreads"));
-        this.root = dict.get("root");
+        this.root = Paths.get(".", "/").toAbsolutePath().normalize().toString() + File.separator + dict.get("root");
         this.defaultPage = dict.get("defaultPage");
 
         System.out.printf(parsed_config, parser.toString());
     }
 
+    /* getters */
     public int getPort() {
         return port;
     }
@@ -48,7 +53,7 @@ public class Configuration {
         String hostName = httpRequest.getHost();
 
         Configuration hostConfig = this.getHostConfiguration(hostName);
-        
+
         return hostConfig.root;
     }
 

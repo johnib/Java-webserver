@@ -18,8 +18,8 @@ public class RunnableClient implements Runnable {
     private final static String empty_request = "The client request was empty\n";
 
     // response constants
-    private static final String CRLF = Common.CRLF;
 
+    private static final String CRLF = Common.CRLF;
 
     /* private fields */
     private final Socket socket;
@@ -52,18 +52,22 @@ public class RunnableClient implements Runnable {
 
         switch (httpRequest.getMethod()) {
             case GET:
+                //TODO: implemented without support for parameters.
                 this.sendGetResponse();
                 break;
             case POST:
                 break;
             case TRACE:
+                //TODO: test
                 this.sendTraceResponse();
                 break;
             case HEAD:
                 //TODO: send only headers, not body
+                //TODO: test
                 this.sendHead();
                 break;
             case OPTIONS:
+                //TODO: implement
                 break;
             case Not_Implemented:
                 this.sendResponseNotImplemented();
@@ -90,6 +94,7 @@ public class RunnableClient implements Runnable {
         String path = httpRequest.getPath();
         File file = new File(config.getRoot(httpRequest), path);
 
+        // keep the path secured under the wwwroot/ folder
         if (isPathTraversalAttack(file, httpRequest, config)) {
             return getResponseBadRequest();
         }
@@ -135,7 +140,7 @@ public class RunnableClient implements Runnable {
             // Returns true if the file path is not in the right subdirectory
             return !file.getCanonicalPath().startsWith(root);
         } catch (IOException e) {
-            System.out.println("Error in isPathTraversalAttack");
+            System.err.println("Error in isPathTraversalAttack");
         }
 
         // Security error or IOError
@@ -207,6 +212,9 @@ public class RunnableClient implements Runnable {
         } catch (IOException e) {
             if (!isErrorOccurred) {
                 isErrorOccurred = true;
+                //TODO: this should change the response code to 503 (internal error)
+                //TODO: and send another html file for this error.
+                //TODO: and continue the process as if nothing happened.
                 sendInternalServerError();
             }
         }
