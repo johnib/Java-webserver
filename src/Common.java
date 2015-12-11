@@ -18,12 +18,13 @@ public class Common {
 
     public static final String CRLF = "\r\n";
     public static final byte[] CRLF_BYTES =  new byte[]{0x0d, 0x0a};
-    public static final byte[] END_COMMUNICATION_BYTES = new byte[] {0x00, 0x00};
+//    public static final byte[] END_COMMUNICATION_BYTES = new byte[] {0x00, 0x00};
     public static final String http_parser_method = "METHOD";
     public static final String http_parser_path = "FILE_PATH";
     public static final String http_parser_params = "PARAMS";
     public static final String http_parser_version = "VERSION";
     public static final String http_parser_host = "HOST";
+//    public static final String http_parser_contentLength = "Content-Length";
 
 
     public static String getHttpStatusName(int statusCode) {

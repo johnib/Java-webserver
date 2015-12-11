@@ -9,9 +9,11 @@ import java.util.regex.Pattern;
  */
 public class HTTPParser extends Parser {
     /* Constants */
-    private static String default_http_regex = "(\\S+)\\s+([^?\\s]+)((?:[?&][^&\\s]+)*)\\s+HTTP\\/(.+)";
-    private static String default_header_regex = "(\\S+)\\:\\s+(.+)";
+    private final static String default_http_regex = "(\\S+)\\s+([^?\\s]+)((?:[?&][^&\\s]+)*)\\s+HTTP\\/(.+)";
+    private final static String default_header_regex = "(\\S+)\\:\\s+(.+)";
+    private final static String default_payload_regex = "(([[:alnum:]]+)=([[:alnum:]]))";
     private Pattern regexHttp;
+    private Pattern regexPayload;
 
 
     private HTTPParser(String regex) {
@@ -20,7 +22,8 @@ public class HTTPParser extends Parser {
 
     public HTTPParser () {
         this(default_header_regex);
-        regexHttp = Pattern.compile(default_http_regex);
+        this.regexHttp = Pattern.compile(default_http_regex);
+        this.regexPayload = Pattern.compile(default_payload_regex);
     }
 
     @Override
@@ -37,11 +40,18 @@ public class HTTPParser extends Parser {
             dict.put(Common.http_parser_version, matcher.group(4));
         } else {
             //TODO: method line could not be processed
-            System.out.printf("");
+            System.err.printf("Method line could not be processed.\n");
         }
 
         // Adding all the headers data
         dict.putAll(super.parse(text));
+
+        // override url parameters if payload exists
+        String[] payloadPart = text.split(Common.CRLF + Common.CRLF);
+        if (payloadPart.length > 1) {
+            dict.put(Common.http_parser_params, payloadPart[1]);
+        }
+
         return dict;
     }
 }

@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.Map;
 
@@ -22,10 +23,17 @@ public class HTTPRequest {
     private String path = null;
 
     public HTTPRequest(Socket socket) {
-        fullRequest = readRequest(socket);
+        try {
+            fullRequest = java.net.URLDecoder.decode(readRequest(socket), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            //TODO: basically there's nothing to do, this can't happen as the Encoding type is hardcoded.
+            e.printStackTrace();
+        }
+
+        this.dict = parser.parse(this.fullRequest);
+
         System.out.println("--Request--");
         System.out.println(fullRequest);
-        dict = parser.parse(fullRequest);
     }
 
     /* Public methods */
@@ -69,10 +77,21 @@ public class HTTPRequest {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             requestLine = reader.readLine() + Common.CRLF;
 
+            int payloadLength = 0;
             String header;
             while (!(header = reader.readLine()).isEmpty()) {
-                sb.append(header);
-                sb.append(Common.CRLF);
+                sb.append(header).append(Common.CRLF);
+
+                // check if there's a content-length
+                if (header.matches("[Cc]ontent-[Ll]ength: (\\d+)")) {
+                    payloadLength = Integer.parseInt(header.split(": ")[1]);
+                }
+            }
+
+            if (payloadLength > 0) {
+                char[] content = new char[payloadLength];
+                reader.read(content, 0, payloadLength);
+                sb.append(Common.CRLF).append(new String(content));
             }
 
         } catch (IOException e) {
