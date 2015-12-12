@@ -26,7 +26,6 @@ public class Common {
             put(501, "Not Implemented");
         }
     };
-//    public static final String http_parser_contentLength = "Content-Length";
 
     public static String getHttpStatusName(int statusCode) {
         return httpStatuses.get(statusCode);

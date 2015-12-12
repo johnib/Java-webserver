@@ -11,7 +11,6 @@ public class ClientThread extends Thread {
     private static final String started_msg = "Thread-%d started\n";
     private static final String task_picked = "Thread-%d picked a task\n";
     private static final String task_finished = "Thread-%d finished running task\n";
-    //    private static final String task_pop = "Thread-%d popping task\n";
     public int handledTasksCount = 0;
     // the tasks queue
     private LinkedBlockingQueue<Runnable> queue;

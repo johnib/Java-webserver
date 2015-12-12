@@ -69,22 +69,6 @@ public class HttpResponse {
         this.body = body;
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public void setFile(File file) {
-        this.file = file;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
     public String getLastModified() {
         if (lastModified == null) {
             if (file != null && file.exists()) {
@@ -175,7 +159,7 @@ public class HttpResponse {
         if (chunkSize == null && this.request.getIsChunked()) chunkSize = defaultChunkSize;
 
 
-        String stringHeaders = CreateResponseHeaders();
+        String stringHeaders = this.CreateResponseHeaders();
         byte[] headers = stringHeaders.getBytes(StandardCharsets.US_ASCII);
         stream.write(headers);
         stream.write(Common.CRLF_BYTES);
@@ -187,7 +171,7 @@ public class HttpResponse {
         if (this.body != null) {
             for (int i = 0; i < this.body.length; i += chunkSize) {
                 int nextChunkSize = Math.min(this.body.length - i, chunkSize);
-                stream.write(getCunckHeaders(nextChunkSize));
+                stream.write(this.getChunckHeaders(nextChunkSize));
                 stream.write(this.body, i, nextChunkSize);
                 stream.write(Common.CRLF_BYTES);
                 stream.flush();
@@ -199,7 +183,7 @@ public class HttpResponse {
 
         for (byte[] data : fileData) {
             if (this.request.getIsChunked()) {
-                stream.write(getCunckHeaders(data.length));
+                stream.write(getChunckHeaders(data.length));
                 stream.write(data);
                 stream.write(Common.CRLF_BYTES);
             } else {
@@ -210,7 +194,7 @@ public class HttpResponse {
         }
     }
 
-    private byte[] getCunckHeaders(int nextChunkSize) {
+    private byte[] getChunckHeaders(int nextChunkSize) {
         String data = nextChunkSize + Common.CRLF;
         return data.getBytes(StandardCharsets.US_ASCII);
     }

@@ -95,8 +95,6 @@ public class RunnableClient implements Runnable {
         }
     }
 
-    // TODO: add sout to all headers.
-
     private void sendParameterResponse() throws IOException {
         ByteArrayOutputStream outputStreamBody = new ByteArrayOutputStream();
 
@@ -111,9 +109,8 @@ public class RunnableClient implements Runnable {
 
         // Closing the stream
         try {
-            if (outputStreamBody != null) outputStreamBody.close();
-        } catch (IOException e) {
-            //Left empty
+            outputStreamBody.close();
+        } catch (IOException ignored) {
         }
     }
 
@@ -157,10 +154,9 @@ public class RunnableClient implements Runnable {
         sendResponse(outputStream.toByteArray());
 
         // Closing the stream
-        if (outputStream != null) try {
+        try {
             outputStream.close();
-        } catch (IOException e) {
-            //Left empty
+        } catch (IOException ignored) {
         }
     }
 

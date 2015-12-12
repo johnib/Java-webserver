@@ -33,7 +33,9 @@ public class HTTPParser extends Parser {
 
         if (headersMatcher.find()) {
             // The * in the path is only relevant to the OPTIONS method
-            if (headersMatcher.group(2).equals("*") && RequestType.OPTIONS.name().compareToIgnoreCase(headersMatcher.group(1)) != 0) {
+            if (headersMatcher.group(2).equals("*") &&
+                    RequestType.OPTIONS.name().compareToIgnoreCase(headersMatcher.group(1)) != 0) {
+
                 return dict;
             }
 
@@ -41,9 +43,6 @@ public class HTTPParser extends Parser {
             dict.put(Common.http_parser_path, headersMatcher.group(2));
             dict.put(Common.http_parser_params, headersMatcher.group(3));
             dict.put(Common.http_parser_version, headersMatcher.group(4));
-        } else {
-            //TODO: method line could not be processed
-            System.err.printf("Method line could not be processed.\n");
         }
 
         // adding all the headers data
@@ -63,5 +62,4 @@ public class HTTPParser extends Parser {
 
         return dict;
     }
-
 }

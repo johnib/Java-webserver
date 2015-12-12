@@ -32,7 +32,7 @@ public class Parser {
         Matcher m = regexPattern.matcher(text);
 
         while (m.find()) {
-            dict.put(m.group(1), m.group(2));
+            dict.put(m.group(1).toLowerCase(), m.group(2));
         }
 
         return dict;

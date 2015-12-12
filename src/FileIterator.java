@@ -11,34 +11,31 @@ import java.util.Iterator;
  */
 public class FileIterator implements Iterable<byte[]>, Iterator<byte[]> {
 
-    private final File file;
     private final FileInputStream fis;
     private int chuckSize;
-    private long fileLen;
-    private boolean errorOccured = false;
+    private boolean errorOccurred = false;
 
 
     public FileIterator (File file, Integer chuckSize) throws IOException {
         if (file == null || !file.exists() || !file.isFile()) throw new IOException("Unable to locate or open file.");
         if (chuckSize != null) this.chuckSize = chuckSize;
 
-        this.fileLen = file.length();
+        long fileLen = file.length();
 
         // Setting the this.chuckSize
         if (chuckSize == null && fileLen > Integer.MAX_VALUE) {
             this.chuckSize = Integer.MAX_VALUE;
         }
         else if(chuckSize == null) {
-            this.chuckSize = (int)fileLen;
+            this.chuckSize = (int) fileLen;
         }
 
-        this.file = file;
         fis = new FileInputStream(file);
     }
 
     @Override
     public boolean hasNext() {
-        if (errorOccured) return false;
+        if (errorOccurred) return false;
         Boolean result;
 
         try {
@@ -77,7 +74,7 @@ public class FileIterator implements Iterable<byte[]>, Iterator<byte[]> {
         }
 
         // If we got here there was an error
-        errorOccured = true;
+        errorOccurred = true;
         return new byte[0];
     }
 

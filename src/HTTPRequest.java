@@ -30,11 +30,10 @@ public class HTTPRequest {
     private String payload; // POST parameters if exist
 
     private RequestType methodField = null;
-    private String path = null;
     private Boolean isChunked = null;
 
     public HTTPRequest(Socket socket) {
-        readRequest(socket);
+        this.readRequest(socket);
 
         if (this.headers != null && !this.headers.isEmpty()) {
             this.headersDict = parser.parse(this.headers);
@@ -83,7 +82,7 @@ public class HTTPRequest {
         if (methodField != null) return methodField;
 
         // Checking if the method exist in the connection
-        String httpMethod = headersDict.get(Common.http_parser_method);
+        String httpMethod = this.headersDict.get(Common.http_parser_method);
         if (httpMethod == null || httpMethod.isEmpty()) {
             System.err.printf(error_method_empty, this.headersDict.toString());
             methodField = RequestType.Bad_Request;
@@ -121,7 +120,7 @@ public class HTTPRequest {
 
             int payloadLength = 0;
             String header;
-            while (!(header = reader.readLine()).isEmpty()) {
+            while ((header = reader.readLine()) != null && !header.isEmpty()) {
                 sb.append(header).append(Common.CRLF);
 
                 // check if there's a content-length
@@ -160,8 +159,9 @@ public class HTTPRequest {
     public boolean getIsChunked() {
         if (isChunked  != null) return isChunked;
 
-        isChunked = this.headersDict.containsKey(Common.http_parser_chunked) &&
+        this.isChunked = this.headersDict.containsKey(Common.http_parser_chunked) &&
                 chunkedPattern.matcher(this.headersDict.get(Common.http_parser_chunked)).find();
+
         return isChunked;
     }
 

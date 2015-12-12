@@ -33,9 +33,9 @@ public class Configuration {
         Map<String, String> dict = parser.parse(fileContents);
 
         this.port = Integer.parseInt(dict.get("port"));
-        this.maxThreads = Integer.parseInt(dict.get("maxThreads"));
+        this.maxThreads = Integer.parseInt(dict.get("maxthreads"));
         this.root = Paths.get(".", "/").toAbsolutePath().normalize().toString() + File.separator + dict.get("root");
-        this.defaultPage = dict.get("defaultPage");
+        this.defaultPage = dict.get("defaultpage");
 
         System.out.printf(parsed_config, parser.toString());
     }
