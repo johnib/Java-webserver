@@ -25,7 +25,7 @@ public class RunnableClient implements Runnable {
     private final Socket socket;
     private Configuration config;
     private HTTPRequest httpRequest;
-    private boolean isErrorOccurred = false;
+    private boolean wasErrorSent = false;
 
     /**
      * Creates a Runnable wrapper for the given socket.
@@ -119,16 +119,16 @@ public class RunnableClient implements Runnable {
         if (extIndex > 0) {
             String ext = file.getName().substring(extIndex);
             if (".bmp, .gif, .png, .jpg".contains(ext)) {
-                return getResponseImageFile(file);
+                return getResponseFile(file, "image");
             } else if (ext.endsWith(".ico")) {
-                return getResponseIconFile(file);
+                return getResponseFile(file, "icon");
             } else if (".html, .htm, .php, .js".contains(ext)) {
-                return getResponseTextFile(file);
+                return getResponseFile(file, "text/html");
             }
         }
 
         // This is the default behavior
-        return getResponseGeneralFile(file);
+        return getResponseFile(file, "application/octet-stream");
     }
 
     private boolean isPathTraversalAttack(File file, HTTPRequest httpRequest, Configuration config) {
@@ -146,39 +146,23 @@ public class RunnableClient implements Runnable {
         return true;
     }
 
-    private HttpResponse getResponseGeneralFile(File file) {
-        return getResponseFile(file, "application/octet-stream");
-    }
-
-    private HttpResponse getResponseTextFile(File file) {
-        return getResponseFile(file, "text/html");
-    }
-
-    private HttpResponse getResponseIconFile(File file) {
-        return getResponseFile(file, "icon");
-    }
-
-    private HttpResponse getResponseImageFile(File file) {
-        return getResponseFile(file, "image");
-    }
 
     private HttpResponse getResponseFile(File file, String contentType) {
         return new HttpResponse(file, 200, contentType, this.httpRequest, this.config);
     }
 
     private void sendInternalServerError() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        sendResponse(getResponseInternalServerError());
     }
 
-
-    private void sendFileNotFound() {
-        sendResponse(getResponseFileNotFound());
+    private HttpResponse getResponseInternalServerError() {
+        return new HttpResponse((File) null, 500, "text/html", httpRequest, config);
     }
+
 
     private HttpResponse getResponseFileNotFound() {
         return new HttpResponse((File) null, 404, "text/html", httpRequest, config);
     }
-
 
     private void sendTraceResponse() {
         String value = httpRequest.getHeaders();
@@ -209,13 +193,7 @@ public class RunnableClient implements Runnable {
         try {
             sendResponse(response.CreateResponse());
         } catch (IOException e) {
-            if (!isErrorOccurred) {
-                isErrorOccurred = true;
-                //TODO: this should change the response code to 501 (internal error)
-                //TODO: and send another html file for this error.
-                //TODO: and continue the process as if nothing happened.
-                sendInternalServerError();
-            }
+            handleSendException();
         }
     }
 
@@ -234,8 +212,19 @@ public class RunnableClient implements Runnable {
             System.out.println();
 
         } catch (IOException e) {
-            //TODO: implement
-            e.printStackTrace();
+            handleSendException();
+        }
+    }
+
+    private void handleSendException() {
+        // In case there is a problem sending the error response
+        // do nothing
+        if (!this.wasErrorSent) {
+            // This should change the response code to 500 (internal error)
+            // and send another html file for this error.
+            // and continue the process as if nothing happened.
+            this.wasErrorSent = true;
+            sendInternalServerError();
         }
     }
 
@@ -250,7 +239,6 @@ public class RunnableClient implements Runnable {
             } catch (IOException e) {
                 //TODO: implement
             }
-
         }
     }
 }

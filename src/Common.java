@@ -11,7 +11,6 @@ import java.util.TimeZone;
 public class Common {
     public static final String CRLF = "\r\n";
     public static final byte[] CRLF_BYTES =  new byte[]{0x0d, 0x0a};
-//    public static final byte[] END_COMMUNICATION_BYTES = new byte[] {0x00, 0x00};
     public static final String http_parser_method = "METHOD";
     public static final String http_parser_path = "FILE_PATH";
     public static final String http_parser_params = "PARAMS";
@@ -21,9 +20,9 @@ public class Common {
         {
             put(200, "OK");
             put(404, "Not Found");
-            put(501, "Not Implemented");
             put(400, "Bad Request");
             put(500, "Internal Server Error");
+            put(501, "Not Implemented");
         }
     };
 //    public static final String http_parser_contentLength = "Content-Length";

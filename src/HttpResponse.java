@@ -25,6 +25,8 @@ public class HttpResponse {
     // TODO: add to bonus doc: "Nice bad request page"
     private final static String fileNotFoundFile = "FileNotFound.html";
     private final static String badRequestFile = "BadRequest.html";
+    private final static String notImplementedFile = "NotImplemented.html";
+    private final static String internalServerErrorFile = "InternalServerError.html";
     private final HTTPRequest request;
     private File file;
     private int statusCode;
@@ -46,6 +48,16 @@ public class HttpResponse {
                     break;
                 case 400:
                     this.file = new File(config.getRoot(request), badRequestFile);
+                    break;
+                case 500:
+                    this.file = new File(config.getRoot(request), internalServerErrorFile);
+                    break;
+                case 501:
+                    this.file = new File(config.getRoot(request), notImplementedFile);
+                    break;
+                default:
+                    // Unknown status code
+                    break;
             }
         }
     }
@@ -54,10 +66,6 @@ public class HttpResponse {
         this((File) null, statusCode, contentType, request, config);
         this.body = body;
     }
-
-//    public HttpResponse(){
-//
-//    }
 
     public File getFile() {
         return file;
