@@ -10,3 +10,4 @@ Each one of the threads:
 2.2     Parses the request using regex and creates an HTTPRequest object.
 2.3     Creates a response from the parsed HTTPRequest.
 2.4     Sends the response to the socket's output stream.
+2.5     Returns to step 2.
