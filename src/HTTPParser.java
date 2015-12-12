@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  */
 public class HTTPParser extends Parser {
     /* Constants */
-    private final static String default_http_regex = "(\\S+)\\s+([^?\\s]+)((?:[?&][^&\\s]+)*)\\s+HTTP\\/(.+)";
+    private final static String default_http_regex = "(\\S+)\\s+([^?\\s]+|\\*)((?:[?&][^&\\s]+)*)\\s+HTTP\\/(.+)";
     private final static String default_header_regex = "(\\S+)\\:\\s+(.+)";
     private final static String default_payload_regex = "([^?=&]+)(=([^&]*))?";
     private Pattern regexHttp;
@@ -32,6 +32,11 @@ public class HTTPParser extends Parser {
         Map<String, String> dict = new HashMap<>();
 
         if (headersMatcher.find()) {
+            // The * in the path is only relevant to the OPTIONS method
+            if (headersMatcher.group(2).equals("*") && RequestType.OPTIONS.name().compareToIgnoreCase(headersMatcher.group(1)) != 0) {
+                return dict;
+            }
+
             dict.put(Common.http_parser_method, headersMatcher.group(1));
             dict.put(Common.http_parser_path, headersMatcher.group(2));
             dict.put(Common.http_parser_params, headersMatcher.group(3));

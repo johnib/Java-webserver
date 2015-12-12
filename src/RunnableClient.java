@@ -1,3 +1,4 @@
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,8 @@ public class RunnableClient implements Runnable {
     /* Constants */
     private final static String closed_by_the_client = "Connection was forced closed by the client\n";
     private final static String empty_request = "The client request was empty\n";
+    private final static byte[] parameter_response_body_up = "<html><body>".getBytes(StandardCharsets.US_ASCII);
+    private final static byte[] parameter_response_body_down = "</body></html>".getBytes(StandardCharsets.US_ASCII);
 
     // response constants
 
@@ -40,8 +43,6 @@ public class RunnableClient implements Runnable {
 
     @Override
     public void run() {
-        //TODO: implement client-request-response lifecycle
-
         // The client closed the connection
         if (socket == null || socket.isClosed()) {
             System.out.println(closed_by_the_client);
@@ -50,38 +51,125 @@ public class RunnableClient implements Runnable {
 
         this.httpRequest = new HTTPRequest(this.socket);
 
-        switch (httpRequest.getMethod()) {
-            case GET:
-                this.sendGetResponse();
-                break;
-            case POST:
-                break;
-            case TRACE:
-                //TODO: test
-                this.sendTraceResponse();
-                break;
-            case HEAD:
-                //TODO: send only headers, not body
-                //TODO: test
-                this.sendHead();
-                break;
-            case OPTIONS:
-                //TODO: implement
-                break;
-            case Not_Implemented:
-                this.sendResponseNotImplemented();
-                break;
-            case Bad_Request:
-            default:
-                this.sendResponseBadRequest();
-                break;
-        }
+        try {
 
-        this.close();
+            // The question say using post not get... RequestType.GET.name().compareToIgnoreCase(String.valueOf(httpRequest.getMethod())) == 0 ||
+            if (httpRequest.getPath().equals("/params_info.html") &&
+                    (RequestType.POST.name().compareToIgnoreCase(String.valueOf(httpRequest.getMethod())) == 0)) {
+                this.sendParameterResponse();
+            }
+
+            switch (httpRequest.getMethod()) {
+                case GET:
+                    this.sendGetResponse();
+                    break;
+                case POST:
+                    this.sendGetResponse();
+                    break;
+                case TRACE:
+                    //TODO: test
+                    this.sendTraceResponse();
+                    break;
+                case HEAD:
+                    //TODO: test
+                    this.sendHeadResponse();
+                    break;
+                case OPTIONS:
+                    this.sendOptionsResponse();
+                    break;
+                case Not_Implemented:
+                    this.sendResponseNotImplemented();
+                    break;
+                case Bad_Request:
+                default:
+                    this.sendResponseBadRequest();
+                    break;
+            }
+        } catch (Exception e) {
+            if (!this.wasErrorSent) {
+                this.wasErrorSent = true;
+                sendInternalServerError();
+            }
+        } finally {
+            this.close();
+        }
     }
 
-    private void sendHead() {
-        sendResponse(parseGetResponse(this.httpRequest).getHeaders());
+    // TODO: add sout to all headers.
+
+    private void sendParameterResponse() throws IOException {
+        ByteArrayOutputStream outputStreamBody = new ByteArrayOutputStream();
+
+        outputStreamBody.write(parameter_response_body_up);
+
+        for (String key: this.httpRequest.getPayloadDict().keySet()) {
+
+            outputStreamBody.write((key + " -> " + this.httpRequest.getPayloadDict().get(key) + "<BR />").getBytes());
+        }
+
+        sendResponse(new HttpResponse(outputStreamBody.toByteArray(), 200, "text/html", this.httpRequest, this.config));
+
+        // Closing the stream
+        try {
+            if (outputStreamBody != null) outputStreamBody.close();
+        } catch (IOException e) {
+            //Left empty
+        }
+    }
+
+    private void sendOptionsResponse() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            byte[] headers;
+            if (this.httpRequest.getPath().equals("*")){
+                headers = new HttpResponse((byte[])null, 200, null, this.httpRequest, this.config).getHeaders();
+            } else {
+                headers = parseGetResponse(this.httpRequest).getHeaders();
+            }
+
+            outputStream.write(headers);
+
+            System.out.println("-- Response Headers --");
+            System.out.println(new String(headers));
+
+            outputStream.write("Allow:".getBytes(StandardCharsets.US_ASCII));
+            boolean isFirst = true;
+
+            for (RequestType each : RequestType.class.getEnumConstants()) {
+                if (each != RequestType.Bad_Request && each != RequestType.Not_Implemented) {
+                    // comma separated values
+                    if (!isFirst) {
+                        outputStream.write(",".getBytes(StandardCharsets.US_ASCII));
+                    }
+
+                    outputStream.write(each.name().getBytes(StandardCharsets.US_ASCII));
+                    isFirst = false;
+                }
+            }
+
+            outputStream.write(Common.CRLF_BYTES);
+            outputStream.write(Common.CRLF_BYTES);
+        } catch (IOException e) {
+            this.wasErrorSent = true;
+            sendInternalServerError();
+        }
+
+        sendResponse(outputStream.toByteArray());
+
+        // Closing the stream
+        if (outputStream != null) try {
+            outputStream.close();
+        } catch (IOException e) {
+            //Left empty
+        }
+    }
+
+    private void sendHeadResponse() {
+        byte[] headers = parseGetResponse(this.httpRequest).getHeaders();
+        sendResponse(headers);
+
+        System.out.println("-- Response Headers --");
+        System.out.println(new String(headers));
     }
 
     private void sendGetResponse() {
@@ -217,11 +305,6 @@ public class RunnableClient implements Runnable {
             outToClient.write(response);
             outToClient.flush();
             outToClient.close();
-
-            System.out.println("--Response--");
-            System.out.println(new String(response, StandardCharsets.US_ASCII));
-            System.out.println();
-
         } catch (IOException e) {
             handleSendException();
         }

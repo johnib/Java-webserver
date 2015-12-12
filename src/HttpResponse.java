@@ -28,6 +28,7 @@ public class HttpResponse {
     private final static String notImplementedFile = "NotImplemented.html";
     private final static String internalServerErrorFile = "InternalServerError.html";
     private final HTTPRequest request;
+
     private File file;
     private int statusCode;
     private String lastModified = null;
@@ -132,6 +133,10 @@ public class HttpResponse {
     public byte[] getCompleteResponse() throws IOException {
 
         byte[] headers = CreateResponseHeaders().getBytes(StandardCharsets.US_ASCII);
+
+        System.out.println("-- Response Headers --");
+        System.out.println(new String(headers));
+
         if (file == null && body == null) {
             return headers;
         }
@@ -170,9 +175,14 @@ public class HttpResponse {
         if (chunkSize == null && this.request.getIsChunked()) chunkSize = defaultChunkSize;
 
 
-        byte[] headers = CreateResponseHeaders().getBytes(StandardCharsets.US_ASCII);
+        String stringHeaders = CreateResponseHeaders();
+        byte[] headers = stringHeaders.getBytes(StandardCharsets.US_ASCII);
         stream.write(headers);
+        stream.write(Common.CRLF_BYTES);
         stream.flush();
+
+        System.out.println("-- Response Headers --");
+        System.out.println(stringHeaders);
 
         if (this.body != null) {
             for (int i = 0; i < this.body.length; i += chunkSize) {
@@ -221,16 +231,24 @@ public class HttpResponse {
         }
         formatter.format(responseHeaders);
 
-        // If there is no data there is nothing to chuck also.
-        if (!this.request.getIsChunked() || getContentLength() == 0) {
-            formatter.format(entityHeadersContentLength, getContentLength());
-        }
+        // Check the OPTIONS with *
+        if ((RequestType.OPTIONS.name().compareToIgnoreCase(String.valueOf(this.request.getMethod())) != 0) ||
+                !this.request.getPath().equals("*")) {
+                    // If there is no data there is nothing to chuck also.
+                    if (!this.request.getIsChunked() || getContentLength() == 0) {
+                        formatter.format(entityHeadersContentLength, getContentLength());
+                    }
 
-        // If there is content to send it's last modified date and type
-        if (getContentLength() > 0) {
-            formatter.format(entityHeadersLastMod, getLastModified());
-            formatter.format(entityHeadersContentType, getContentType());
-        }
+                    // If there is content to send it's last modified date and type
+                    if (getContentLength() > 0) {
+                        formatter.format(entityHeadersLastMod, getLastModified());
+                        formatter.format(entityHeadersContentType, getContentType());
+                    }
+                }
+
+        // output
+        System.out.println("--Response Headers--");
+        System.out.println(sb.toString());
 
         return sb.toString();
     }

@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -13,9 +14,11 @@ public class HTTPRequest {
     /* Constants */
     private final static String connection_reset = "Thread-%d: Connection reset\n";
     private final static String error_method_empty = "HTTPRequest.getMethod(): httpMethod is null or empty, printing dictionary\n%s\n";
+    private final static String regex_string = "[?&]([^=]+)=([^&]+)";
 
     /* Static */
     private static HTTPParser parser = new HTTPParser();
+    private static Parser parserParams = new Parser(regex_string);
     private static Pattern chunkedPattern = Pattern.compile(Pattern.quote("yes"), Pattern.CASE_INSENSITIVE);
 
     /* Fields */
@@ -41,6 +44,12 @@ public class HTTPRequest {
 
         if (this.payload != null && !this.payload.isEmpty()) {
             this.payloadDict = parser.parsePayload(this.payload);
+        }
+
+        if (this.getParams() != null){
+            Map<String, String> payloadDict = this.getPayloadDict();
+            payloadDict.putAll(parserParams.parse(this.getParams()));
+            this.payloadDict = payloadDict;
         }
 
         System.out.println("--Request--");
@@ -154,6 +163,15 @@ public class HTTPRequest {
         isChunked = this.headersDict.containsKey(Common.http_parser_chunked) &&
                 chunkedPattern.matcher(this.headersDict.get(Common.http_parser_chunked)).find();
         return isChunked;
+    }
+
+    public Map<String, String> getPayloadDict() {
+        if (payloadDict == null) payloadDict = new HashMap<>();
+        return payloadDict;
+    }
+
+    public String getParams() {
+        return this.headersDict.get(Common.http_parser_params);
     }
 }
 
