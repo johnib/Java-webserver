@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/7/2015.
@@ -15,6 +16,8 @@ public class HTTPRequest {
 
     /* Static */
     private static HTTPParser parser = new HTTPParser();
+    private static Pattern chunkedPattern = Pattern.compile(Pattern.quote("yes"), Pattern.CASE_INSENSITIVE);
+
     /* Fields */
 
     private Map<String, String> headersDict; // request parameters parsed
@@ -25,6 +28,7 @@ public class HTTPRequest {
 
     private RequestType methodField = null;
     private String path = null;
+    private Boolean isChunked = null;
 
     public HTTPRequest(Socket socket) {
         readRequest(socket);
@@ -142,6 +146,14 @@ public class HTTPRequest {
 
     public String getHost() {
         return this.headersDict.get(Common.http_parser_host);
+    }
+
+    public boolean getIsChunked() {
+        if (isChunked  != null) return isChunked;
+
+        isChunked = this.headersDict.containsKey(Common.http_parser_chunked) &&
+                chunkedPattern.matcher(this.headersDict.get(Common.http_parser_chunked)).find();
+        return isChunked;
     }
 }
 

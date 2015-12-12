@@ -1,8 +1,8 @@
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.Locale;
@@ -16,11 +16,11 @@ public class HttpResponse {
     private final static String CRLF = Common.CRLF;
     private final static String statusLine = "HTTP/1.1 %1d %2s" + CRLF + "Date: %3s" + CRLF;
     private final static String generalHeaders = "Connection: close" + CRLF;
+    private final static String generalHeadersChunked = "Transfer-Encoding: chunked" + CRLF;
     private final static String responseHeaders = "Server: CoolServer/1.0" + CRLF;
-    private final static String entityHeadersNoContent = "Content-Length: 0" + CRLF;
-    private final static String entityHeaders = "Last-Modified: %1s" + CRLF +
-            "Content-Type: %2s" + CRLF +
-            "Content-Length: %3d" + CRLF;
+    private final static String entityHeadersLastMod = "Last-Modified: %1s" + CRLF;
+    private final static String entityHeadersContentType = "Content-Type: %1s" + CRLF;
+    private final static String entityHeadersContentLength = "Content-Length: %1d" + CRLF;
 
     // TODO: add to bonus doc: "Nice bad request page"
     private final static String fileNotFoundFile = "FileNotFound.html";
@@ -33,6 +33,7 @@ public class HttpResponse {
     private String lastModified = null;
     private String contentType;
     private byte[] body = null;
+    private final Integer defaultChunkSize = 64;
 
     public HttpResponse(File file, int statusCode, String contentType, HTTPRequest request, Configuration config) {
 
@@ -43,11 +44,11 @@ public class HttpResponse {
 
         if (file == null) {
             switch (this.statusCode) {
-                case 404:
-                    this.file = new File(config.getRoot(request), fileNotFoundFile);
-                    break;
                 case 400:
                     this.file = new File(config.getRoot(request), badRequestFile);
+                    break;
+                case 404:
+                    this.file = new File(config.getRoot(request), fileNotFoundFile);
                     break;
                 case 500:
                     this.file = new File(config.getRoot(request), internalServerErrorFile);
@@ -104,8 +105,15 @@ public class HttpResponse {
     }
 
     public long getContentLength() {
-        //TODO: does not support counting the length of payload in TRACE.
-        if (file == null || !file.exists() || file.isDirectory()) return 0;
+
+        // In case there is a byte array and not a file
+        if (file == null) {
+            if (body == null) return 0;
+            return body.length;
+        }
+
+        // If there is a problem with the file or there is no file
+        if (!file.exists() || file.isDirectory()) return 0;
         return file.length();
     }
 
@@ -117,26 +125,85 @@ public class HttpResponse {
         this.contentType = contentType;
     }
 
-    public byte[] CreateResponse() throws IOException {
+    /**
+     * @return The complete response without chunks
+     * @throws IOException
+     */
+    public byte[] getCompleteResponse() throws IOException {
 
         byte[] headers = CreateResponseHeaders().getBytes(StandardCharsets.US_ASCII);
         if (file == null && body == null) {
             return headers;
         }
 
-        byte[] body;
-        if (this.body == null) body = Files.readAllBytes(file.toPath());
-        else body = this.body;
-
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(headers);
         outputStream.write(Common.CRLF_BYTES);
-        outputStream.write(body);
 
+        // In memory byte array
+        if (file == null) {
+            outputStream.write(body);
+            return outputStream.toByteArray();
+        }
+
+        // File handle
+        FileIterator fileData = new FileIterator(file, null);
+
+        for (byte[] data : fileData) {
+            outputStream.write(data);
+        }
+        
         return outputStream.toByteArray();
     }
 
+    public void sendResponse(DataOutputStream stream) throws IOException {
+        sendResponse(stream, defaultChunkSize);
+    }
 
+    public void sendResponse(DataOutputStream stream, Integer chunkSize) throws IOException {
+        // if the data is already in memory
+        if (this.body != null && !this.request.getIsChunked()) {
+            stream.write(this.getCompleteResponse());
+            return;
+        }
+
+        if (chunkSize == null && this.request.getIsChunked()) chunkSize = defaultChunkSize;
+
+
+        byte[] headers = CreateResponseHeaders().getBytes(StandardCharsets.US_ASCII);
+        stream.write(headers);
+        stream.flush();
+
+        if (this.body != null) {
+            for (int i = 0; i < this.body.length; i += chunkSize) {
+                int nextChunkSize = Math.min(this.body.length - i, chunkSize);
+                stream.write(getCunckHeaders(nextChunkSize));
+                stream.write(this.body, i, nextChunkSize);
+                stream.write(Common.CRLF_BYTES);
+                stream.flush();
+            }
+        }
+
+        // File handle
+        FileIterator fileData = new FileIterator(file, chunkSize);
+
+        for (byte[] data : fileData) {
+            if (this.request.getIsChunked()) {
+                stream.write(getCunckHeaders(data.length));
+                stream.write(data);
+                stream.write(Common.CRLF_BYTES);
+            } else {
+                stream.write(data);
+            }
+
+            stream.flush();
+        }
+    }
+
+    private byte[] getCunckHeaders(int nextChunkSize) {
+        String data = nextChunkSize + Common.CRLF;
+        return data.getBytes(StandardCharsets.US_ASCII);
+    }
 
     private String CreateResponseHeaders() {
 
@@ -146,13 +213,23 @@ public class HttpResponse {
         // Send all output to the appendable object sb
         Formatter formatter = new Formatter(sb, Locale.US);
         formatter.format(statusLine, statusCode, Common.getHttpStatusName(statusCode), Common.toISO2616DateFormat(UtcNow));
-        formatter.format(generalHeaders);
+
+        if (this.request.getIsChunked()) {
+            formatter.format(generalHeadersChunked);
+        } else {
+            formatter.format(generalHeaders);
+        }
         formatter.format(responseHeaders);
 
+        // If there is no data there is nothing to chuck also.
+        if (!this.request.getIsChunked() || getContentLength() == 0) {
+            formatter.format(entityHeadersContentLength, getContentLength());
+        }
+
+        // If there is content to send it's last modified date and type
         if (getContentLength() > 0) {
-            formatter.format(entityHeaders, getLastModified(), getContentType(), getContentLength());
-        } else {
-            formatter.format(entityHeadersNoContent);
+            formatter.format(entityHeadersLastMod, getLastModified());
+            formatter.format(entityHeadersContentType, getContentType());
         }
 
         return sb.toString();

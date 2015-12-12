@@ -191,7 +191,18 @@ public class RunnableClient implements Runnable {
 
     private void sendResponse(HttpResponse response) {
         try {
-            sendResponse(response.CreateResponse());
+            if (this.socket == null || this.socket.isClosed()) return;
+            DataOutputStream outToClient = new DataOutputStream(this.socket.getOutputStream());
+
+            if (httpRequest.getIsChunked()) {
+                response.sendResponse(outToClient);
+            } else {
+                response.sendResponse(outToClient, null);
+            }
+
+            outToClient.flush();
+            outToClient.close();
+
         } catch (IOException e) {
             handleSendException();
         }

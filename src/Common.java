@@ -1,3 +1,7 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,6 +20,7 @@ public class Common {
     public static final String http_parser_params = "PARAMS";
     public static final String http_parser_version = "VERSION";
     public static final String http_parser_host = "HOST";
+    public static final String http_parser_chunked = "chunked";
     private static HashMap<Integer, String> httpStatuses = new HashMap<Integer, String>() {
         {
             put(200, "OK");
