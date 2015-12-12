@@ -11,7 +11,7 @@ public class HTTPParser extends Parser {
     /* Constants */
     private final static String default_http_regex = "(\\S+)\\s+([^?\\s]+)((?:[?&][^&\\s]+)*)\\s+HTTP\\/(.+)";
     private final static String default_header_regex = "(\\S+)\\:\\s+(.+)";
-    private final static String default_payload_regex = "(([[:alnum:]]+)=([[:alnum:]]))";
+    private final static String default_payload_regex = "([^?=&]+)(=([^&]*))?";
     private Pattern regexHttp;
     private Pattern regexPayload;
 
@@ -23,35 +23,40 @@ public class HTTPParser extends Parser {
     public HTTPParser () {
         this(default_header_regex);
         this.regexHttp = Pattern.compile(default_http_regex);
-        this.regexPayload = Pattern.compile(default_payload_regex);
+        this.regexPayload = Pattern.compile(default_payload_regex, Pattern.MULTILINE);
     }
 
     @Override
     public Map<String, String> parse(String text) {
-        String firstLine = text.substring(0, text.indexOf(Common.CRLF));
-
-        Matcher matcher = regexHttp.matcher(firstLine);
+        Matcher headersMatcher = this.regexHttp.matcher(text);
         Map<String, String> dict = new HashMap<>();
 
-        if (matcher.find()) {
-            dict.put(Common.http_parser_method, matcher.group(1));
-            dict.put(Common.http_parser_path, matcher.group(2));
-            dict.put(Common.http_parser_params, matcher.group(3));
-            dict.put(Common.http_parser_version, matcher.group(4));
+        if (headersMatcher.find()) {
+            dict.put(Common.http_parser_method, headersMatcher.group(1));
+            dict.put(Common.http_parser_path, headersMatcher.group(2));
+            dict.put(Common.http_parser_params, headersMatcher.group(3));
+            dict.put(Common.http_parser_version, headersMatcher.group(4));
         } else {
             //TODO: method line could not be processed
             System.err.printf("Method line could not be processed.\n");
         }
 
-        // Adding all the headers data
+        // adding all the headers data
         dict.putAll(super.parse(text));
 
-        // override url parameters if payload exists
-        String[] payloadPart = text.split(Common.CRLF + Common.CRLF);
-        if (payloadPart.length > 1) {
-            dict.put(Common.http_parser_params, payloadPart[1]);
+        return dict;
+    }
+
+    public Map<String, String> parsePayload(String text) {
+        Matcher payloadMatcher = this.regexPayload.matcher(text);
+        Map<String, String> dict = new HashMap<>();
+
+        // parsing payload if exists
+        while (payloadMatcher.find()) {
+            dict.put(payloadMatcher.group(1), payloadMatcher.group(3));
         }
 
         return dict;
     }
+
 }

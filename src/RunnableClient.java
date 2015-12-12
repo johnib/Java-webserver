@@ -182,7 +182,7 @@ public class RunnableClient implements Runnable {
 
 
     private void sendTraceResponse() {
-        String value = httpRequest.getFullRequest();
+        String value = httpRequest.getHeaders();
         sendResponse(getResponseTrace(value));
     }
 
@@ -212,7 +212,7 @@ public class RunnableClient implements Runnable {
         } catch (IOException e) {
             if (!isErrorOccurred) {
                 isErrorOccurred = true;
-                //TODO: this should change the response code to 503 (internal error)
+                //TODO: this should change the response code to 501 (internal error)
                 //TODO: and send another html file for this error.
                 //TODO: and continue the process as if nothing happened.
                 sendInternalServerError();

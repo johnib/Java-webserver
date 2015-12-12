@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.Map;
 
@@ -12,28 +11,57 @@ import java.util.Map;
 public class HTTPRequest {
     /* Constants */
     private final static String connection_reset = "Thread-%d: Connection reset\n";
+    private final static String error_method_empty = "HTTPRequest.getMethod(): httpMethod is null or empty, printing dictionary\n%s\n";
 
     /* Static */
-    private static Parser parser = new HTTPParser();
-
+    private static HTTPParser parser = new HTTPParser();
     /* Fields */
-    private Map<String, String> dict;
-    private String fullRequest;
+
+    private Map<String, String> headersDict; // request parameters parsed
+    private String headers; // request headers
+
+    private Map<String, String> payloadDict; // POST parameters parsed
+    private String payload; // POST parameters if exist
+
     private RequestType methodField = null;
     private String path = null;
 
     public HTTPRequest(Socket socket) {
-        try {
-            fullRequest = java.net.URLDecoder.decode(readRequest(socket), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            //TODO: basically there's nothing to do, this can't happen as the Encoding type is hardcoded.
-            e.printStackTrace();
+        readRequest(socket);
+
+        if (this.headers != null && !this.headers.isEmpty()) {
+            this.headersDict = parser.parse(this.headers);
+        } else {
+            System.err.printf(error_method_empty, this.headersDict);
         }
 
-        this.dict = parser.parse(this.fullRequest);
+        if (this.payload != null && !this.payload.isEmpty()) {
+            this.payloadDict = parser.parsePayload(this.payload);
+        }
 
         System.out.println("--Request--");
-        System.out.println(fullRequest);
+        System.out.println(this.headers);
+    }
+
+    /**
+     * Given a string, searches for its Enum type.
+     *
+     * @param search the method string
+     * @return the enum of type of the requested method string
+     */
+    private static RequestType searchEnum(String search) {
+        if (search != null) {
+            for (RequestType each : RequestType.class.getEnumConstants()) {
+                if (each.name().compareToIgnoreCase(search) == 0) {
+                    return each;
+                }
+            }
+        } else {
+            //TODO: dismiss before submission
+            System.err.printf("Got bad search string in searchEnum\n");
+        }
+
+        return null;
     }
 
     /* Public methods */
@@ -42,11 +70,11 @@ public class HTTPRequest {
         if (methodField != null) return methodField;
 
         // Checking if the method exist in the connection
-        String httpMethod = dict.get(Common.http_parser_method);
+        String httpMethod = headersDict.get(Common.http_parser_method);
         if (httpMethod == null || httpMethod.isEmpty()) {
-            //TODO: format strings
-            System.err.printf("Why null or empty?");
+            System.err.printf(error_method_empty, this.headersDict.toString());
             methodField = RequestType.Bad_Request;
+
             return methodField;
         }
 
@@ -60,12 +88,12 @@ public class HTTPRequest {
         return methodField;
     }
 
-    public String getFullRequest() {
-        return fullRequest;
+    public String getHeaders() {
+        return headers;
     }
 
     public String getPath() {
-        return this.dict.get(Common.http_parser_path);
+        return this.headersDict.get(Common.http_parser_path);
     }
 
     /* Private methods */
@@ -76,6 +104,7 @@ public class HTTPRequest {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             requestLine = reader.readLine() + Common.CRLF;
+            sb.append(requestLine);
 
             int payloadLength = 0;
             String header;
@@ -88,10 +117,18 @@ public class HTTPRequest {
                 }
             }
 
+            this.headers = sb.toString();
+
+            // in case of POST parameters
             if (payloadLength > 0) {
-                char[] content = new char[payloadLength];
-                reader.read(content, 0, payloadLength);
-                sb.append(Common.CRLF).append(new String(content));
+                char[] buffer = new char[payloadLength];
+
+                // read the payload to the array
+                reader.read(buffer, 0, payloadLength);
+                this.payload = java.net.URLDecoder.decode(new String(buffer).split(Common.CRLF)[0], "UTF-8");
+
+                // append to the full request string
+                sb.append(Common.CRLF).append(this.payload);
             }
 
         } catch (IOException e) {
@@ -99,26 +136,12 @@ public class HTTPRequest {
             System.out.printf(connection_reset, Thread.currentThread().getId());
         }
 
+
         return requestLine + sb.toString();
     }
 
-    private static RequestType searchEnum(String search) {
-        if (search != null) {
-            for (RequestType each : RequestType.class.getEnumConstants()) {
-                if (each.name().compareToIgnoreCase(search) == 0) {
-                    return each;
-                }
-            }
-        } else {
-            //TODO: beatify
-            System.err.printf("Got bad search string in searchEnum\n");
-        }
-
-        return null;
-    }
-
     public String getHost() {
-        return this.dict.get(Common.http_parser_host);
+        return this.headersDict.get(Common.http_parser_host);
     }
 }
 

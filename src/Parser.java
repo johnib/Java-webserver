@@ -12,9 +12,6 @@ public class Parser {
     /* Constants */
     protected final Pattern regexPattern;
 
-    /* Private fields */
-    //protected Map<String, String> dict = new HashMap<>();
-
     /**
      * Constructs a new parser given a File object.
      *
