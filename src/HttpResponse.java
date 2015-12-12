@@ -25,13 +25,11 @@ public class HttpResponse {
     // TODO: add to bonus doc: "Nice bad request page"
     private final static String fileNotFoundFile = "FileNotFound.html";
     private final static String badRequestFile = "BadRequest.html";
-
-
+    private final HTTPRequest request;
     private File file;
     private int statusCode;
     private String lastModified = null;
     private String contentType;
-    private final HTTPRequest request;
     private byte[] body = null;
 
     public HttpResponse(File file, int statusCode, String contentType, HTTPRequest request, Configuration config) {
@@ -89,15 +87,16 @@ public class HttpResponse {
         return lastModified;
     }
 
-    public void setLastModified(Date lastModified) {
-        this.lastModified = Common.toISO2616DateFormat(lastModified);
-    }
-
     public void setLastModified(long lastModified) {
         this.lastModified = Common.ConvertLongToTimeString(lastModified);
     }
 
+    public void setLastModified(Date lastModified) {
+        this.lastModified = Common.toISO2616DateFormat(lastModified);
+    }
+
     public long getContentLength() {
+        //TODO: does not support counting the length of payload in TRACE.
         if (file == null || !file.exists() || file.isDirectory()) return 0;
         return file.length();
     }

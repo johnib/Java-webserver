@@ -52,7 +52,6 @@ public class RunnableClient implements Runnable {
 
         switch (httpRequest.getMethod()) {
             case GET:
-                //TODO: implemented without support for parameters.
                 this.sendGetResponse();
                 break;
             case POST:
