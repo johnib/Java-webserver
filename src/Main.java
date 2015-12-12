@@ -8,7 +8,7 @@ import java.io.IOException;
 public class Main {
 
     /* Constants */
-    private final static String fatal_error = "FATAL error, exiting\n";
+    private final static String fatal_error = "FATAL error, either no config file or requested port is used, exiting\n";
 
     public static void main(String[] args) {
         File configFile = null;
