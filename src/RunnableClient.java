@@ -51,8 +51,17 @@ public class RunnableClient implements Runnable {
 
         try {
             this.httpRequest = new HTTPRequest(this.socket);
+
+            // Checking for bad request
+            if (httpRequest.getPath() == null || httpRequest.getMethod() == null) {
+                System.out.println("No path or method found");
+                this.wasErrorSent = true;
+                sendResponseBadRequest();
+                return;
+            }
         } catch (Exception ex) {
             System.out.println("Problem parsing the data");
+            this.wasErrorSent = true;
             sendResponseBadRequest();
             return;
         }
