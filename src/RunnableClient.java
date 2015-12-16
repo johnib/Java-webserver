@@ -49,9 +49,8 @@ public class RunnableClient implements Runnable {
             return;
         }
 
-        this.httpRequest = new HTTPRequest(this.socket);
-
         try {
+            this.httpRequest = new HTTPRequest(this.socket);
 
             // The question say using post not get... RequestType.GET.name().compareToIgnoreCase(String.valueOf(httpRequest.getMethod())) == 0 ||
             if (httpRequest.getPath().equals("/params_info.html") &&
