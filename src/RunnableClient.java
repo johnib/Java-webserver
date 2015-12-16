@@ -50,6 +50,7 @@ public class RunnableClient implements Runnable {
         }
 
         try {
+
             this.httpRequest = new HTTPRequest(this.socket);
 
             // The question say using post not get... RequestType.GET.name().compareToIgnoreCase(String.valueOf(httpRequest.getMethod())) == 0 ||
