@@ -14,6 +14,7 @@ public class FileIterator implements Iterable<byte[]>, Iterator<byte[]> {
     private final FileInputStream fis;
     private int chuckSize;
     private boolean errorOccurred = false;
+    private final int OneKB = 1024*1024*8;
 
 
     public FileIterator (File file, Integer chuckSize) throws IOException {
@@ -23,8 +24,8 @@ public class FileIterator implements Iterable<byte[]>, Iterator<byte[]> {
         long fileLen = file.length();
 
         // Setting the this.chuckSize
-        if (chuckSize == null && fileLen > Integer.MAX_VALUE) {
-            this.chuckSize = Integer.MAX_VALUE;
+        if (chuckSize == null && fileLen > OneKB) {
+            this.chuckSize = OneKB;
         }
         else if(chuckSize == null) {
             this.chuckSize = (int) fileLen;

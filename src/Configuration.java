@@ -32,9 +32,17 @@ public class Configuration {
         String fileContents = new String(Files.readAllBytes(configuration.toPath()));
         Map<String, String> dict = parser.parse(fileContents);
 
+        String path = dict.get("root");
+
+        File file = new File(path);
+        if(file.exists()) {
+            this.root = path;
+        } else {
+            this.root = Paths.get(".", "/").toAbsolutePath().normalize().toString() + File.separator + path;
+        }
+
         this.port = Integer.parseInt(dict.get("port"));
         this.maxThreads = Integer.parseInt(dict.get("maxthreads"));
-        this.root = Paths.get(".", "/").toAbsolutePath().normalize().toString() + File.separator + dict.get("root");
         this.defaultPage = dict.get("defaultpage");
 
         System.out.printf(parsed_config, parser.toString());
