@@ -13,6 +13,11 @@ public class Crawler {
 
     private boolean working = false;
 
+    private Crawler(Configuration config) {
+        this.downloaders = new ThreadPool(config.getMaxDownloaders());
+        this.analyzers = new ThreadPool(config.getMaxAnalyzers());
+    }
+
     /**
      * Singleton dose not spouse to have a constructor this is the solution
      * @param config - config file containing downloaders and analyzers config
@@ -34,13 +39,6 @@ public class Crawler {
         return instance;
     }
 
-
-    private Crawler(Configuration config) {
-        this.downloaders = new ThreadPool(config.getMaxDownloaders());
-        this.analyzers = new ThreadPool(config.getMaxAnalyzers());
-    }
-
-
     public void start() {
         this.analyzers.start();
         this.downloaders.start();
@@ -51,7 +49,7 @@ public class Crawler {
     }
 
     // TODO: change signature to driven type
-    public void pushAnzlyzeHtmlTask(Runnable task) {
+    public void pushAnzlyzeHtmlTask(RunnableAnalyzer task) {
         this.analyzers.addTask(task);
     }
 
