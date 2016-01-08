@@ -19,6 +19,8 @@ public class Configuration {
     private final String root;
     private final String defaultPage;
     private String rootAbsolutePath = null;
+    private int maxDownloaders;
+    private int maxAnalyzers;
 
     /**
      * Creates a configuration object with all the details regarding the server settings.
@@ -27,6 +29,8 @@ public class Configuration {
      * @throws IOException when file cannot be accessed for some reason.
      */
     public Configuration(File configuration) throws IOException {
+        //TODO: config parsing needs to support multiple values per key (file formats)
+
         /* parse config */
         Parser parser = new Parser(regex_string);
         String fileContents = new String(Files.readAllBytes(configuration.toPath()));
@@ -44,6 +48,8 @@ public class Configuration {
         this.port = Integer.parseInt(dict.get("port"));
         this.maxThreads = Integer.parseInt(dict.get("maxthreads"));
         this.defaultPage = dict.get("defaultpage");
+        this.maxDownloaders = Integer.parseInt(dict.get("maxDownloaders"));
+        this.maxAnalyzers = Integer.parseInt(dict.get("maxAnalyzers"));
 
         System.out.printf(parsed_config, parser.toString());
     }
@@ -83,5 +89,13 @@ public class Configuration {
         this.rootAbsolutePath = file.getCanonicalFile().getAbsolutePath();
 
         return this.rootAbsolutePath;
+    }
+
+    public int getMaxDownloaders() {
+        return maxDownloaders;
+    }
+
+    public int getMaxAnalyzers() {
+        return maxAnalyzers;
     }
 }
