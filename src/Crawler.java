@@ -46,8 +46,7 @@ public class Crawler {
         this.downloaders.start();
     }
 
-    // TODO: change signature to driven type
-    public void pushDownloadUrlTask(Runnable task) {
+    public void pushDownloadUrlTask(RunnableDownloader task) {
         this.downloaders.addTask(task);
     }
 
