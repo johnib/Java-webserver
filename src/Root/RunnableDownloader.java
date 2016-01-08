@@ -10,7 +10,7 @@ import java.net.URL;
 public class RunnableDownloader implements Runnable  {
     private final URL downloadUrl;
     private static String tempFilePrefix = "Crawler_";
-    private static String tempFileSuffixs = ".html";
+    private static String tempFileSuffix = ".html";
 
     public RunnableDownloader(URL downloadUrl) {
         this.downloadUrl = downloadUrl;
@@ -24,7 +24,7 @@ public class RunnableDownloader implements Runnable  {
         BufferedReader buffer;
 
         try {
-            File tempFile = File.createTempFile(tempFilePrefix, tempFileSuffixs);  // throws an IOException
+            File tempFile = File.createTempFile(tempFilePrefix, tempFileSuffix);  // throws an IOException
             Logger.writeAssignmentTrace("Downloader starts downloading URL: " + downloadUrl);
             stream = downloadUrl.openStream();  // throws an IOException
             buffer = new BufferedReader(new InputStreamReader(stream));
