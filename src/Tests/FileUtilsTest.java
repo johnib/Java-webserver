@@ -24,7 +24,7 @@ public class FileUtilsTest {
             // read it with BufferedReader
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
                 // TODO: rename default package and then reference
-                //FileUtils.writeToFile(tempFile, br);
+                Root.FileUtils.writeToFile(tempFile, br);
             }
         }
 

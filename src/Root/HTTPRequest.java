@@ -1,3 +1,5 @@
+package Root;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,7 +15,7 @@ import java.util.regex.Pattern;
 public class HTTPRequest {
     /* Constants */
     private final static String connection_reset = "Thread-%d: Connection reset\n";
-    private final static String error_method_empty = "HTTPRequest.getMethod(): httpMethod is null or empty, printing dictionary\n%s\n";
+    private final static String error_method_empty = "Root.HTTPRequest.getMethod(): httpMethod is null or empty, printing dictionary\n%s\n";
     private final static String regex_string = "[?&]([^=]+)=([^&]+)";
 
     /* Static */

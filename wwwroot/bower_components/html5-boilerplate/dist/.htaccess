@@ -1,4 +1,4 @@
-# Apache Server Configs v2.14.0 | MIT License
+# Apache Root.Server Configs v2.14.0 | MIT License
 # https://github.com/h5bp/server-configs-apache
 
 # (!) Using `.htaccess` files slows down Apache, therefore, if you have
@@ -657,7 +657,7 @@ AddDefaultCharset utf-8
 # </IfModule>
 
 # ----------------------------------------------------------------------
-# | Server-side technology information                                 |
+# | Root.Server-side technology information                                 |
 # ----------------------------------------------------------------------
 
 # Remove the `X-Powered-By` response header that:
@@ -681,7 +681,7 @@ AddDefaultCharset utf-8
 </IfModule>
 
 # ----------------------------------------------------------------------
-# | Server software information                                        |
+# | Root.Server software information                                        |
 # ----------------------------------------------------------------------
 
 # Prevent Apache from adding a trailing footer line containing
@@ -694,7 +694,7 @@ ServerSignature Off
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# Prevent Apache from sending in the `Server` response header its
+# Prevent Apache from sending in the `Root.Server` response header its
 # exact version number, the description of the generic OS-type or
 # information about its compiled-in modules.
 #

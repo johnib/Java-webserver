@@ -1,3 +1,5 @@
+package Root;
+
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -12,7 +14,7 @@ public class ThreadPool {
     private static final String task_added = "Task added, current number of tasksQueue in queue: %d\n";
     private static final String capacity_err = "Cannot add task:\n%s\ndue to capacity issue, current handledTasksCount: %d/%d\n";
     private static final String null_err = "Cannot add NULL task.\n";
-    private static final String not_running = "ThreadPool is not running\n";
+    private static final String not_running = "Root.ThreadPool is not running\n";
     private static final String tPool_started = "Thread pool started, all threads started\n";
     private static final String tPool_terminated = "Thread pool termination process finished\n";
     private static final String tPool_terminating = "Thread pool termination process started\n";
@@ -28,7 +30,7 @@ public class ThreadPool {
     private boolean isRunning;
 
     /**
-     * ThreadPool initializer.
+     * Root.ThreadPool initializer.
      *
      * @param numOfThreads the number of threads in the pool
      */

@@ -1,7 +1,10 @@
+package Root;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -11,6 +14,7 @@ import java.util.Map;
 public class Configuration implements IConfiguration {
     /* Constants */
     private final static String parsed_config = "Parsed config file, got:\n%s\n";
+    private final static String saperator = ",";
 
     /* private fields */
     private final static String regex_string = "(.+)=(.+)";
@@ -21,6 +25,9 @@ public class Configuration implements IConfiguration {
     private String rootAbsolutePath = null;
     private int maxDownloaders;
     private int maxAnalyzers;
+    private HashSet<String> imageExtensions;
+    private HashSet<String> videoExtensions;
+    private HashSet<String> documentExtensions;
 
     /**
      * Creates a configuration object with all the details regarding the server settings.
