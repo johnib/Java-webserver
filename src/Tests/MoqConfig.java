@@ -94,6 +94,7 @@ public class MoqConfig implements IConfiguration {
         this.maxAnalyzers = maxAnalyzers;
     }
 
+    @Override
     public HashSet<String> getImageExtensions() {
         return imageExtensions;
     }
@@ -102,6 +103,7 @@ public class MoqConfig implements IConfiguration {
         this.imageExtensions = imageExtensions;
     }
 
+    @Override
     public HashSet<String> getVideoExtensions() {
         return videoExtensions;
     }
@@ -110,6 +112,7 @@ public class MoqConfig implements IConfiguration {
         this.videoExtensions = videoExtensions;
     }
 
+    @Override
     public HashSet<String> getDocumentExtensions() {
         return documentExtensions;
     }

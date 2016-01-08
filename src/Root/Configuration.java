@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 public class Configuration implements IConfiguration {
     /* Constants */
     private final static String parsed_config = "Parsed config file, got:\n%s\n";
-    private final static String saperator = ",";
+    private final static String seperator = ",";
 
     /* private fields */
     private final static String regex_string = "(.+)=(.+)";
@@ -57,6 +58,9 @@ public class Configuration implements IConfiguration {
         this.defaultPage = dict.get("defaultpage");
         this.maxDownloaders = Integer.parseInt(dict.get("maxdownloaders"));
         this.maxAnalyzers = Integer.parseInt(dict.get("maxanalyzers"));
+        this.imageExtensions = new HashSet<>(Arrays.asList(dict.get("imageextensions").split(seperator)));
+        this.videoExtensions = new HashSet<>(Arrays.asList(dict.get("videoextensions").split(seperator)));
+        this.documentExtensions = new HashSet<>(Arrays.asList(dict.get("documentextensions").split(seperator)));
 
         System.out.printf(parsed_config, parser.toString());
     }
@@ -112,5 +116,20 @@ public class Configuration implements IConfiguration {
     @Override
     public int getMaxAnalyzers() {
         return maxAnalyzers;
+    }
+
+    @Override
+    public HashSet<String> getImageExtensions() {
+        return imageExtensions;
+    }
+
+    @Override
+    public HashSet<String> getVideoExtensions() {
+        return videoExtensions;
+    }
+
+    @Override
+    public HashSet<String> getDocumentExtensions() {
+        return documentExtensions;
     }
 }

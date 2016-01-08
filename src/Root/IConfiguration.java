@@ -1,6 +1,7 @@
 package Root;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 08/01/2016.
@@ -24,4 +25,10 @@ public interface IConfiguration {
     int getMaxDownloaders();
 
     int getMaxAnalyzers();
+
+    HashSet<String> getImageExtensions();
+
+    HashSet<String> getVideoExtensions();
+
+    HashSet<String> getDocumentExtensions();
 }
