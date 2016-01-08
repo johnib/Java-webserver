@@ -1,10 +1,10 @@
-/**
+package Root; /**
  * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 
 /**
- * This class will manage the whole crawler procedure once the RunnableClient put the first URL task.
+ * This class will manage the whole crawler procedure once the Root.RunnableClient put the first URL task.
  */
 public class Crawler {
     private static Crawler instance = null;
@@ -25,12 +25,12 @@ public class Crawler {
     }
 
     /**
-     * Please init the Crawler class before using the instance.
+     * Please init the Root.Crawler class before using the instance.
      * @return The single instance of the crawler
      * @throws NullPointerException if the class wasn't init
      */
     public static Crawler getInstance() {
-        if (instance == null) throw new NullPointerException("Please init the Crawler class before using the instance.");
+        if (instance == null) throw new NullPointerException("Please init the Root.Crawler class before using the instance.");
         return instance;
     }
 

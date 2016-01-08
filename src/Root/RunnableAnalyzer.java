@@ -1,3 +1,5 @@
+package Root;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -21,18 +23,27 @@ public class RunnableAnalyzer implements Runnable {
     @Override
     public void run() {
         // the reason parsing is done here and not in the constructor
-        // is because the thread that constructs this object is a RunnableDownloader.
+        // is because the thread that constructs this object is a Root.RunnableDownloader.
         Map<String, String> urls = htmlParser.parse(html);
-        for (String key : urls.keySet()) {
-            String fullUrl = key.contains("uri") ? this.sourceUrl.getProtocol() + "://" + this.sourceUrl.getAuthority() + urls.get(key) : urls.get(key);
+        for (String currentUrl : urls.keySet()) {
+
+            // build full url string
+            String fullUrl;
+            if (currentUrl.contains("uri")) {
+                fullUrl = this.sourceUrl.toString().substring(0, this.sourceUrl.toString().lastIndexOf('/') + 1) + urls.get(currentUrl);
+            } else {
+                fullUrl = urls.get(currentUrl);
+            }
+
+            // create URL object
             try {
                 URL url = new URL(fullUrl);
                 crawler.pushDownloadUrlTask(new RunnableDownloader(url));
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
+
+
         }
-
-
     }
 }

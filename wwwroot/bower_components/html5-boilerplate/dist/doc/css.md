@@ -7,7 +7,7 @@ HTML5 Boilerplate's CSS includes:
 
 * [Normalize.css](#normalizecss)
 * [Useful defaults](#useful-defaults)
-* [Common helpers](#common-helpers)
+* [Root.Common helpers](#common-helpers)
 * [Placeholder media queries](#media-queries)
 * [Print styles](#print-styles)
 
@@ -54,7 +54,7 @@ You are free and even encouraged to modify or add to these base styles as your
 project requires.
 
 
-## Common helpers
+## Root.Common helpers
 
 Along with the base styles, we also provide some commonly used helper classes.
 

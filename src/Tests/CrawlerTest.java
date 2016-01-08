@@ -24,7 +24,7 @@ public class CrawlerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testInit() throws Exception {
-     //   Crawler.Init(new Configuration());
+     //   Root.Crawler.Init(new Root.Configuration());
     }
 
     @Test

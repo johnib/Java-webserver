@@ -96,7 +96,7 @@ Charset](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-cha
 element (which should go right at the top of the `head`), so the browser can
 act on them ASAP.
 
-#### Common Prefetch Links
+#### Root.Common Prefetch Links
 
 Amazon S3:
 

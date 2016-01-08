@@ -1,3 +1,5 @@
+package Root;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,9 +14,9 @@ public class Server {
 
     private final static String server_error = "Error listening on: %s\nFor reason: %s\n Try a different port?\n";
     private final static String fatal_error = "FATAL error, exiting\n";
-    //    private final static String init_success = "Server: instantiated successfully with configuration:\n%s\n";
-    private final static String server_started = "Server: Started successfully\n";
-    private final static String listen_fail = "Server cannot listen, not running\n";
+    //    private final static String init_success = "Root.Server: instantiated successfully with configuration:\n%s\n";
+    private final static String server_started = "Root.Server: Started successfully\n";
+    private final static String listen_fail = "Root.Server cannot listen, not running\n";
 
     /* private fields */
     private final ThreadPool pool;

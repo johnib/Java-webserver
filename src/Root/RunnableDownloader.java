@@ -1,3 +1,5 @@
+package Root;
+
 import java.io.*;
 import java.net.URL;
 
@@ -27,7 +29,7 @@ public class RunnableDownloader implements Runnable  {
             buffer = new BufferedReader(new InputStreamReader(stream));
             FileUtils.writeToFile(tempFile, buffer);
             // TODO: Complete when analyzer is.
-            //Crawler.getInstance().pushAnalyzerHtmlTask();
+            //Root.Crawler.getInstance().pushAnalyzerHtmlTask();
 
         } catch (IOException ioException) {
             ioException.printStackTrace();

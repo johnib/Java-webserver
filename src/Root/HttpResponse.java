@@ -1,3 +1,5 @@
+package Root;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -17,7 +19,7 @@ public class HttpResponse {
     private final static String statusLine = "HTTP/1.1 %1d %2s" + CRLF + "Date: %3s" + CRLF;
     private final static String generalHeaders = "Connection: close" + CRLF;
     private final static String generalHeadersChunked = "Transfer-Encoding: chunked" + CRLF;
-    private final static String responseHeaders = "Server: CoolServer/1.0" + CRLF;
+    private final static String responseHeaders = "Root.Server: CoolServer/1.0" + CRLF;
     private final static String entityHeadersLastMod = "Last-Modified: %1s" + CRLF;
     private final static String entityHeadersContentType = "Content-Type: %1s" + CRLF;
     private final static String entityHeadersContentLength = "Content-Length: %1d" + CRLF;
