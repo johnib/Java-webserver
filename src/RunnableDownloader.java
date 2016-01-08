@@ -30,17 +30,14 @@ public class RunnableDownloader implements Runnable  {
             buffer = new BufferedReader(new InputStreamReader(stream));
             FileUtills.writeToFile(tempFile, buffer);
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         } finally {
             try {
                 if (stream != null) stream.close();
-            } catch (IOException e) {
+            } catch (IOException ignore) {
                 // Left empty
             }
         }
-
     }
 }
