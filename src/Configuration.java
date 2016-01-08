@@ -8,7 +8,7 @@ import java.util.Map;
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
-public class Configuration {
+public class Configuration implements IConfiguration {
     /* Constants */
     private final static String parsed_config = "Parsed config file, got:\n%s\n";
 
@@ -55,14 +55,17 @@ public class Configuration {
     }
 
     /* getters */
+    @Override
     public int getPort() {
         return port;
     }
 
+    @Override
     public int getMaxThreads() {
         return maxThreads;
     }
 
+    @Override
     public String getRoot(HTTPRequest httpRequest) {
         String hostName = httpRequest.getHost();
 
@@ -71,30 +74,35 @@ public class Configuration {
         return hostConfig.root;
     }
 
+    @Override
     public String getDefaultPage() {
         return defaultPage;
     }
 
     /* TODO: change this when we do the bonus multi host names */
+    @Override
     public Configuration getHostConfiguration(String hostName) {
         return this;
     }
 
+    @Override
     public String getRootAbsolutePath(HTTPRequest httpRequest) throws IOException {
         if (this.rootAbsolutePath != null) return this.rootAbsolutePath;
 
         // Getting the system absolute path.
-        Configuration config = getHostConfiguration(httpRequest.getHost());
+        IConfiguration config = getHostConfiguration(httpRequest.getHost());
         File file = new File(config.getRoot(httpRequest));
         this.rootAbsolutePath = file.getCanonicalFile().getAbsolutePath();
 
         return this.rootAbsolutePath;
     }
 
+    @Override
     public int getMaxDownloaders() {
         return maxDownloaders;
     }
 
+    @Override
     public int getMaxAnalyzers() {
         return maxAnalyzers;
     }

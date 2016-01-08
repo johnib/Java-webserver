@@ -1,7 +1,5 @@
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 08/01/2016.
@@ -22,13 +20,14 @@ public class RunnableDownloader implements Runnable  {
 
         InputStream stream = null;
         BufferedReader buffer;
-        String line;
 
         try {
             File tempFile = File.createTempFile(tempFilePrefix, tempFileSuffixs);  // throws an IOException
             stream = downloadUrl.openStream();  // throws an IOException
             buffer = new BufferedReader(new InputStreamReader(stream));
-            FileUtills.writeToFile(tempFile, buffer);
+            FileUtils.writeToFile(tempFile, buffer);
+            // TODO: Complete when analyzer is.
+            //Crawler.getInstance().pushAnalyzerHtmlTask();
 
         } catch (IOException ioException) {
             ioException.printStackTrace();

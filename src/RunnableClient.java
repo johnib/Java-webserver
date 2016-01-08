@@ -22,7 +22,7 @@ public class RunnableClient implements Runnable {
 
     /* private fields */
     private final Socket socket;
-    private Configuration config;
+    private IConfiguration config;
     private HTTPRequest httpRequest;
     private boolean wasErrorSent = false;
 
@@ -33,7 +33,7 @@ public class RunnableClient implements Runnable {
      * @param clientSocket the socket
      * @param config       The server configuration
      */
-    public RunnableClient(Socket clientSocket, Configuration config) {
+    public RunnableClient(Socket clientSocket, IConfiguration config) {
         this.socket = clientSocket;
         this.config = config;
     }
@@ -219,7 +219,7 @@ public class RunnableClient implements Runnable {
         }
     }
 
-    private boolean isPathTraversalAttack(File file, HTTPRequest httpRequest, Configuration config) {
+    private boolean isPathTraversalAttack(File file, HTTPRequest httpRequest, IConfiguration config) {
         try {
             // Get the default path of the web site
             String root = config.getRootAbsolutePath(httpRequest);
