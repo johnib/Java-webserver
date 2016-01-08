@@ -48,8 +48,8 @@ public class Configuration {
         this.port = Integer.parseInt(dict.get("port"));
         this.maxThreads = Integer.parseInt(dict.get("maxthreads"));
         this.defaultPage = dict.get("defaultpage");
-        this.maxDownloaders = Integer.parseInt(dict.get("maxDownloaders"));
-        this.maxAnalyzers = Integer.parseInt(dict.get("maxAnalyzers"));
+        this.maxDownloaders = Integer.parseInt(dict.get("maxdownloaders"));
+        this.maxAnalyzers = Integer.parseInt(dict.get("maxanalyzers"));
 
         System.out.printf(parsed_config, parser.toString());
     }

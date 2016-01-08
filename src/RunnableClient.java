@@ -18,7 +18,8 @@ public class RunnableClient implements Runnable {
     private final static String closed_by_the_client = "Connection was forced closed by the client\n";
     private final static byte[] parameter_response_body_up = "<html><body>".getBytes(StandardCharsets.US_ASCII);
     private static final String crawlPath = "/crawl"; //TODO: can be changed to execResult.html later
-    private static final String crawlhistoryPath = "/get-history";
+    private static final String crawlHistoryPath = "/get-history";
+
     /* private fields */
     private final Socket socket;
     private Configuration config;
@@ -64,12 +65,6 @@ public class RunnableClient implements Runnable {
         }
 
         try {
-            // The question say using post not get... RequestType.GET.name().compareToIgnoreCase(String.valueOf(httpRequest.getMethod())) == 0 ||
-            if (httpRequest.getPath().equals("/params_info.html") &&
-                    (RequestType.POST.name().compareToIgnoreCase(String.valueOf(httpRequest.getMethod())) == 0)) {
-                this.sendParameterResponse();
-            }
-
             switch (httpRequest.getMethod()) {
                 case GET:
                     this.sendGetResponse();
@@ -78,11 +73,9 @@ public class RunnableClient implements Runnable {
                     this.sendGetResponse();
                     break;
                 case TRACE:
-                    //TODO: test
                     this.sendTraceResponse();
                     break;
                 case HEAD:
-                    //TODO: test
                     this.sendHeadResponse();
                     break;
                 case OPTIONS:
@@ -104,25 +97,6 @@ public class RunnableClient implements Runnable {
             }
         } finally {
             this.close();
-        }
-    }
-
-    private void sendParameterResponse() throws IOException {
-        ByteArrayOutputStream outputStreamBody = new ByteArrayOutputStream();
-
-        outputStreamBody.write(parameter_response_body_up);
-
-        for (String key : this.httpRequest.getPayloadDict().keySet()) {
-
-            outputStreamBody.write((key + " -> " + this.httpRequest.getPayloadDict().get(key) + "<BR />").getBytes());
-        }
-
-        sendResponse(new HttpResponse(outputStreamBody.toByteArray(), 200, "text/html", this.httpRequest, this.config));
-
-        // Closing the stream
-        try {
-            outputStreamBody.close();
-        } catch (IOException ignored) {
         }
     }
 
@@ -195,7 +169,7 @@ public class RunnableClient implements Runnable {
 
                 return null;
 
-            case crawlhistoryPath:
+            case crawlHistoryPath:
                 //TODO: define behaviour to extract history crawling
                 System.err.println("crawl history path");
 
