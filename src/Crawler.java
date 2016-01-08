@@ -51,7 +51,7 @@ public class Crawler {
     }
 
     // TODO: change signature to driven type
-    public void pushAnzlyzeHtmlTask(Runnable task) {
+    public void pushAnalyzeHtmlTask(Runnable task) {
         this.analyzers.addTask(task);
     }
 

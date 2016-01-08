@@ -22,13 +22,14 @@ public class RunnableDownloader implements Runnable  {
 
         InputStream stream = null;
         BufferedReader buffer;
-        String line;
 
         try {
             File tempFile = File.createTempFile(tempFilePrefix, tempFileSuffixs);  // throws an IOException
             stream = downloadUrl.openStream();  // throws an IOException
             buffer = new BufferedReader(new InputStreamReader(stream));
             FileUtills.writeToFile(tempFile, buffer);
+            // TODO: Complet when analyzer is.
+            //Crawler.getInstance().pushAnalyzerHtmlTask();
 
         } catch (IOException ioException) {
             ioException.printStackTrace();
