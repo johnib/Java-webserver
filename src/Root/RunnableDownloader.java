@@ -25,11 +25,13 @@ public class RunnableDownloader implements Runnable  {
 
         try {
             File tempFile = File.createTempFile(tempFilePrefix, tempFileSuffixs);  // throws an IOException
+            Logger.writeAssignmentTrace("Downloader starts downloading URL: " + downloadUrl);
             stream = downloadUrl.openStream();  // throws an IOException
             buffer = new BufferedReader(new InputStreamReader(stream));
             FileUtils.writeToFile(tempFile, buffer);
-            // TODO: Complete when analyzer is.
-            //Root.Crawler.getInstance().pushAnalyzerHtmlTask();
+            Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + downloadUrl);
+            // TODO: Check if the analyzer need a path to a file or the text of the html
+            Root.Crawler.getInstance().pushAnzlyzeHtmlTask(new RunnableAnalyzer(downloadUrl, tempFile.getAbsolutePath()));
 
         } catch (IOException ioException) {
             ioException.printStackTrace();

@@ -1,8 +1,12 @@
 package Tests;
 
+import Root.Crawler;
+import Root.RunnableDownloader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.URL;
 
 import static org.junit.Assert.*;
 
@@ -11,10 +15,14 @@ import static org.junit.Assert.*;
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 public class CrawlerTest {
+    MoqConfig moqConfig;
 
     @Before
     public void setUp() throws Exception {
-
+        moqConfig = new MoqConfig();
+        moqConfig.setMaxAnalyzers(1);
+        moqConfig.setMaxDownloaders(1);
+        Root.Crawler.Init(moqConfig);
     }
 
     @After
@@ -24,22 +32,20 @@ public class CrawlerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testInit() throws Exception {
-     //   Root.Crawler.Init(new Root.Configuration());
+        if (!Root.Crawler.wasInit()) Root.Crawler.Init(moqConfig);
+        Root.Crawler.Init(moqConfig);
     }
 
     @Test
     public void testGetInstance() throws Exception {
-
-    }
-
-    @Test
-    public void testStart() throws Exception {
-
+        Crawler instance = Crawler.getInstance();
+        org.junit.Assert.assertNotNull(instance);
     }
 
     @Test
     public void testPushDownloadUrlTask() throws Exception {
-
+        Crawler instance = Crawler.getInstance();
+        instance.pushDownloadUrlTask(new RunnableDownloader(new URL("http://computernetworkstest.azurewebsites.net/")));
     }
 
     @Test

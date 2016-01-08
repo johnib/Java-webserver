@@ -119,4 +119,8 @@ public class ThreadPool {
             System.err.printf(started_err);
         }
     }
+
+    public boolean isQueueEmpty(){
+        return tasksQueue.isEmpty();
+    }
 }

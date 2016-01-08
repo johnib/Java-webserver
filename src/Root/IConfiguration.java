@@ -17,7 +17,7 @@ public interface IConfiguration {
     String getDefaultPage();
 
     /* TODO: change this when we do the bonus multi host names */
-    Configuration getHostConfiguration(String hostName);
+    IConfiguration getHostConfiguration(String hostName);
 
     String getRootAbsolutePath(HTTPRequest httpRequest) throws IOException;
 

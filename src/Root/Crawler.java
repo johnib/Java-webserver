@@ -8,10 +8,10 @@ package Root; /**
  */
 public class Crawler {
     private static Crawler instance = null;
+    private static boolean wasInit = false;
+
     private ThreadPool downloaders;
     private ThreadPool analyzers;
-
-    private boolean working = false;
 
     /**
      * Singleton dose not spouse to have a constructor this is the solution
@@ -21,7 +21,8 @@ public class Crawler {
     public static void Init(IConfiguration config) {
         if (instance != null) throw new UnsupportedOperationException("The crawler is already init. only one instance of the class is allowed.");
         instance = new Crawler(config);
-
+        wasInit = true;
+        instance.start();
     }
 
     /**
@@ -40,8 +41,12 @@ public class Crawler {
         this.analyzers = new ThreadPool(config.getMaxAnalyzers());
     }
 
+    public static boolean wasInit() {
+        return wasInit;
+    }
 
-    public void start() {
+
+    private void start() {
         this.analyzers.start();
         this.downloaders.start();
     }
@@ -50,13 +55,11 @@ public class Crawler {
         this.downloaders.addTask(task);
     }
 
-    // TODO: change signature to driven type
     public void pushAnzlyzeHtmlTask(RunnableAnalyzer task) {
         this.analyzers.addTask(task);
     }
 
-    // TODO: Check if the queues are empty
     public boolean isWorking() {
-        return working;
+        return !this.analyzers.isQueueEmpty() || !this.downloaders.isQueueEmpty();
     }
 }
