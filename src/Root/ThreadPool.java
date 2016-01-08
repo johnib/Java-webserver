@@ -33,12 +33,13 @@ public class ThreadPool {
      * Root.ThreadPool initializer.
      *
      * @param numOfThreads the number of threads in the pool
+     * @param poolName - the name of the pool for the tracing
      */
-    public ThreadPool(int numOfThreads) {
+    public ThreadPool(int numOfThreads, String poolName) {
         this.threads = new ArrayList<>(numOfThreads);
 
         for (int i = 0; i < numOfThreads; i++) {
-            threads.add(new ClientThread(tasksQueue));
+            threads.add(new ClientThread(tasksQueue, poolName));
         }
 
         System.out.printf(init_msg);

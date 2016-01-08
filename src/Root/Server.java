@@ -33,7 +33,7 @@ public class Server {
         this.config = IConfiguration;
 
         /* create thread pool */
-        this.pool = new ThreadPool(config.getMaxThreads());
+        this.pool = new ThreadPool(config.getMaxThreads(), null);
 
         //System.out.printf(init_success, parser.toString());
     }

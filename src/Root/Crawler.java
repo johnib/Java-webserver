@@ -37,8 +37,8 @@ public class Crawler {
 
 
     private Crawler(IConfiguration config) {
-        this.downloaders = new ThreadPool(config.getMaxDownloaders());
-        this.analyzers = new ThreadPool(config.getMaxAnalyzers());
+        this.downloaders = new ThreadPool(config.getMaxDownloaders(), "Downloader");
+        this.analyzers = new ThreadPool(config.getMaxAnalyzers(), "Analyzer");
     }
 
     public static boolean wasInit() {

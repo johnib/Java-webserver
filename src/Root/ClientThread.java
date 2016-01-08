@@ -16,15 +16,18 @@ public class ClientThread extends Thread {
     public int handledTasksCount = 0;
     // the tasks queue
     private LinkedBlockingQueue<Runnable> queue;
+    private String poolName;
 
     /**
      * Constructs a new pool thread.
      *
      * @param queue the tasks queue.
+     * @param poolName name of the pool. used to print traces
      */
-    public ClientThread(LinkedBlockingQueue<Runnable> queue) {
+    public ClientThread(LinkedBlockingQueue<Runnable> queue, String poolName) {
         super();
         this.queue = queue;
+        this.poolName = poolName;
     }
 
     @SuppressWarnings("InfiniteLoopStatement")
@@ -35,7 +38,10 @@ public class ClientThread extends Thread {
             while (true) {
                 // get the next task and handle it
                 // System.out.printf(task_pop, Thread.currentThread().getId());
+                // TODO: check the google docs question number 5
                 Runnable task = queue.take();
+                int queueSize = queue.size();
+                Logger.writeAssignmentTrace(String.format("%s dequeue from their queue. number of items:%d", poolName, queueSize));
 
                 System.out.printf(task_picked, Thread.currentThread().getId());
 
