@@ -18,17 +18,17 @@ public class Server {
 
     /* private fields */
     private final ThreadPool pool;
-    private final Configuration config;
+    private final IConfiguration config;
     private boolean serverRunning;
     private ServerSocket serverSocket;
 
     /**
      * Creates a new server with config file.
      *
-     * @param configuration the server configuration must consist of port, maxThreads, root, defaultPage keys.
+     * @param IConfiguration the server configuration must consist of port, maxThreads, root, defaultPage keys.
      */
-    public Server(Configuration configuration) {
-        this.config = configuration;
+    public Server(IConfiguration IConfiguration) {
+        this.config = IConfiguration;
 
         /* create thread pool */
         this.pool = new ThreadPool(config.getMaxThreads());

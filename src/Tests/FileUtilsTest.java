@@ -1,3 +1,5 @@
+package Tests;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -21,7 +23,8 @@ public class FileUtilsTest {
         try(InputStream is = new ByteArrayInputStream(str.getBytes())) {
             // read it with BufferedReader
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-                FileUtils.writeToFile(tempFile, br);
+                // TODO: rename default package and then reference
+                //FileUtils.writeToFile(tempFile, br);
             }
         }
 

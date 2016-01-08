@@ -18,7 +18,7 @@ public class Crawler {
      * @param config - config file containing downloaders and analyzers config
      * @throws UnsupportedOperationException if the class was already init
      */
-    public static void Init(Configuration config) {
+    public static void Init(IConfiguration config) {
         if (instance != null) throw new UnsupportedOperationException("The crawler is already init. only one instance of the class is allowed.");
         instance = new Crawler(config);
 
@@ -35,7 +35,7 @@ public class Crawler {
     }
 
 
-    private Crawler(Configuration config) {
+    private Crawler(IConfiguration config) {
         this.downloaders = new ThreadPool(config.getMaxDownloaders());
         this.analyzers = new ThreadPool(config.getMaxAnalyzers());
     }

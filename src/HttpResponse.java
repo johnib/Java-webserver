@@ -36,7 +36,7 @@ public class HttpResponse {
     private byte[] body = null;
     private final Integer defaultChunkSize = 64;
 
-    public HttpResponse(File file, int statusCode, String contentType, HTTPRequest request, Configuration config) {
+    public HttpResponse(File file, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
 
         this.file = file;
         this.statusCode = statusCode;
@@ -64,7 +64,7 @@ public class HttpResponse {
         }
     }
 
-    public HttpResponse(byte[] body, int statusCode, String contentType, HTTPRequest request, Configuration config) {
+    public HttpResponse(byte[] body, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
         this((File) null, statusCode, contentType, request, config);
         this.body = body;
     }
