@@ -16,25 +16,21 @@ import java.nio.charset.StandardCharsets;
 public class RunnableClient implements Runnable {
     /* Constants */
     private final static String closed_by_the_client = "Connection was forced closed by the client\n";
-    private final static String empty_request = "The client request was empty\n";
     private final static byte[] parameter_response_body_up = "<html><body>".getBytes(StandardCharsets.US_ASCII);
-    private final static byte[] parameter_response_body_down = "</body></html>".getBytes(StandardCharsets.US_ASCII);
-
-    // response constants
-
-    private static final String CRLF = Common.CRLF;
-
+    private static final String crawlPath = "/crawl"; //TODO: can be changed to execResult.html later
+    private static final String crawlhistoryPath = "/get-history";
     /* private fields */
     private final Socket socket;
     private Configuration config;
     private HTTPRequest httpRequest;
     private boolean wasErrorSent = false;
 
+
     /**
      * Creates a Runnable wrapper for the given socket.
      *
      * @param clientSocket the socket
-     * @param config The server configuration
+     * @param config       The server configuration
      */
     public RunnableClient(Socket clientSocket, Configuration config) {
         this.socket = clientSocket;
@@ -59,6 +55,7 @@ public class RunnableClient implements Runnable {
                 sendResponseBadRequest();
                 return;
             }
+
         } catch (Exception ex) {
             System.out.println("Problem parsing the data");
             this.wasErrorSent = true;
@@ -66,10 +63,7 @@ public class RunnableClient implements Runnable {
             return;
         }
 
-
         try {
-
-
             // The question say using post not get... RequestType.GET.name().compareToIgnoreCase(String.valueOf(httpRequest.getMethod())) == 0 ||
             if (httpRequest.getPath().equals("/params_info.html") &&
                     (RequestType.POST.name().compareToIgnoreCase(String.valueOf(httpRequest.getMethod())) == 0)) {
@@ -102,6 +96,7 @@ public class RunnableClient implements Runnable {
                     this.sendResponseBadRequest();
                     break;
             }
+
         } catch (Exception e) {
             if (!this.wasErrorSent) {
                 this.wasErrorSent = true;
@@ -117,7 +112,7 @@ public class RunnableClient implements Runnable {
 
         outputStreamBody.write(parameter_response_body_up);
 
-        for (String key: this.httpRequest.getPayloadDict().keySet()) {
+        for (String key : this.httpRequest.getPayloadDict().keySet()) {
 
             outputStreamBody.write((key + " -> " + this.httpRequest.getPayloadDict().get(key) + "<BR />").getBytes());
         }
@@ -135,10 +130,10 @@ public class RunnableClient implements Runnable {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             byte[] headers;
-            if (this.httpRequest.getPath().equals("*")){
-                headers = new HttpResponse((byte[])null, 200, null, this.httpRequest, this.config).getHeaders();
+            if (this.httpRequest.getPath().equals("*")) {
+                headers = new HttpResponse((byte[]) null, 200, null, this.httpRequest, this.config).getHeaders();
             } else {
-                headers = parseGetResponse(this.httpRequest).getHeaders();
+                headers = this.parseGetResponse(this.httpRequest).getHeaders();
             }
 
             outputStream.write(headers);
@@ -178,58 +173,76 @@ public class RunnableClient implements Runnable {
     }
 
     private void sendHeadResponse() {
-        byte[] headers = parseGetResponse(this.httpRequest).getHeaders();
-        sendResponse(headers);
+        byte[] headers = this.parseGetResponse(this.httpRequest).getHeaders();
+        this.sendResponse(headers);
 
         System.out.println("-- Response Headers --");
         System.out.println(new String(headers));
     }
 
     private void sendGetResponse() {
-        HttpResponse response = parseGetResponse(httpRequest);
-        sendResponse(response);
+        HttpResponse response = this.parseGetResponse(httpRequest);
+        this.sendResponse(response);
     }
 
     private HttpResponse parseGetResponse(HTTPRequest httpRequest) {
         String path = httpRequest.getPath();
-        File file = new File(config.getRoot(httpRequest), path);
 
-        // keep the path secured under the wwwroot/ folder
-        if (isPathTraversalAttack(file, httpRequest, config)) {
-            return getResponseBadRequest();
+        switch (path) {
+            case crawlPath:
+                //TODO: define behaviour for crawler
+                System.err.println("crawl path");
+
+                return null;
+
+            case crawlhistoryPath:
+                //TODO: define behaviour to extract history crawling
+                System.err.println("crawl history path");
+
+                return null;
+
+            default:
+                // normal web server behaviour
+
+                File file = new File(config.getRoot(httpRequest), path);
+
+                // keep the path secured under the wwwroot/ folder
+                if (isPathTraversalAttack(file, httpRequest, config)) {
+                    return getResponseBadRequest();
+                }
+
+                // First, make sure the path exists
+                if (!file.exists()) {
+                    // return File Not Found (Even if it's a directory)
+                    return getResponseFileNotFound();
+                }
+
+                // If it is a directory take the default file
+                if (file.isDirectory()) {
+                    file = new File(file.getAbsolutePath(), config.getDefaultPage());
+
+                    // In case the default file was not present
+                    if (!file.exists()) {
+                        return getResponseFileNotFound();
+                    }
+                }
+
+                // Check the file type
+                int extIndex = file.getName().lastIndexOf('.');
+                if (extIndex > 0) {
+                    String ext = file.getName().substring(extIndex);
+                    if (".bmp, .gif, .png, .jpg".contains(ext)) {
+                        return getResponseFile(file, "image");
+                    } else if (ext.endsWith(".ico")) {
+                        return getResponseFile(file, "icon");
+                    } else if (".html, .htm, .php, .js".contains(ext)) {
+                        return getResponseFile(file, "text/html");
+                    }
+                }
+
+                // This is the default behavior
+                return getResponseFile(file, "application/octet-stream");
         }
-
-        // First, make sure the path exists
-        if (!file.exists()) {
-            // return File Not Found (Even if it's a directory)
-            return getResponseFileNotFound();
-        }
-
-        // If it is a directory take the default file
-        if (file.isDirectory()) {
-            file = new File(file.getAbsolutePath(), config.getDefaultPage());
-
-            // In case the default file was not present
-            if (!file.exists()) {
-                return getResponseFileNotFound();
-            }
-        }
-
-        // Check the file type
-        int extIndex = file.getName().lastIndexOf('.');
-        if (extIndex > 0) {
-            String ext = file.getName().substring(extIndex);
-            if (".bmp, .gif, .png, .jpg".contains(ext)) {
-                return getResponseFile(file, "image");
-            } else if (ext.endsWith(".ico")) {
-                return getResponseFile(file, "icon");
-            } else if (".html, .htm, .php, .js".contains(ext)) {
-                return getResponseFile(file, "text/html");
-            }
-        }
-
-        // This is the default behavior
-        return getResponseFile(file, "application/octet-stream");
     }
 
     private boolean isPathTraversalAttack(File file, HTTPRequest httpRequest, Configuration config) {

@@ -29,7 +29,7 @@ public class Parser {
      */
     public Map<String, String> parse(String text) {
         Map<String, String> dict = new HashMap<>();
-        Matcher m = regexPattern.matcher(text);
+        Matcher m = this.regexPattern.matcher(text);
 
         while (m.find()) {
             dict.put(m.group(1).toLowerCase(), m.group(2));

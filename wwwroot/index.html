@@ -1,50 +1,21 @@
 <html>
-	<head>
-		<title>Exercise #1: November 2015</title>
-	</head>
+<head>
+    <meta charset="utf-8">
+    <title>Crawler App</title>
+    <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
+    <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+    <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
+</head>
+<body ng-app="myApp">
+<div ng-view></div>
 
-	<body>
-		<marquee>
-			<h1 style="color: green">
-				Computer networks 2015/2016: Ex. #1
-			</h1>
-		</marquee>
-		<h1 style="color: blue">
-			Nitsan Bracha, Jonathan Rubin Yaniv
-		</h1>
-
-		<p>
-			Show me the last image: <a href="#last">Click</a>
-		</p>
-
-		<p>
-			Show me the form: <a href="#anchor">Click</a>
-		</p>
-
-		<center>
-			<img src="https://pbs.twimg.com/profile_images/604644048/sign051.gif" style="width: 10%; height: 10%">
-			<img src="http://www.w3schools.com/html/html5.gif" style="width: 10%; height: 10%">
-			<img src="http://www.w3schools.com/html/pic_mountain.jpg" style="width: 10%; height: 10%">
-			<img src="http://www.w3schools.com/html/pic_graph.png" style="width: 10%; height: 10%">
-			<img src="http://www.w3schools.com/images/colorpicker.gif" style="width: 10%; height: 10%">
-		</center>
-
-		<a href="http://moodle.idc.ac.il/course/view.php?id=22816">Course page</a>
-		<br/>
-		<a href="http://google.com">Favorite page</a>
-		<hr/>
-
-		<img src="hand-cool.jpg" id="last" style="width: 100%; height: 35%">
-
-		<form action="params_info.html" method="post">
-			Text area: <br/>
-			<input id="Textarea" type="text" name="Textarea">
-			<br/>
-			Checkbox:<br/>
-			<input type="checkbox" name="checkbox">
-			<br/>
-			<input type="submit">
-		</form>
-	</body>
-
+<!-- In production use:
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
+-->
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-route/angular-route.js"></script>
+<script src="app.js"></script>
+<script src="view1/view1.js"></script>
+</body>
 </html>
