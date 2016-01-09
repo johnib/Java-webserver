@@ -26,9 +26,8 @@ public class RunnableDownloader implements Runnable  {
                     Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + downloadUrl);
                 }
             }
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-            Logger.writeError(ioException);
+        } catch (Exception ex) {
+            Logger.writeException(ex);
         }
     }
 

@@ -24,6 +24,11 @@ public class Logger {
         if (level >= 1) System.err.println(trace.toString());
     }
 
+    public static void writeException(Exception ex) {
+        writeError("An exception occurred");
+        if (level >= 0) ex.printStackTrace();
+    }
+
     public static void writeAssignmentTrace(String trace) {
         System.out.println(trace);
     }
