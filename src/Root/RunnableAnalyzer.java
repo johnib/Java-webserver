@@ -37,7 +37,7 @@ public class RunnableAnalyzer implements Runnable {
 
             // create URL object
             try {
-                URL url = new URL(fullUrl);
+                URL url = new URL(fullUrl); // TODO: switch to our own URL class.
                 crawler.pushDownloadUrlTask(new RunnableDownloader(url));
             } catch (MalformedURLException e) {
                 e.printStackTrace();

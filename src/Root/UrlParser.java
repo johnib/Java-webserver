@@ -28,12 +28,12 @@ public class UrlParser extends Parser {
 
         while (m.find()) {
             for (String groupName : capture_groups) {
-                dict.put(groupName, m.group(groupName));
-            }
-        }
+                String value = m.group(groupName);
 
-        if (dict.get("port") == null) {
-            dict.put("port", "80");
+                if (value != null && !value.isEmpty()) {
+                    dict.put(groupName, m.group(groupName));
+                }
+            }
         }
 
         return dict;
