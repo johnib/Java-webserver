@@ -9,8 +9,6 @@ import java.net.URL;
  */
 public class RunnableDownloader implements Runnable  {
     private final URL downloadUrl;
-    private static String tempFilePrefix = "Crawler_";
-    private static String tempFileSuffix = ".html";
 
     public RunnableDownloader(URL downloadUrl) {
         this.downloadUrl = downloadUrl;
@@ -20,27 +18,34 @@ public class RunnableDownloader implements Runnable  {
     public void run() {
         if (downloadUrl == null) return;
 
-        InputStream stream = null;
-        BufferedReader buffer;
-
         try {
-            File tempFile = File.createTempFile(tempFilePrefix, tempFileSuffix);  // throws an IOException
             Logger.writeAssignmentTrace("Downloader starts downloading URL: " + downloadUrl);
-            stream = downloadUrl.openStream();  // throws an IOException
-            buffer = new BufferedReader(new InputStreamReader(stream));
-            FileUtils.writeToFile(tempFile, buffer);
-            Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + downloadUrl);
-            // TODO: Check if the analyzer need a path to a file or the text of the html
-            Root.Crawler.getInstance().pushAnzlyzeHtmlTask(new RunnableAnalyzer(downloadUrl, tempFile.getAbsolutePath()));
-
+            try (InputStream stream = downloadUrl.openStream()) {  // throws an IOException
+                try (BufferedReader buffer = new BufferedReader(new InputStreamReader(stream))) {
+                    Root.Crawler.getInstance().pushAnzlyzeHtmlTask(new RunnableAnalyzer(downloadUrl, ConvertToNoLineEndString(buffer)));
+                    Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + downloadUrl);
+                }
+            }
         } catch (IOException ioException) {
             ioException.printStackTrace();
-        } finally {
-            try {
-                if (stream != null) stream.close();
-            } catch (IOException ignore) {
-                // Left empty
-            }
+            Logger.writeError(ioException);
         }
+    }
+
+    /**
+     * This function converts the buffer to string and removes the line ending
+     * @param buffer The data to read from
+     * @return a string containing all the data
+     * @throws IOException
+     */
+    private static String ConvertToNoLineEndString(BufferedReader buffer) throws IOException {
+        String line;
+        StringBuilder text = new StringBuilder();
+
+        while ((line = buffer.readLine()) != null) {
+            text.append(line);
+        }
+
+        return text.toString();
     }
 }
