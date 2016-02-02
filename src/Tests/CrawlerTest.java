@@ -2,13 +2,10 @@ package Tests;
 
 import Root.Crawler;
 import Root.RunnableDownloader;
+import Root.URL;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.net.URL;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 08/01/2016.
@@ -45,7 +42,7 @@ public class CrawlerTest {
     @Test
     public void testPushDownloadUrlTask() throws Exception {
         Crawler instance = Crawler.getInstance();
-        instance.pushDownloadUrlTask(new RunnableDownloader(new URL("http://computernetworkstest.azurewebsites.net/")));
+        instance.pushDownloadUrlTask(new RunnableDownloader(URL.makeURL("http://computernetworkstest.azurewebsites.net/")));
     }
 
     @Test

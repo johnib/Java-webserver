@@ -1,7 +1,6 @@
 package Root;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 
 /**
@@ -36,14 +35,10 @@ public class RunnableAnalyzer implements Runnable {
             }
 
             // create URL object
-            try {
-                URL url = new URL(fullUrl); // TODO: switch to our own URL class.
+            URL url = URL.makeURL(fullUrl); // TODO: switch to our own URL class.
+            if (url != null) {
                 crawler.pushDownloadUrlTask(new RunnableDownloader(url));
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
             }
-
-
         }
     }
 }
