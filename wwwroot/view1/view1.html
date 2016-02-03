@@ -1,8 +1,8 @@
 <div class="container" ng-controller="View1Ctrl">
-    <h2>Root.Crawler App</h2>
+    <h2>Crawler App</h2>
     <form role="form">
         <div class="form-group">
-            <label for="url">MyURL:</label>
+            <label for="url">URL:</label>
             <input type="text" class="form-control" id="url" placeholder="google.com" ng-model="config.url">
         </div>
         <div class="checkbox">
@@ -18,7 +18,7 @@
     <br/>
     <ul class="list-group">
         <li class="list-group-item" ng-repeat="result in results">
-            <a ng-href="#/Results/{{result.link}}" role="button" class="btn btn-link">
+            <a ng-href="#/results/{{result.link}}" role="button" class="btn btn-link">
                 {{result.domain}} - {{result.dateStart | date:'dd.MM.yyyy'}} - {{result.dateStart | date:'HH:mm:ss'}}
             </a>
         </li>

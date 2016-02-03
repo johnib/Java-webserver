@@ -7,7 +7,7 @@ HTML5 Boilerplate's CSS includes:
 
 * [Normalize.css](#normalizecss)
 * [Useful defaults](#useful-defaults)
-* [Root.Common helpers](#common-helpers)
+* [Common helpers](#common-helpers)
 * [Placeholder media queries](#media-queries)
 * [Print styles](#print-styles)
 
@@ -54,7 +54,7 @@ You are free and even encouraged to modify or add to these base styles as your
 project requires.
 
 
-## Root.Common helpers
+## Common helpers
 
 Along with the base styles, we also provide some commonly used helper classes.
 
@@ -132,7 +132,7 @@ At printing time, these styles will:
 * strip all background colors, change the font color to black, and remove the
   `text-shadow` — done in order to [help save printer ink and speed up the
   printing process](http://www.sanbeiji.com/archives/953)
-* underline and expand links to include the MyURL — done in order to allow users
+* underline and expand links to include the URL — done in order to allow users
   to know where to refer to<br>
   (exceptions to this are: the links that are
   [fragment identifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-href),

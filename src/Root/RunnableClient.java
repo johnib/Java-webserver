@@ -21,12 +21,14 @@ public class RunnableClient implements Runnable {
     private final static byte[] parameter_response_body_up = "<html><body>".getBytes(StandardCharsets.US_ASCII);
     private static final String crawlPath = "/crawl"; //TODO: can be changed to execResult.html later
     private static final String crawlHistoryPath = "/get-history";
+    private static final String dbFileName = "db.json";
 
     /* private fields */
     private final Socket socket;
     private IConfiguration config;
     private HTTPRequest httpRequest;
     private boolean wasErrorSent = false;
+    private File crawlerDataBaseFilePath;
 
 
     /**
@@ -38,6 +40,7 @@ public class RunnableClient implements Runnable {
     public RunnableClient(Socket clientSocket, IConfiguration config) {
         this.socket = clientSocket;
         this.config = config;
+        this.crawlerDataBaseFilePath = new File(config.getRoot() + File.separator + dbFileName);
     }
 
     @Override
@@ -175,7 +178,7 @@ public class RunnableClient implements Runnable {
                 //TODO: define behaviour to extract history crawling
                 System.err.println("crawl history path");
 
-                return null;
+                return this.getResponseFile(this.crawlerDataBaseFilePath, "application/json; charset=utf-8");
 
             default:
                 // normal web server behaviour

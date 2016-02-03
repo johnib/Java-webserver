@@ -6,7 +6,7 @@
   ([#1694](https://github.com/h5bp/html5-boilerplate/issues/1694)).
 * Update high resolution media query
   ([#1474](https://github.com/h5bp/html5-boilerplate/issues/1474)).
-* Update Apache Root.Server Configs to `v2.14.0`.
+* Update Apache Server Configs to `v2.14.0`.
 
 ### 5.1.0 (April 1, 2015)
 
@@ -18,12 +18,12 @@
 * Use `<meta http-equiv="x-ua-compatible" content="ie=edge">`<br>
   instead of `<meta http-equiv="X-UA-Compatible" content="IE=edge">`
   ([#1656](https://github.com/h5bp/html5-boilerplate/issues/1656)).
-* Update Apache Root.Server Configs to `v2.13.0`.
+* Update Apache Server Configs to `v2.13.0`.
 
 ### 5.0.0 (February 1, 2015)
 
 * Update to jQuery 1.11.2.
-* Update Apache Root.Server Configs to v2.11.0.
+* Update Apache Server Configs to v2.11.0.
 * Rename Apple touch icon to `apple-touch-icon.png` and add
   `<link>` in `index.html`
   ([#1622](https://github.com/h5bp/html5-boilerplate/issues/1622)).
@@ -79,7 +79,7 @@
   ([#1367](https://github.com/h5bp/html5-boilerplate/issues/1367)).
 * Move font-related declarations from `body` to `html`
   ([#1411](https://github.com/h5bp/html5-boilerplate/issues/1411)).
-* Update to Apache Root.Server Configs 1.1.0.
+* Update to Apache Server Configs 1.1.0.
 * Add `initial-scale=1` to the viewport `meta`
   ([#1398](https://github.com/h5bp/html5-boilerplate/pull/1398)).
 * Vertical centering for audio-, canvas- and video-tags
@@ -100,7 +100,7 @@
 * Update Apache configurations to include the latest changes in the
   canonical [`.htaccess`](https://github.com/h5bp/server-configs-apache)
   file.
-* Use a protocol relative MyURL for the 404 template script.
+* Use a protocol relative URL for the 404 template script.
 * Update to jQuery 1.9.1.
 
 ### 4.1.0 (January 21, 2013)

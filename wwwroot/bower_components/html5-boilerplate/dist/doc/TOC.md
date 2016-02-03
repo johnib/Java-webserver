@@ -23,7 +23,7 @@ The [H5BP organization](https://github.com/h5bp) maintains several projects
 that complement HTML5 Boilerplate, projects that can help you improve different
 aspects of your website/web app (e.g.: the performance, security, etc.).
 
-* [Root.Server Configs](https://github.com/h5bp/server-configs) — Fast and
+* [Server Configs](https://github.com/h5bp/server-configs) — Fast and
   smart configurations for web servers such as Apache and Nginx.
 * [Ant Build Script](https://github.com/h5bp/ant-build-script) — Apache
   Ant based build script.

@@ -5,7 +5,7 @@ table of contents](TOC.md)
 
 * [.gitignore](#gitignore)
 * [.editorconfig](#editorconfig)
-* [Root.Server Root.Configuration](#server-configuration)
+* [Server Configuration](#server-configuration)
 * [crossdomain.xml](#crossdomainxml)
 * [robots.txt](#robotstxt)
 * [browserconfig.xml](#browserconfigxml)
@@ -59,7 +59,7 @@ For more details, please refer to the [EditorConfig
 project](http://editorconfig.org/).
 
 
-## Root.Server Root.Configuration
+## Server Configuration
 
 H5BP includes a [`.htaccess`](#htaccess) file for the Apache HTTP server. If you are not using
 Apache as your web server, then you are encouraged to download a
@@ -73,7 +73,7 @@ The `.htaccess` file is mostly used for:
 * Rewriting URLs
 * Controlling cache
 * Authentication
-* Root.Server-side includes
+* Server-side includes
 * Redirects
 * Gzipping
 
@@ -93,7 +93,7 @@ In the repo the `.htaccess` is used for:
 * Making the website experience better for IE users better
 * Media UTF-8 as character encoding for `text/html` and `text/plain`
 * Enabling the rewrite URLs engine
-* Forcing or removing the `www.` at the begin of a MyURL
+* Forcing or removing the `www.` at the begin of a URL
 * It blocks access to directories without a default document
 * It blocks access to files that can expose sensitive information.
 * It reduces MIME type security risks

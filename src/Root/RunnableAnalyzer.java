@@ -1,6 +1,5 @@
 package Root;
 
-import java.net.MalformedURLException;
 import java.util.Map;
 
 /**
@@ -21,9 +20,22 @@ public class RunnableAnalyzer implements Runnable {
 
     @Override
     public void run() {
+        this.pushDownloadUrlTasks();
+        this.analyzeHtml();
+    }
+
+    private void analyzeHtml() {
+
+    }
+
+    /**
+     * Extracts all URLs/URIs from the given HTML.
+     * It pushes new URL tasks to the downloader queue.
+     */
+    private void pushDownloadUrlTasks() {
         // the reason parsing is done here and not in the constructor
         // is because the thread that constructs this object is a Root.RunnableDownloader.
-        Map<String, String> urls = htmlParser.parse(html);
+        Map<String, String> urls = htmlParser.parse(this.html);
         for (String currentUrl : urls.keySet()) {
 
             // build full url string
@@ -35,7 +47,7 @@ public class RunnableAnalyzer implements Runnable {
             }
 
             // create URL object
-            URL url = URL.makeURL(fullUrl); // TODO: switch to our own URL class.
+            URL url = URL.makeURL(fullUrl);
             if (url != null) {
                 crawler.pushDownloadUrlTask(new RunnableDownloader(url));
             }

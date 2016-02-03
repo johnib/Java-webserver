@@ -1,6 +1,5 @@
 package Tests;
 
-import Root.Configuration;
 import Root.HTTPRequest;
 import Root.IConfiguration;
 
@@ -31,9 +30,17 @@ public class MoqConfig implements IConfiguration {
         return port;
     }
 
+    public void setPort(int port) {
+        this.port = port;
+    }
+
     @Override
     public int getMaxThreads() {
         return maxThreads;
+    }
+
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
     }
 
     @Override
@@ -42,8 +49,21 @@ public class MoqConfig implements IConfiguration {
     }
 
     @Override
+    public String getRoot() {
+        return this.root;
+    }
+
+    public void setRoot(String root) {
+        this.root = root;
+    }
+
+    @Override
     public String getDefaultPage() {
         return defaultPage;
+    }
+
+    public void setDefaultPage(String defaultPage) {
+        this.defaultPage = defaultPage;
     }
 
     @Override
@@ -61,37 +81,21 @@ public class MoqConfig implements IConfiguration {
         return maxDownloaders;
     }
 
+    public void setMaxDownloaders(int maxDownloaders) {
+        this.maxDownloaders = maxDownloaders;
+    }
+
     @Override
     public int getMaxAnalyzers() {
         return maxAnalyzers;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void setMaxThreads(int maxThreads) {
-        this.maxThreads = maxThreads;
-    }
-
-    public void setRoot(String root) {
-        this.root = root;
-    }
-
-    public void setDefaultPage(String defaultPage) {
-        this.defaultPage = defaultPage;
+    public void setMaxAnalyzers(int maxAnalyzers) {
+        this.maxAnalyzers = maxAnalyzers;
     }
 
     public void setRootAbsolutePath(String rootAbsolutePath) {
         this.rootAbsolutePath = rootAbsolutePath;
-    }
-
-    public void setMaxDownloaders(int maxDownloaders) {
-        this.maxDownloaders = maxDownloaders;
-    }
-
-    public void setMaxAnalyzers(int maxAnalyzers) {
-        this.maxAnalyzers = maxAnalyzers;
     }
 
     @Override

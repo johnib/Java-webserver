@@ -96,7 +96,7 @@ Charset](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-cha
 element (which should go right at the top of the `head`), so the browser can
 act on them ASAP.
 
-#### Root.Common Prefetch Links
+#### Common Prefetch Links
 
 Amazon S3:
 
@@ -277,8 +277,8 @@ mouse over your Pinned Site's icon.
 
 ### Set a default page for your Pinned Site
 
-If the site should go to a specific MyURL when it is pinned (such as the
-homepage), enter it here. One idea is to send it to a special MyURL so you can
+If the site should go to a specific URL when it is pinned (such as the
+homepage), enter it here. One idea is to send it to a special URL so you can
 track the number of pinned users, like so:
 `http://www.example.com/index.html?pinned=true`
 
@@ -309,7 +309,7 @@ minimum.
 ### Jump List "Tasks" for Pinned Sites
 
 Add Jump List Tasks that will appear when the Pinned Site's icon gets a
-right-click. Each Task goes to the specified MyURL, and gets its own mini icon
+right-click. Each Task goes to the specified URL, and gets its own mini icon
 (essentially a favicon, a 16x16 .ICO). You can add as many of these as you
 need.
 
@@ -501,9 +501,9 @@ documentation](https://dev.twitter.com/docs/cards).
 
 ## URLs
 
-### Canonical MyURL
+### Canonical URL
 
-Signal to search engines and others "Use this MyURL for this page!" Useful when
+Signal to search engines and others "Use this URL for this page!" Useful when
 parameters after a `#` or `?` is used to control the display state of a page.
 `http://www.example.com/cart.html?shopping-cart-open=true` can be indexed as
 the cleaner, more accurate `http://www.example.com/cart.html`.
@@ -514,7 +514,7 @@ the cleaner, more accurate `http://www.example.com/cart.html`.
 
 ### Official shortlink
 
-Signal to the world "This is the shortened MyURL to use this page!" Poorly
+Signal to the world "This is the shortened URL to use this page!" Poorly
 supported at this time. Learn more by reading the [article about shortlinks on
 the Microformats wiki](http://microformats.org/wiki/rel-shortlink).
 
@@ -531,12 +531,12 @@ web site.
 This can be done by adding the following annotations in your HTML pages:
 
 * on the desktop page, add the `link rel="alternate"` tag pointing to the
-  corresponding mobile MyURL, e.g.:
+  corresponding mobile URL, e.g.:
 
   `<link rel="alternate" media="only screen and (max-width: 640px)" href="http://m.example.com/page.html" >`
 
 * on the mobile page, add the `link rel="canonical"` tag pointing to the
-  corresponding desktop MyURL, e.g.:
+  corresponding desktop URL, e.g.:
 
   `<link rel="canonical" href="http://www.example.com/page.html">`
 

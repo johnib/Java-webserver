@@ -47,10 +47,12 @@ public class Configuration implements IConfiguration {
         String path = dict.get("root");
 
         File file = new File(path);
-        if(file.exists()) {
-            this.root = path;
+        if (file.exists()) { //TODO: why do we need this IF?
+//            this.root = path;
+            this.root = Paths.get(path).toAbsolutePath().normalize().toString();
         } else {
-            this.root = Paths.get(".", "/").toAbsolutePath().normalize().toString() + File.separator + path;
+//            this.root = Paths.get(".", "/").toAbsolutePath().normalize().toString() + File.separator + path;
+            this.root = Paths.get(path).toAbsolutePath().normalize().toString();
         }
 
         this.port = Integer.parseInt(dict.get("port"));
@@ -83,6 +85,11 @@ public class Configuration implements IConfiguration {
         Configuration hostConfig = this.getHostConfiguration(hostName);
 
         return hostConfig.root;
+    }
+
+    @Override
+    public String getRoot() {
+        return this.root;
     }
 
     @Override

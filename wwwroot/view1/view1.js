@@ -15,11 +15,17 @@ angular.module('myApp.view1', ['ngRoute'])
         var serverUrl = "";
 
         this.getResults = function () {
-            return $http.get(serverUrl + '/get-history')
+            console.log("Retrieving history");
+            var deferred = $q.defer();
+
+            $http.get(serverUrl + '/get-history')
                 .then(function (res) {
-                    $q.resolve(res.data.results);
+                    deferred.resolve(res.data.results);
                 })
-                .catch($q.reject);
+                .catch(deferred.reject);
+
+
+            return deferred.promise;
         };
 
         this.crawl = function (crawlConfig) {
@@ -30,6 +36,7 @@ angular.module('myApp.view1', ['ngRoute'])
 
             $http.post(serverUrl + '/crawl', crawlConfig)
                 .then(function (res) {
+                    console.log("Received crawling information");
                     deferred.resolve(res.data.results);
                 })
                 .catch(deferred.reject);

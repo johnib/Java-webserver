@@ -15,6 +15,8 @@ public interface IConfiguration {
 
     String getRoot(HTTPRequest httpRequest);
 
+    String getRoot();
+
     String getDefaultPage();
 
     /* TODO: change this when we do the bonus multi host names */

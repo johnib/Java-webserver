@@ -25,7 +25,7 @@ prevent inadvertent web
 breakage](http://blog.jquery.com/2014/07/03/dont-use-jquery-latest-js/).
 
 In general, version updating should be an intentional decision! You shouldn't
-include a MyURL that will always point to the latest version, as that version:
+include a URL that will always point to the latest version, as that version:
 
  * may not be compatible with the existing plugins/code on the site
  * will have a very short cache time compare to the specific version,
