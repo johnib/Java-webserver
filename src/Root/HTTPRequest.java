@@ -106,6 +106,8 @@ public class HTTPRequest {
         return headers;
     }
 
+    public String getReferer() { return headersDict.get("referer"); }
+
     public String getPath() {
         return this.headersDict.get(Common.http_parser_path);
     }

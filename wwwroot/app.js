@@ -11,7 +11,7 @@ angular.module('myApp', [
             .when('/results/:fileName', {
                 templateUrl: function (params) {
                     //noinspection JSUnresolvedVariable
-                    return './Results/' + params.fileName;
+                    return './results/' + params.fileName;
                 }
             })
 

@@ -49,6 +49,9 @@ public class HTTPResponse {
                 case 400:
                     this.file = new File(config.getRoot(request), badRequestFile);
                     break;
+                case 403: //TODO: create file for the 403 error
+                    this.file = new File(config.getRoot(request), badRequestFile);
+                    break;
                 case 404:
                     this.file = new File(config.getRoot(request), fileNotFoundFile);
                     break;
