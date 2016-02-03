@@ -22,6 +22,7 @@ public class RunnableClient implements Runnable {
     private static final String crawlPath = "/crawl"; //TODO: can be changed to execResult.html later
     private static final String crawlHistoryPath = "/get-history";
     private static final String dbFileName = "db.json";
+    private static final String resultsDir = "results";
 
     /* private fields */
     private final Socket socket;
@@ -172,7 +173,8 @@ public class RunnableClient implements Runnable {
                 //TODO: define behaviour for crawler
                 System.err.println("crawl path");
 
-                return null;
+                //TODO: start crawler
+                //TODO: when crawler is done, use case crawlHistoryPath to retrieve the new db.
 
             case crawlHistoryPath:
                 //TODO: define behaviour to extract history crawling
@@ -189,6 +191,21 @@ public class RunnableClient implements Runnable {
                 if (isPathTraversalAttack(file, httpRequest, config)) {
                     return getResponseBadRequest();
                 }
+
+//                // allows requests inside /wwwroot/Results only when Referer header is the server.
+//                try {
+//                    if (file.getCanonicalFile().toString().startsWith(config.getRoot() + File.separator + resultsDir)) {
+//                        String referer = httpRequest.getReferer();
+//                        if (referer == null
+//                                || (!referer.contains("localhost")
+//                                && !referer.contains("127.0.0.1"))) {
+//
+//                            return getResponseForbidden();
+//                        }
+//                    }
+//                } catch (IOException e) {
+//                    return getResponseForbidden();
+//                }
 
                 // First, make sure the path exists
                 if (!file.exists()) {
@@ -255,6 +272,10 @@ public class RunnableClient implements Runnable {
 
     private HTTPResponse getResponseFileNotFound() {
         return new HTTPResponse((File) null, 404, "text/html", httpRequest, config);
+    }
+
+    private HTTPResponse getResponseForbidden() {
+        return new HTTPResponse((File) null, 403, "text/html", httpRequest, config);
     }
 
     private void sendTraceResponse() {
