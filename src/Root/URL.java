@@ -13,7 +13,7 @@ import java.util.Map;
 public class URL {
 
     /* static properties */
-    private static final UrlParser parser = new UrlParser();
+    private static final URLParser parser = new URLParser();
     private static final String _protocol = "protocol";
     private static final String _domain = "domain";
     private static final String _port = "port";

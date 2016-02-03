@@ -13,7 +13,7 @@ import java.util.Locale;
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/7/2015.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
-public class HttpResponse {
+public class HTTPResponse {
     /* Constants */
     private final static String CRLF = Common.CRLF;
     private final static String statusLine = "HTTP/1.1 %1d %2s" + CRLF + "Date: %3s" + CRLF;
@@ -30,15 +30,14 @@ public class HttpResponse {
     private final static String notImplementedFile = "NotImplemented.html";
     private final static String internalServerErrorFile = "InternalServerError.html";
     private final HTTPRequest request;
-
+    private final Integer defaultChunkSize = 64;
     private File file;
     private int statusCode;
     private String lastModified = null;
     private String contentType;
     private byte[] body = null;
-    private final Integer defaultChunkSize = 64;
 
-    public HttpResponse(File file, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
+    public HTTPResponse(File file, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
 
         this.file = file;
         this.statusCode = statusCode;
@@ -66,7 +65,7 @@ public class HttpResponse {
         }
     }
 
-    public HttpResponse(byte[] body, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
+    public HTTPResponse(byte[] body, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
         this((File) null, statusCode, contentType, request, config);
         this.body = body;
     }
@@ -83,12 +82,12 @@ public class HttpResponse {
         return lastModified;
     }
 
-    public void setLastModified(long lastModified) {
-        this.lastModified = Common.ConvertLongToTimeString(lastModified);
-    }
-
     public void setLastModified(Date lastModified) {
         this.lastModified = Common.toISO2616DateFormat(lastModified);
+    }
+
+    public void setLastModified(long lastModified) {
+        this.lastModified = Common.ConvertLongToTimeString(lastModified);
     }
 
     public long getContentLength() {
@@ -143,7 +142,7 @@ public class HttpResponse {
         for (byte[] data : fileData) {
             outputStream.write(data);
         }
-        
+
         return outputStream.toByteArray();
     }
 
@@ -220,17 +219,17 @@ public class HttpResponse {
         // Check the OPTIONS with *
         if ((RequestType.OPTIONS.name().compareToIgnoreCase(String.valueOf(this.request.getMethod())) != 0) ||
                 !this.request.getPath().equals("*")) {
-                    // If there is no data there is nothing to chuck also.
-                    if (!this.request.getIsChunked() || getContentLength() == 0) {
-                        formatter.format(entityHeadersContentLength, getContentLength());
-                    }
+            // If there is no data there is nothing to chuck also.
+            if (!this.request.getIsChunked() || getContentLength() == 0) {
+                formatter.format(entityHeadersContentLength, getContentLength());
+            }
 
-                    // If there is content to send it's last modified date and type
-                    if (getContentLength() > 0) {
-                        formatter.format(entityHeadersLastMod, getLastModified());
-                        formatter.format(entityHeadersContentType, getContentType());
-                    }
-                }
+            // If there is content to send it's last modified date and type
+            if (getContentLength() > 0) {
+                formatter.format(entityHeadersLastMod, getLastModified());
+                formatter.format(entityHeadersContentType, getContentType());
+            }
+        }
 
         // output
         System.out.println("--Response Headers--");

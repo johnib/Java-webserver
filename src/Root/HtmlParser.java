@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
  * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
-public class HtmlParser extends Parser {
+public class HTMLParser extends Parser {
 
     private static final String[] capture_groups = new String[]{"url", "uri"};
     private static final String html_regex = "(src|href)[\\s]?=[\\s]?[\\\"\\']((?<url>http[s]?:\\/\\/\\S+)|(?<uri>[^\\s\\'\\\"\\#]*))\\#\\S+[\\\"\\']";
@@ -18,11 +18,11 @@ public class HtmlParser extends Parser {
      *
      * @param regex the regex string to be compiled
      */
-    public HtmlParser(String regex) {
+    public HTMLParser(String regex) {
         super(regex);
     }
 
-    public HtmlParser() {
+    public HTMLParser() {
         this(html_regex);
     }
 

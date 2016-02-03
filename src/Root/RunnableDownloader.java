@@ -3,14 +3,12 @@ package Root;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 08/01/2016.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
-public class RunnableDownloader implements Runnable  {
+public class RunnableDownloader implements Runnable {
     private final URL downloadUrl;
 
     public RunnableDownloader(URL downloadUrl) {

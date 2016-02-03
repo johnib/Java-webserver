@@ -14,12 +14,12 @@ import java.util.Iterator;
 public class FileIterator implements Iterable<byte[]>, Iterator<byte[]> {
 
     private final FileInputStream fis;
+    private final int OneKB = 1024 * 1024 * 8;
     private int chuckSize;
     private boolean errorOccurred = false;
-    private final int OneKB = 1024*1024*8;
 
 
-    public FileIterator (File file, Integer chuckSize) throws IOException {
+    public FileIterator(File file, Integer chuckSize) throws IOException {
         if (file == null || !file.exists() || !file.isFile()) throw new IOException("Unable to locate or open file.");
         if (chuckSize != null) this.chuckSize = chuckSize;
 
@@ -28,8 +28,7 @@ public class FileIterator implements Iterable<byte[]>, Iterator<byte[]> {
         // Setting the this.chuckSize
         if (chuckSize == null && fileLen > OneKB) {
             this.chuckSize = OneKB;
-        }
-        else if(chuckSize == null) {
+        } else if (chuckSize == null) {
             this.chuckSize = (int) fileLen;
         }
 
@@ -53,8 +52,7 @@ public class FileIterator implements Iterable<byte[]>, Iterator<byte[]> {
     @Override
     public byte[] next() {
 
-        try
-        {
+        try {
             byte[] bFile = new byte[chuckSize];
 
             // read until the end of the stream.
@@ -66,13 +64,9 @@ public class FileIterator implements Iterable<byte[]>, Iterator<byte[]> {
             }
 
             return bFile;
-        }
-        catch(FileNotFoundException e)
-        {
+        } catch (FileNotFoundException e) {
             System.err.println("File Not Found, Not suppose to happen: " + e.toString());
-        }
-        catch(IOException e)
-        {
+        } catch (IOException e) {
             System.err.println("Error reading the file: " + e.toString());
         }
 

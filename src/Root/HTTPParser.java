@@ -22,7 +22,7 @@ public class HTTPParser extends Parser {
         super(regex);
     }
 
-    public HTTPParser () {
+    public HTTPParser() {
         this(default_header_regex);
         this.regexHttp = Pattern.compile(default_http_regex);
         this.regexPayload = Pattern.compile(default_payload_regex, Pattern.MULTILINE);

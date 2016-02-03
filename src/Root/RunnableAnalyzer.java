@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class RunnableAnalyzer implements Runnable {
 
-    private static final HtmlParser htmlParser = new HtmlParser();
+    private static final HTMLParser HTML_PARSER = new HTMLParser();
     private static final Crawler crawler = Crawler.getInstance();
     private final String html;
     private final URL sourceUrl;
@@ -35,7 +35,7 @@ public class RunnableAnalyzer implements Runnable {
     private void pushDownloadUrlTasks() {
         // the reason parsing is done here and not in the constructor
         // is because the thread that constructs this object is a Root.RunnableDownloader.
-        Map<String, String> urls = htmlParser.parse(this.html);
+        Map<String, String> urls = HTML_PARSER.parse(this.html);
         for (String currentUrl : urls.keySet()) {
 
             // build full url string

@@ -110,7 +110,7 @@ public class RunnableClient implements Runnable {
         try {
             byte[] headers;
             if (this.httpRequest.getPath().equals("*")) {
-                headers = new HttpResponse((byte[]) null, 200, null, this.httpRequest, this.config).getHeaders();
+                headers = new HTTPResponse((byte[]) null, 200, null, this.httpRequest, this.config).getHeaders();
             } else {
                 headers = this.parseGetResponse(this.httpRequest).getHeaders();
             }
@@ -160,11 +160,11 @@ public class RunnableClient implements Runnable {
     }
 
     private void sendGetResponse() {
-        HttpResponse response = this.parseGetResponse(httpRequest);
+        HTTPResponse response = this.parseGetResponse(httpRequest);
         this.sendResponse(response);
     }
 
-    private HttpResponse parseGetResponse(HTTPRequest httpRequest) {
+    private HTTPResponse parseGetResponse(HTTPRequest httpRequest) {
         String path = httpRequest.getPath();
 
         switch (path) {
@@ -240,21 +240,21 @@ public class RunnableClient implements Runnable {
     }
 
 
-    private HttpResponse getResponseFile(File file, String contentType) {
-        return new HttpResponse(file, 200, contentType, this.httpRequest, this.config);
+    private HTTPResponse getResponseFile(File file, String contentType) {
+        return new HTTPResponse(file, 200, contentType, this.httpRequest, this.config);
     }
 
     private void sendInternalServerError() {
         sendResponse(getResponseInternalServerError());
     }
 
-    private HttpResponse getResponseInternalServerError() {
-        return new HttpResponse((File) null, 500, "text/html", httpRequest, config);
+    private HTTPResponse getResponseInternalServerError() {
+        return new HTTPResponse((File) null, 500, "text/html", httpRequest, config);
     }
 
 
-    private HttpResponse getResponseFileNotFound() {
-        return new HttpResponse((File) null, 404, "text/html", httpRequest, config);
+    private HTTPResponse getResponseFileNotFound() {
+        return new HTTPResponse((File) null, 404, "text/html", httpRequest, config);
     }
 
     private void sendTraceResponse() {
@@ -262,27 +262,27 @@ public class RunnableClient implements Runnable {
         sendResponse(getResponseTrace(value));
     }
 
-    private HttpResponse getResponseTrace(String value) {
-        return new HttpResponse(value.getBytes(StandardCharsets.US_ASCII), 200, "message/http", httpRequest, config);
+    private HTTPResponse getResponseTrace(String value) {
+        return new HTTPResponse(value.getBytes(StandardCharsets.US_ASCII), 200, "message/http", httpRequest, config);
     }
 
     private void sendResponseNotImplemented() {
         sendResponse(getResponseNotImplemented());
     }
 
-    private HttpResponse getResponseNotImplemented() {
-        return new HttpResponse((File) null, 501, null, httpRequest, config);
+    private HTTPResponse getResponseNotImplemented() {
+        return new HTTPResponse((File) null, 501, null, httpRequest, config);
     }
 
     private void sendResponseBadRequest() {
         sendResponse(getResponseBadRequest());
     }
 
-    public HttpResponse getResponseBadRequest() {
-        return new HttpResponse((File) null, 400, "text/html", httpRequest, config);
+    public HTTPResponse getResponseBadRequest() {
+        return new HTTPResponse((File) null, 400, "text/html", httpRequest, config);
     }
 
-    private void sendResponse(HttpResponse response) {
+    private void sendResponse(HTTPResponse response) {
         try {
             if (this.socket == null || this.socket.isClosed()) return;
             DataOutputStream outToClient = new DataOutputStream(this.socket.getOutputStream());

@@ -47,7 +47,7 @@ public class HTTPRequest {
             this.payloadDict = parser.parsePayload(this.payload);
         }
 
-        if (this.getParams() != null){
+        if (this.getParams() != null) {
             Map<String, String> payloadDict = this.getPayloadDict();
             payloadDict.putAll(parserParams.parse(this.getParams()));
             this.payloadDict = payloadDict;
@@ -159,7 +159,7 @@ public class HTTPRequest {
     }
 
     public boolean getIsChunked() {
-        if (isChunked  != null) return isChunked;
+        if (isChunked != null) return isChunked;
 
         this.isChunked = this.headersDict.containsKey(Common.http_parser_chunked) &&
                 chunkedPattern.matcher(this.headersDict.get(Common.http_parser_chunked)).find();

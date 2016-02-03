@@ -21,7 +21,7 @@ public class ClientThread extends Thread {
     /**
      * Constructs a new pool thread.
      *
-     * @param queue the tasks queue.
+     * @param queue    the tasks queue.
      * @param poolName name of the pool. used to print traces
      */
     public ClientThread(LinkedBlockingQueue<Runnable> queue, String poolName) {

@@ -9,7 +9,7 @@ import java.io.*;
 public class FileUtils {
 
     /**
-     * @param file The file to write the buffer to
+     * @param file   The file to write the buffer to
      * @param buffer the data to write to the file
      * @throws IOException - problems with the file parameter
      */

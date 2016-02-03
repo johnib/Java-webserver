@@ -19,7 +19,7 @@ public class ThreadPool {
     private static final String tPool_terminated = "Thread pool termination process finished\n";
     private static final String tPool_terminating = "Thread pool termination process started\n";
     private static final String terminated_err = "Thread pool already terminated\n";
-    private static final String started_err ="Thread pool already started.\n";
+    private static final String started_err = "Thread pool already started.\n";
 
     /* Private fields */
     private static final int queue_size = 10;
@@ -33,7 +33,7 @@ public class ThreadPool {
      * Root.ThreadPool initializer.
      *
      * @param numOfThreads the number of threads in the pool
-     * @param poolName - the name of the pool for the tracing
+     * @param poolName     - the name of the pool for the tracing
      */
     public ThreadPool(int numOfThreads, String poolName) {
         this.threads = new ArrayList<>(numOfThreads);
@@ -121,7 +121,7 @@ public class ThreadPool {
         }
     }
 
-    public boolean isQueueEmpty(){
+    public boolean isQueueEmpty() {
         return tasksQueue.isEmpty();
     }
 }
