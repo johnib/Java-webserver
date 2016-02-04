@@ -2,6 +2,7 @@ package Root;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 04/02/2016.
@@ -9,16 +10,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CrawlerResult {
 
+    private final AtomicLong sumOfAllHtmlPages = new AtomicLong(0);
     // use url.hashCode() to check if contained in this hashmap
     private ConcurrentHashMap<Integer, URL> url_history;
-
     /* statistics */
     private AtomicInteger externalLinks = new AtomicInteger(0);
     private AtomicInteger internalLinks = new AtomicInteger(0);
     private AtomicInteger images = new AtomicInteger(0);
     private AtomicInteger videos = new AtomicInteger(0);
     private AtomicInteger documents = new AtomicInteger(0);
-	private final AtomicLong sumOfAllHtmlPages = new AtomicLong(0);
 
 
     public CrawlerResult() {
