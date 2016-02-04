@@ -18,6 +18,7 @@ public class CrawlerResult {
     private AtomicInteger images = new AtomicInteger(0);
     private AtomicInteger videos = new AtomicInteger(0);
     private AtomicInteger documents = new AtomicInteger(0);
+	private final AtomicLong sumOfAllHtmlPages = new AtomicLong(0);
 
 
     public CrawlerResult() {
@@ -38,5 +39,13 @@ public class CrawlerResult {
 
     public void increaseExternalLinks() {
         this.externalLinks.incrementAndGet();
+    }
+
+    public long AddHtmlSize(long pageSize) {
+        return sumOfAllHtmlPages.addAndGet(pageSize);
+    }
+
+    public long getSumOfAllHtmlPages(){
+        return sumOfAllHtmlPages.get();
     }
 }
