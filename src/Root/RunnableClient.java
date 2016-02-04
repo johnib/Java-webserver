@@ -176,6 +176,11 @@ public class RunnableClient implements Runnable {
             case crawlPath:
                 //TODO: define behaviour for crawler
                 Logger.writeError("crawl path");
+                if (Crawler.getInstance().isWorking()) {
+                    Logger.writeInfo("The crawler is currently working");
+                    return getResponseJsonCrawlerBusy();
+                }
+
                 Crawler.getInstance().pushDownloadUrlTask(new RunnableDownloader(URL.makeURL(httpRequest.getJsonParam(crawlUrl))));
                 CrawlerResult result = Crawler.getInstance().getResult();
 
@@ -245,7 +250,13 @@ public class RunnableClient implements Runnable {
         }
     }
 
+    private HTTPResponse getResponseJsonCrawlerBusy() {
+        // TODO: this method
+        throw new NotImplementedException();
+    }
+
     private HTTPResponse getResponseJson(CrawlerResult result, String s) {
+        // TODO: this method
         throw new NotImplementedException();
     }
 
