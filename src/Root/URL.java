@@ -79,6 +79,7 @@ public class URL implements java.io.Closeable{
     }
 
     public String getUri() {
+        if(this.uri == null || this.uri.isEmpty()) return "/";
         return this.uri;
     }
 
@@ -109,7 +110,6 @@ public class URL implements java.io.Closeable{
 
             // Checking that the connection is still open
             if (socket.isClosed()) {
-
                 return null;
             }
 

@@ -16,6 +16,7 @@ public class URLTest {
 
     @Test
     public void testMakeURL() throws Exception {
+        URL url = URL.makeURL("http://computernetworkstest.azurewebsites.net/");
 
     }
 
