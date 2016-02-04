@@ -1,5 +1,8 @@
 package Root;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.ByteArrayOutputStream;
@@ -25,8 +28,6 @@ public class RunnableClient implements Runnable {
     private static final String crawlHistoryPath = "/get-history";
     private static final String dbFileName = "db.json";
     private static final String resultsDir = "results";
-    // TODO: this value...
-    private static final String crawlUrl = "crawlUrl";
 
     /* private fields */
     private final Socket socket;
@@ -174,23 +175,30 @@ public class RunnableClient implements Runnable {
 
         switch (path) {
             case crawlPath:
-                //TODO: define behaviour for crawler
                 Logger.writeError("crawl path");
                 if (Crawler.getInstance().isWorking()) {
                     Logger.writeInfo("The crawler is currently working");
                     return getResponseJsonCrawlerBusy();
                 }
 
-                Crawler.getInstance().pushDownloadUrlTask(new RunnableDownloader(URL.makeURL(httpRequest.getJsonParam(crawlUrl))));
-                CrawlerResult result = Crawler.getInstance().getResult();
+                JSONObject crawlerConfig;
+                try {
+                    crawlerConfig = (JSONObject) new JSONParser().parse(this.httpRequest.getPayload());
+                } catch (ParseException e) {
+                    Logger.writeError("Received non-parsable JSON from client");
 
-                return getResponseJson(result, "text/json");
+                    return getResponseBadRequest();
+                }
 
+                CrawlerResult result = Crawler.crawl(crawlerConfig);
                 //TODO: when crawler is done, use case crawlHistoryPath to retrieve the new db.
+
             case crawlHistoryPath:
                 //TODO: define behaviour to extract history crawling
                 System.err.println("crawl history path");
+
                 return this.getResponseFile(this.crawlerDataBaseFilePath, "application/json; charset=utf-8");
+
             default:
                 // normal web server behaviour
 
@@ -201,20 +209,20 @@ public class RunnableClient implements Runnable {
                     return getResponseBadRequest();
                 }
 
-//                // allows requests inside /wwwroot/Results only when Referer header is the server.
-//                try {
-//                    if (file.getCanonicalFile().toString().startsWith(config.getRoot() + File.separator + resultsDir)) {
-//                        String referer = httpRequest.getReferer();
-//                        if (referer == null
-//                                || (!referer.contains("localhost")
-//                                && !referer.contains("127.0.0.1"))) {
-//
-//                            return getResponseForbidden();
-//                        }
-//                    }
-//                } catch (IOException e) {
-//                    return getResponseForbidden();
-//                }
+                // allows requests inside /wwwroot/Results only when Referer header is the server.
+                try {
+                    if (file.getCanonicalFile().toString().startsWith(config.getRoot() + File.separator + resultsDir)) {
+                        String referer = httpRequest.getReferer();
+                        if (referer == null
+                                || (!referer.contains("localhost")
+                                && !referer.contains("127.0.0.1"))) {
+
+                            return getResponseForbidden();
+                        }
+                    }
+                } catch (IOException e) {
+                    return getResponseForbidden();
+                }
 
                 // First, make sure the path exists
                 if (!file.exists()) {

@@ -5,6 +5,8 @@ package Root;
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 
+import org.json.simple.JSONObject;
+
 /**
  * This class will manage the whole crawler procedure once the Root.RunnableClient put the first URL task.
  */
@@ -21,7 +23,7 @@ public class Crawler {
     }
 
     /**
-     * Singleton dose not spouse to have a constructor this is the solution
+     * Singleton does not supposed to have a constructor this is the solution
      *
      * @param config - config file containing downloaders and analyzers config
      * @throws UnsupportedOperationException if the class was already init
@@ -31,7 +33,6 @@ public class Crawler {
             throw new UnsupportedOperationException("The crawler is already init. only one instance of the class is allowed.");
         instance = new Crawler(config);
         wasInit = true;
-        instance.start();
     }
 
     /**
@@ -50,17 +51,36 @@ public class Crawler {
         return wasInit;
     }
 
+    /**
+     * Creates a CrawlerConfig instance out of the configuration received from client.
+     * If all parameters are valid, starts the singleton crawler.
+     *
+     * @param config the JSON received from client.
+     * @return the updated db.json
+     */
+    public static CrawlerResult crawl(JSONObject config) {
+        URL url = URL.makeURL((String) config.get("url"));
+        boolean portScan = (boolean) config.get("portScan");
+        boolean ignoreRobots = (boolean) config.get("ignoreRobots");
 
-    private void start() {
-        this.analyzers.start();
-        this.downloaders.start();
+        if (url == null) {
+            Logger.writeError("Crawler.crawl cannot create URL object from the url received in the JSON");
+            //TODO: define behaviour
+            return null;
+        }
+
+        CrawlerConfig crawlerConfig = new CrawlerConfig(url, portScan, ignoreRobots);
+        Crawler crawler = getInstance();
+        crawler.startCrawlingOn(crawlerConfig);
+
+        return crawler.getResult();
     }
 
     public void pushDownloadUrlTask(RunnableDownloader task) {
         this.downloaders.addTask(task);
     }
 
-    public void pushAnzlyzeHtmlTask(RunnableAnalyzer task) {
+    public void pushAnalyzeHtmlTask(RunnableAnalyzer task) {
         this.analyzers.addTask(task);
     }
 
@@ -68,7 +88,14 @@ public class Crawler {
         return !this.analyzers.isQueueEmpty() || !this.downloaders.isQueueEmpty();
     }
 
-    public CrawlerResult getResult() {
+    public void startCrawlingOn(CrawlerConfig config) {
+        this.analyzers.start();
+        this.downloaders.start();
+
+        this.pushDownloadUrlTask(new RunnableDownloader(config.url));
+    }
+
+    private CrawlerResult getResult() {
         while (this.isWorking()) {
             try {
                 Thread.sleep(1000 * 3);
@@ -78,5 +105,18 @@ public class Crawler {
         }
 
         return null;
+    }
+}
+
+class CrawlerConfig {
+
+    public final URL url;
+    public final boolean portScan;
+    public final boolean ignoreRobots;
+
+    public CrawlerConfig(URL url, boolean portScan, boolean ignoreRobots) {
+        this.url = url;
+        this.portScan = portScan;
+        this.ignoreRobots = ignoreRobots;
     }
 }
