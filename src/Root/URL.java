@@ -5,9 +5,8 @@ package Root;
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 
-import sun.rmi.runtime.Log;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -66,6 +65,10 @@ public class URL implements java.io.Closeable{
         port = dict.containsKey(_port) ? Integer.parseInt(dict.get(_port)) : default_port;
 
         return new URL(protocol, domain, port, uri);
+    }
+
+    public static URL makeURL(URL url, String uri) {
+        return new URL(url.protocol, url.domain, url.port, uri);
     }
 
     public String getProtocol() {
@@ -138,6 +141,21 @@ public class URL implements java.io.Closeable{
         if (socket != null && !socket.isClosed()) {
             socket.close();
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.fullURL.hashCode();
+    }
+
+    /**
+     * Two urls are internal to each other if both have the same domain.
+     *
+     * @param url the url to check with
+     * @return true if this url is internal to @url
+     */
+    public boolean isInternalTo(URL url) {
+        return this.domain.equals(url.domain);
     }
 
     private void setSocket(Socket socket) {

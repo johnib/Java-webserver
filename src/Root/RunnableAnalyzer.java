@@ -1,5 +1,6 @@
 package Root;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -10,18 +11,35 @@ public class RunnableAnalyzer implements Runnable {
 
     private static final HTMLParser HTML_PARSER = new HTMLParser();
     private static final Crawler crawler = Crawler.getInstance();
+
+    private final CrawlerResult crawlerResult;
     private final String html;
     private final URL sourceUrl;
 
     public RunnableAnalyzer(URL sourceUrl, String html) {
         this.html = html;
         this.sourceUrl = sourceUrl;
+        this.crawlerResult = crawler.getCrawlerResult();
     }
 
     @Override
     public void run() {
-        this.pushDownloadUrlTasks();
+        ArrayList<URL> links = this.extractLinks(this.html);
+        for (URL link : links) {
+            boolean linkPushed = this.pushDownloadUrlTasks(link);
+
+            // count internal, external
+            if (this.sourceUrl.isInternalTo(link)) {
+                this.crawlerResult.increaseInternalLinks();
+            } else {
+                this.crawlerResult.increaseExternalLinks();
+            }
+
+
+        }
         this.analyzeHtml();
+
+        Logger.writeInfo("Analyzer: number of links extracted from:\t" + this.sourceUrl.toString() + "\t" + links.size());
     }
 
     private void analyzeHtml() {
@@ -30,27 +48,58 @@ public class RunnableAnalyzer implements Runnable {
 
     /**
      * Extracts all URLs/URIs from the given HTML.
-     * It pushes new URL tasks to the downloader queue.
+     *
+     * @param html the html to parse
+     * @return an array list of URL objects
      */
-    private void pushDownloadUrlTasks() {
+    private ArrayList<URL> extractLinks(String html) {
+        ArrayList<URL> links = new ArrayList<>();
+
         // the reason parsing is done here and not in the constructor
         // is because the thread that constructs this object is a Root.RunnableDownloader.
-        Map<String, String> urls = HTML_PARSER.parse(this.html);
-        for (String currentUrl : urls.keySet()) {
+        Map<String, String> urls = HTML_PARSER.parse(html);
 
-            // build full url string
-            String fullUrl;
-            if (currentUrl.contains("uri")) {
-                fullUrl = this.sourceUrl.toString().substring(0, this.sourceUrl.toString().lastIndexOf('/') + 1) + urls.get(currentUrl);
-            } else {
-                fullUrl = urls.get(currentUrl);
-            }
+        for (String linkKey : urls.keySet()) {
 
             // create URL object
-            URL url = URL.makeURL(fullUrl);
-            if (url != null) {
-                crawler.pushDownloadUrlTask(new RunnableDownloader(url));
+            URL url;
+            if (linkKey.contains("uri")) {
+                url = URL.makeURL(this.sourceUrl, urls.get(linkKey));
+            } else {
+                url = URL.makeURL(urls.get(linkKey));
             }
+
+            links.add(url);
         }
+
+        return links;
+    }
+
+    /**
+     * Pushes new URL task to the downloader queue.
+     *
+     * @return true if url pushed and false otherwise.
+     */
+    private boolean pushDownloadUrlTasks(URL url) {
+        boolean pushed = false;
+
+        if (this.isNew(url)) {
+            crawler.pushDownloadUrlTask(new RunnableDownloader(url));
+            this.crawlerResult.markVisited(url);
+
+            pushed = true;
+        }
+
+        return pushed;
+    }
+
+    /**
+     * This method excludes URLs that already were crawled.
+     *
+     * @param url the URL to check
+     * @return true if this URL is new, false otherwise.
+     */
+    private boolean isNew(URL url) {
+        return !this.crawlerResult.hasURL(url);
     }
 }
