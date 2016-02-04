@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 public class HTMLParser extends Parser {
 
     private static final String[] capture_groups = new String[]{"url", "uri"};
-    private static final String html_regex = "(src|href)[\\s]?=[\\s]?[\\\"\\']((?<url>http[s]?:\\/\\/\\S+)|(?<uri>[^\\s\\'\\\"\\#]*))\\#\\S+[\\\"\\']";
+    private static final String html_regex = "(src|href)[\\s*]?=[\\s*]?[\\\"\\']((?<url>http[s]?:\\/\\/\\S+)|(?<uri>[^\\s\\'\\\"\\#\\@\\:]*))(\\#\\S*)?[\\\"\\']";
 
     /**
      * Constructs a new parser given a File object.
