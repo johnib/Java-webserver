@@ -28,7 +28,9 @@ public class Main {
         @SuppressWarnings("unused")
         Server server = null;
         try {
-            server = new Server(new Configuration(configFile));
+            Configuration configuration = new Configuration(configFile);
+            server = new Server(configuration);
+            Crawler.Init(configuration);
         } catch (IOException e) {
             System.out.printf(fatal_error);
             System.exit(-1);

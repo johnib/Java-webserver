@@ -177,5 +177,10 @@ public class HTTPRequest {
     public String getParams() {
         return this.headersDict.get(Common.http_parser_params);
     }
+
+    public String getJsonParam(String postParams) {
+        // TODO: Change this
+        return "http://computernetworkstest.azurewebsites.net/";
+    }
 }
 

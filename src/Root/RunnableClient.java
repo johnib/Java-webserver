@@ -1,5 +1,7 @@
 package Root;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -23,6 +25,8 @@ public class RunnableClient implements Runnable {
     private static final String crawlHistoryPath = "/get-history";
     private static final String dbFileName = "db.json";
     private static final String resultsDir = "results";
+    // TODO: this value...
+    private static final String crawlUrl = "crawlUrl";
 
     /* private fields */
     private final Socket socket;
@@ -171,17 +175,17 @@ public class RunnableClient implements Runnable {
         switch (path) {
             case crawlPath:
                 //TODO: define behaviour for crawler
-                System.err.println("crawl path");
+                Logger.writeError("crawl path");
+                Crawler.getInstance().pushDownloadUrlTask(new RunnableDownloader(URL.makeURL(httpRequest.getJsonParam(crawlUrl))));
+                CrawlerResult result = Crawler.getInstance().getResult();
 
-                //TODO: start crawler
+                return getResponseJson(result, "text/json");
+
                 //TODO: when crawler is done, use case crawlHistoryPath to retrieve the new db.
-
             case crawlHistoryPath:
                 //TODO: define behaviour to extract history crawling
                 System.err.println("crawl history path");
-
                 return this.getResponseFile(this.crawlerDataBaseFilePath, "application/json; charset=utf-8");
-
             default:
                 // normal web server behaviour
 
@@ -239,6 +243,10 @@ public class RunnableClient implements Runnable {
                 // This is the default behavior
                 return getResponseFile(file, "application/octet-stream");
         }
+    }
+
+    private HTTPResponse getResponseJson(CrawlerResult result, String s) {
+        throw new NotImplementedException();
     }
 
     private boolean isPathTraversalAttack(File file, HTTPRequest httpRequest, IConfiguration config) {

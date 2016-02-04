@@ -67,4 +67,16 @@ public class Crawler {
     public boolean isWorking() {
         return !this.analyzers.isQueueEmpty() || !this.downloaders.isQueueEmpty();
     }
+
+    public CrawlerResult getResult() {
+        while (this.isWorking()) {
+            try {
+                Thread.sleep(1000 * 3);
+            } catch (InterruptedException e) {
+                // Left empty
+            }
+        }
+
+        return null;
+    }
 }
