@@ -182,9 +182,12 @@ public class HTTPRequest {
     }
 
     public String getJsonParam(String postParams) {
-        // TODO: Change this
-        Logger.writeError("The getJsonParam is not implimented yet returning http://computernetworkstest.azurewebsites.net/ just for test");
-        return "http://computernetworkstest.azurewebsites.net/";
+        if (postParams.equals("crawlUrl")) {
+            // TODO: Change this
+            Logger.writeError("The getJsonParam is not implimented yet returning http://computernetworkstest.azurewebsites.net/ just for test");
+            return "http://computernetworkstest.azurewebsites.net/";
+        }
+        return "false";
     }
 }
 

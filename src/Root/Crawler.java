@@ -106,6 +106,16 @@ public class Crawler {
 
         return null;
     }
+
+    public boolean startCrawl(CrawlerConfig config){
+        if (isWorking()) {
+            Logger.writeInfo("The crawler is currently working");
+            return false;
+        }
+
+        this.pushDownloadUrlTask(new RunnableDownloader(config.getUrl()));
+        return true;
+    }
 }
 
 class CrawlerConfig {
