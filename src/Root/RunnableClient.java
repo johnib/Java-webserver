@@ -186,7 +186,6 @@ public class RunnableClient implements Runnable {
                     crawlerConfig = (JSONObject) new JSONParser().parse(this.httpRequest.getPayload());
                 } catch (ParseException e) {
                     Logger.writeError("Received non-parsable JSON from client");
-
                     return getResponseBadRequest();
                 }
 

@@ -32,6 +32,8 @@ public class Crawler {
         if (instance != null)
             throw new UnsupportedOperationException("The crawler is already init. only one instance of the class is allowed.");
         instance = new Crawler(config);
+        instance.analyzers.start();
+        instance.downloaders.start();
         wasInit = true;
     }
 
@@ -59,6 +61,12 @@ public class Crawler {
      * @return the updated db.json
      */
     public static CrawlerResult crawl(JSONObject config) {
+        Crawler crawler = getInstance();
+        if (crawler.isWorking()) {
+            Logger.writeInfo("The crawler is currently working");
+            return null;
+        }
+
         URL url = URL.makeURL((String) config.get("url"));
         boolean portScan = (boolean) config.get("portScan");
         boolean ignoreRobots = (boolean) config.get("ignoreRobots");
@@ -70,7 +78,6 @@ public class Crawler {
         }
 
         CrawlerConfig crawlerConfig = new CrawlerConfig(url, portScan, ignoreRobots);
-        Crawler crawler = getInstance();
         crawler.startCrawlingOn(crawlerConfig);
 
         return crawler.getResult();
@@ -88,10 +95,7 @@ public class Crawler {
         return !this.analyzers.isQueueEmpty() || !this.downloaders.isQueueEmpty();
     }
 
-    public void startCrawlingOn(CrawlerConfig config) {
-        this.analyzers.start();
-        this.downloaders.start();
-
+    private void startCrawlingOn(CrawlerConfig config) {
         this.pushDownloadUrlTask(new RunnableDownloader(config.url));
     }
 
@@ -101,20 +105,11 @@ public class Crawler {
                 Thread.sleep(1000 * 3);
             } catch (InterruptedException e) {
                 // Left empty
+                Logger.writeVerbose(e);
             }
         }
 
         return null;
-    }
-
-    public boolean startCrawl(CrawlerConfig config){
-        if (isWorking()) {
-            Logger.writeInfo("The crawler is currently working");
-            return false;
-        }
-
-        this.pushDownloadUrlTask(new RunnableDownloader(config.getUrl()));
-        return true;
     }
 }
 
