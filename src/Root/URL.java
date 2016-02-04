@@ -94,7 +94,15 @@ public class URL implements java.io.Closeable{
         return this.fullURL;
     }
 
+    public InputStream openHeadStream() {
+        return openStreamInternal(true);
+    }
+
     public InputStream openStream() {
+        return openStreamInternal(false);
+    }
+
+    private InputStream openStreamInternal(boolean requestHead) {
         // Only handle http requests
         if (this.getProtocol().compareToIgnoreCase(default_protocol) != 0){
             return null;
@@ -104,8 +112,13 @@ public class URL implements java.io.Closeable{
             // Connecting to remote server
             setSocket(new Socket(this.getDomain(), this.getPort()));
 
-            // Opening a stream to write to remote server
-            byte[] headers = CreateGetRequest().getBytes(StandardCharsets.US_ASCII);
+            byte[] headers;
+            if (!requestHead) {
+                // Opening a stream to write to remote server
+                headers = CreateGetRequest().getBytes(StandardCharsets.US_ASCII);
+            } else {
+                headers = CreateHeadRequest().getBytes(StandardCharsets.US_ASCII);
+            }
 
             Logger.writeInfo("-- Request to " + this.getFullURL() + " --");
             Logger.writeInfo(new String(headers));
@@ -125,12 +138,24 @@ public class URL implements java.io.Closeable{
         return null;
     }
 
+    private String CreateRequest(String method) {
+        return String.format("%s %s HTTP/1.1" + Common.CRLF +
+                        "Host: %s" + Common.CRLF +
+                        "Accept: text/plain" + Common.CRLF +
+                        "User-Agent: CoolServer/1.1 (Windows NT 10.0; Win64; x64)" + Common.CRLF +
+                        Common.CRLF,
+                method,
+                this.getUri(),
+                this.getDomain());
+    }
+
+
+    private String CreateHeadRequest() {
+        return CreateRequest("HEAD");
+    }
+
     private String CreateGetRequest() {
-        return String.format("GET %s HTTP/1.1" + Common.CRLF +
-                "Host: %s" + Common.CRLF +
-                "Accept: text/plain" + Common.CRLF +
-                "User-Agent: CoolServer/1.1 (Windows NT 10.0; Win64; x64)" + Common.CRLF +
-                "Accept-Language: en-US,en;q=0.8,he;q=0.6" + Common.CRLF + Common.CRLF, this.getUri(), this.getDomain());
+        return CreateRequest("GET");
     }
 
     @Override

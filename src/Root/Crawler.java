@@ -6,6 +6,7 @@ package Root;
  */
 
 import org.json.simple.JSONObject;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * This class will manage the whole crawler procedure once the Root.RunnableClient put the first URL task.
@@ -97,6 +98,11 @@ public class Crawler {
 
     private void startCrawlingOn(CrawlerConfig config) {
         this.pushDownloadUrlTask(new RunnableDownloader(config.url));
+
+        if (config.ignoreRobots) {
+            // TODO: add all the linked of robot.txt to the downloader
+            throw new NotImplementedException();
+        }
     }
 
     private CrawlerResult getResult() {

@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class RunnableAnalyzer implements Runnable {
 
-    private static final HTMLParser HTML_PARSER = new HTMLParser();
+    private static final HtmlParser HTML_PARSER = new HtmlParser();
     private static final Crawler crawler = Crawler.getInstance();
     private final String html;
     private final URL sourceUrl;
