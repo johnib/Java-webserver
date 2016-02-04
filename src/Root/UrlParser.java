@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 public class URLParser extends Parser {
 
     private static final String[] capture_groups = new String[]{"protocol", "domain", "uri", "port"};
-    private static final String url_regex = "(?<protocol>http[s]?):\\/\\/[.*\\@]?(www\\.|.*@)?(?<domain>[\\w\\-]+\\.[\\w\\-]+[\\.[\\w\\-]+]*)(?<port>\\:\\d+)?(?<uri>\\S*)";
+    private static final String url_regex = "((?<protocol>http):\\/\\/)?[.*\\@]?(www\\.|.*@)?(?<domain>[\\w\\-]+\\.[\\w\\-]+[\\.[\\w\\-]+]*)(?<port>\\:\\d+)?(?<uri>\\S*)";
 
     public URLParser() {
         this(url_regex);
