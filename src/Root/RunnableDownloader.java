@@ -3,6 +3,8 @@ package Root;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 08/01/2016.
@@ -37,17 +39,21 @@ public class RunnableDownloader implements Runnable {
     public void run() {
         if (this.downloadUrl == null) return;
 
-//        try {
-//            Logger.writeAssignmentTrace("Downloader starts downloading URL: " + this.downloadUrl);
-//            // TODO: no implementation for openStream(), need to open socket and send GET request manually
-//            try (InputStream stream = this.downloadUrl.openStream()) {
-//                try (BufferedReader buffer = new BufferedReader(new InputStreamReader(stream))) {
-//                    Root.Crawler.getInstance().pushAnzlyzeHtmlTask(new RunnableAnalyzer(this.downloadUrl, ConvertToNoLineEndString(buffer)));
-//                    Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + this.downloadUrl);
-//                }
-//            }
-//        } catch (Exception ex) {
-//            Logger.writeException(ex);
-//        }
+        try {
+            Logger.writeAssignmentTrace("Downloader starts downloading URL: " + this.downloadUrl);
+            try (InputStream stream = this.downloadUrl.openStream()) {
+                if (stream == null) {
+                    Logger.writeInfo("RunnableDownloader - stream from URL was null");
+                    return;
+                }
+                try (BufferedReader buffer = new BufferedReader(new InputStreamReader(stream))) {
+                    Root.Crawler.getInstance().pushAnzlyzeHtmlTask(new RunnableAnalyzer(this.downloadUrl, ConvertToNoLineEndString(buffer)));
+                    Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + this.downloadUrl);
+                    Logger.writeInfo("The html data:" + ConvertToNoLineEndString(buffer));
+                }
+            }
+        } catch (Exception ex) {
+            Logger.writeException(ex);
+        }
     }
 }

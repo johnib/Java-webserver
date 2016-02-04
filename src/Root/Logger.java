@@ -8,7 +8,7 @@ public class Logger {
 
     private static int level = 4;
 
-    public static void writeVerbos(Object trace) {
+    public static void writeVerbose(Object trace) {
         if (level >= 4) System.out.println(trace.toString());
     }
 
