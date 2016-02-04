@@ -189,7 +189,7 @@ public class RunnableClient implements Runnable {
                     return getResponseBadRequest();
                 }
 
-                CrawlerResult result = Crawler.crawl(crawlerConfig);
+                CrawlerResult result = Crawler.getInstance().crawl(crawlerConfig);
                 //TODO: when crawler is done, use case crawlHistoryPath to retrieve the new db.
 
             case crawlHistoryPath:

@@ -16,6 +16,7 @@ public class Crawler {
 
     private ThreadPool downloaders;
     private ThreadPool analyzers;
+    private CrawlerResult crawlerResult;
 
     private Crawler(IConfiguration config) {
         this.downloaders = new ThreadPool(config.getMaxDownloaders(), "Downloader");
@@ -60,9 +61,8 @@ public class Crawler {
      * @param config the JSON received from client.
      * @return the updated db.json
      */
-    public static CrawlerResult crawl(JSONObject config) {
-        Crawler crawler = getInstance();
-        if (crawler.isWorking()) {
+    public synchronized CrawlerResult crawl(JSONObject config) {
+        if (this.isWorking()) {
             Logger.writeInfo("The crawler is currently working");
             return null;
         }
@@ -78,9 +78,9 @@ public class Crawler {
         }
 
         CrawlerConfig crawlerConfig = new CrawlerConfig(url, portScan, ignoreRobots);
-        crawler.startCrawlingOn(crawlerConfig);
-
-        return crawler.getResult();
+        this.crawlerResult = new CrawlerResult();
+        this.startCrawlingOn(crawlerConfig);
+        return this.getResult();
     }
 
     public void pushDownloadUrlTask(RunnableDownloader task) {
@@ -109,7 +109,11 @@ public class Crawler {
             }
         }
 
-        return null;
+        return getCrawlerResult();
+    }
+
+    public CrawlerResult getCrawlerResult() {
+        return crawlerResult;
     }
 }
 
