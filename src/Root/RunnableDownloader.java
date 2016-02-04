@@ -1,9 +1,10 @@
 package Root;
 
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 /**
@@ -19,16 +20,17 @@ public class RunnableDownloader implements Runnable {
     }
 
     /**
-     * This function converts the buffer to string and removes the line ending
+     * This function converts the buffer to string and sometimes removes the line ending
      *
      * @param stream The data to read from
      * @return a string containing all the data
      * @throws IOException
      */
-    private static String ConvertToNoLineEndString(InputStream stream) throws IOException {
+    private static String ConvertStreamToString(InputStream stream) throws IOException {
         String line;
         StringBuilder text = new StringBuilder();
         int contentLength = 0;
+        boolean isChunked = false;
 
         try {
             try (BufferedReader buffer = new BufferedReader(new InputStreamReader(stream))) {
@@ -37,23 +39,58 @@ public class RunnableDownloader implements Runnable {
                     line = buffer.readLine();
                     if (line != null && line.matches("[Cc]ontent-[Ll]ength: (\\d+)")) {
                         contentLength = Integer.parseInt(line.split(": ")[1]);
+                    } else if (line != null && line.matches("[Tt]ransfer-[Ee]ncoding: [Cc]hunked")) {
+                        isChunked = true;
                     }
                 } while (line != null && !line.isEmpty());
 
-                while (contentLength > 0 && ((line = buffer.readLine()) != null)) {
-                    text.append(line);
-
-                    // Get bytes instead of just the length do to different
-                    // encodings taking different amount of bytes
-                    // The -2 is because of the line ending
-                    contentLength = contentLength - line.getBytes().length - 2;
+                if (isChunked) {
+                    // There is no content-length in chucked
+                    HandelChunkedResponse(buffer, text);
+                    return text.toString();
                 }
+
+                // Adding the content len to the result.
+                // Adding it here because there are server that dose not
+                // return content-length on the HEAD request
+                long lenSoFare = Crawler.getInstance().getCrawlerResult().AddHtmlSize(contentLength);
+                Logger.writeVerbose("The Html page size so far is: " + lenSoFare);
+
+                char[] arr = new char[contentLength];
+                buffer.read(arr, 0, contentLength);
+                text.append(arr);
             }
         } catch (java.net.SocketException e) {
             Logger.writeVerbose("Reading from socket failed");
         }
 
         return text.toString();
+    }
+
+    private static void HandelChunkedResponse(BufferedReader buffer, StringBuilder text) throws IOException {
+
+        int contentLength;
+        String line;
+
+        while ((contentLength = Integer.parseInt(buffer.readLine(), 16)) > 0) {
+            long lenSoFare = Crawler.getInstance().getCrawlerResult().AddHtmlSize(contentLength);
+            Logger.writeVerbose("The Html page size so far is: " + lenSoFare);
+
+            while (contentLength > 0) {
+                line = buffer.readLine();
+                text.append(line);
+
+                // The minus one is because line brake count as one
+                contentLength = contentLength - line.getBytes().length -1;
+                Logger.writeVerbose("contentLength is: " + contentLength);
+            }
+
+            // Read empty line
+            line = buffer.readLine();
+            if (line == null || !line.isEmpty()) {
+                Logger.writeError("HandelChunkedResponse - there is an empty line missing");
+            }
+        }
     }
 
     @Override
@@ -85,31 +122,32 @@ public class RunnableDownloader implements Runnable {
 
                 } else if (headers.containsKey("content-type") && headers.get("content-type").toLowerCase().contains("html")) {
                     // This is an html page
-                    long size = Crawler.getInstance().getCrawlerResult().AddHtmlSize(Long.parseLong(headers.get("content-length")));
-                    Logger.writeVerbose("Downloader - size of all pages is - " + size);
+                    ProcessHtmlPage();
                 } else {
                     // Ignore
                     Logger.writeWarning("Downloader downloaded a file that is not html or known file type");
-                    return;
                 }
-            }
-
-            try (InputStream stream = this.downloadUrl.openStream()) {
-                    // Reading from the socket the data
-                    String html = ConvertToNoLineEndString(stream);
-
-                    // Checking if the read was successful
-                    if (html.isEmpty()) return;
-
-                    // Log
-                    Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + this.downloadUrl);
-                    Logger.writeInfo("The html data:" + html);
-
-                    // Sending to analyzer
-                    Root.Crawler.getInstance().pushAnalyzeHtmlTask(new RunnableAnalyzer(this.downloadUrl, html));
             }
         } catch (Exception ex) {
             Logger.writeException(ex);
+        }
+    }
+
+    private void ProcessHtmlPage() throws IOException {
+        // Processing an html page
+        try (InputStream stream = this.downloadUrl.openStream()) {
+            // Reading from the socket the data
+            String html = ConvertStreamToString(stream);
+
+            // Checking if the read was successful
+            if (html.isEmpty()) return;
+
+            // Log
+            Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + this.downloadUrl);
+            Logger.writeInfo("The html data:" + html);
+
+            // Sending to analyzer
+            Crawler.getInstance().pushAnalyzeHtmlTask(new RunnableAnalyzer(this.downloadUrl, html));
         }
     }
 
@@ -131,9 +169,9 @@ public class RunnableDownloader implements Runnable {
         } catch (java.net.SocketException e) {
             Logger.writeVerbose("Reading from socket failed");
         }
-
+        Logger.writeVerbose("-- Remote Server Response --");
+        Logger.writeVerbose(text.toString());
         return parser.parse(text.toString());
-
     }
 
     private boolean urlEndsWithFileName(String urlAndPath) {
