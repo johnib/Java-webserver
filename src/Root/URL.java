@@ -5,6 +5,8 @@ package Root;
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 
+import sun.rmi.runtime.Log;
+
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -105,8 +107,8 @@ public class URL implements java.io.Closeable{
             // Opening a stream to write to remote server
             byte[] headers = CreateGetRequest().getBytes(StandardCharsets.US_ASCII);
 
-            System.out.println("-- Request to " + this.getFullURL() + " --");
-            System.out.println(new String(headers));
+            Logger.writeInfo("-- Request to " + this.getFullURL() + " --");
+            Logger.writeInfo(new String(headers));
 
             // Checking that the connection is still open
             if (socket.isClosed()) {

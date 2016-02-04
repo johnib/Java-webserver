@@ -53,8 +53,8 @@ public class HTTPRequest {
             this.payloadDict = payloadDict;
         }
 
-        System.out.println("--Request--");
-        System.out.println(this.headers);
+        Logger.writeWebServerLog("--Request--");
+        Logger.writeWebServerLog(this.headers);
     }
 
     /**
@@ -148,10 +148,9 @@ public class HTTPRequest {
             }
 
         } catch (IOException e) {
-            //TODO: implement
-            System.out.printf(connection_reset, Thread.currentThread().getId());
+            Logger.writeWebServerLog(connection_reset, Thread.currentThread().getId());
+            Logger.writeException(e);
         }
-
 
         return requestLine + sb.toString();
     }

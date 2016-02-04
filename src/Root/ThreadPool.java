@@ -42,7 +42,7 @@ public class ThreadPool {
             threads.add(new ClientThread(tasksQueue, poolName));
         }
 
-        System.out.printf(init_msg);
+        Logger.writeInfo(init_msg);
     }
 
     /**
@@ -79,7 +79,7 @@ public class ThreadPool {
             return false;
         }
 
-        System.out.printf(task_added, tasksQueue.size());
+        Logger.writeVerbose(task_added, tasksQueue.size());
 
         return true;
     }
@@ -89,17 +89,17 @@ public class ThreadPool {
      */
     public synchronized void terminate() {
         if (this.isRunning) {
-            System.out.printf(tPool_terminating);
+            Logger.writeVerbose(tPool_terminating);
 
             // Stopping all the treads even in the middle of a run
             for (ClientThread t : threads) t.interrupt();
 
-            System.out.printf(tPool_terminated);
+            Logger.writeVerbose(tPool_terminated);
 
             // Indicate that the threads are not running any more
             this.isRunning = false;
         } else {
-            System.err.printf(terminated_err);
+            Logger.writeError(terminated_err);
         }
     }
 
@@ -115,9 +115,9 @@ public class ThreadPool {
             // Indicate that the threads are running
             this.isRunning = true;
 
-            System.out.printf(tPool_started);
+            Logger.writeVerbose(tPool_started);
         } else {
-            System.err.printf(started_err);
+            Logger.writeError(started_err);
         }
     }
 

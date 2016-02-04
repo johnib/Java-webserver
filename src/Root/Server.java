@@ -47,7 +47,7 @@ public class Server {
             serverSocket = new ServerSocket(config.getPort());
 
             serverRunning = true;
-            System.out.printf(server_started);
+            Logger.writeWebServerLog(server_started);
         } catch (IOException e) {
             System.err.printf(server_error, config.getPort(), e.getCause());
             e.printStackTrace();

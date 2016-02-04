@@ -122,8 +122,8 @@ public class HTTPResponse {
 
         byte[] headers = CreateResponseHeaders().getBytes(StandardCharsets.US_ASCII);
 
-        System.out.println("-- Response Headers --");
-        System.out.println(new String(headers));
+        Logger.writeWebServerLog("-- Response Headers --");
+        Logger.writeWebServerLog(new String(headers));
 
         if (file == null && body == null) {
             return headers;
@@ -169,8 +169,8 @@ public class HTTPResponse {
         stream.write(Common.CRLF_BYTES);
         stream.flush();
 
-        System.out.println("-- Response Headers --");
-        System.out.println(stringHeaders);
+        Logger.writeWebServerLog("-- Response Headers --");
+        Logger.writeWebServerLog(stringHeaders);
 
         if (this.body != null) {
             for (int i = 0; i < this.body.length; i += chunkSize) {
@@ -235,8 +235,8 @@ public class HTTPResponse {
         }
 
         // output
-        System.out.println("--Response Headers--");
-        System.out.println(sb.toString());
+        Logger.writeWebServerLog("--Response Headers--");
+        Logger.writeWebServerLog(sb.toString());
 
         return sb.toString();
     }

@@ -32,7 +32,8 @@ public class Main {
             server = new Server(configuration);
             Crawler.Init(configuration);
         } catch (IOException e) {
-            System.out.printf(fatal_error);
+            Logger.writeError(fatal_error);
+            Logger.writeException(e);
             System.exit(-1);
         }
 

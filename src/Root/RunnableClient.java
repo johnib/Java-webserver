@@ -52,7 +52,7 @@ public class RunnableClient implements Runnable {
     public void run() {
         // The client closed the connection
         if (socket == null || socket.isClosed()) {
-            System.out.println(closed_by_the_client);
+            Logger.writeWebServerLog(closed_by_the_client);
             return;
         }
 
@@ -61,14 +61,14 @@ public class RunnableClient implements Runnable {
 
             // Checking for bad request
             if (httpRequest.getPath() == null || httpRequest.getMethod() == null) {
-                System.out.println("No path or method found");
+                Logger.writeWebServerLog("No path or method found");
                 this.wasErrorSent = true;
                 sendResponseBadRequest();
                 return;
             }
 
         } catch (Exception ex) {
-            System.out.println("Problem parsing the data");
+            Logger.writeWebServerLog("Problem parsing the data");
             this.wasErrorSent = true;
             sendResponseBadRequest();
             return;
@@ -122,8 +122,8 @@ public class RunnableClient implements Runnable {
 
             outputStream.write(headers);
 
-            System.out.println("-- Response Headers --");
-            System.out.println(new String(headers));
+            Logger.writeWebServerLog("-- Response Headers --");
+            Logger.writeWebServerLog(new String(headers));
 
             outputStream.write("Allow:".getBytes(StandardCharsets.US_ASCII));
             boolean isFirst = true;
@@ -160,8 +160,8 @@ public class RunnableClient implements Runnable {
         byte[] headers = this.parseGetResponse(this.httpRequest).getHeaders();
         this.sendResponse(headers);
 
-        System.out.println("-- Response Headers --");
-        System.out.println(new String(headers));
+        Logger.writeWebServerLog("-- Response Headers --");
+        Logger.writeWebServerLog(new String(headers));
     }
 
     private void sendGetResponse() {
@@ -373,7 +373,7 @@ public class RunnableClient implements Runnable {
     public void close() {
         if (!socket.isClosed()) {
             try {
-                System.out.println("Closing socket");
+                Logger.writeWebServerLog("Closing socket");
                 socket.close();
             } catch (IOException e) {
                 //TODO: implement

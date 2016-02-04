@@ -64,7 +64,7 @@ public class Configuration implements IConfiguration {
         this.videoExtensions = new HashSet<>(Arrays.asList(dict.get("videoextensions").split(seperator)));
         this.documentExtensions = new HashSet<>(Arrays.asList(dict.get("documentextensions").split(seperator)));
 
-        System.out.printf(parsed_config, parser.toString());
+        Logger.writeWebServerLog(parsed_config, parser.toString());
     }
 
     /* getters */

@@ -7,6 +7,7 @@ package Root;
 public class Logger {
 
     private static int level = 4;
+    private static boolean showServerLog = true;
 
     public static void writeVerbose(Object trace) {
         if (level >= 4) System.out.println(trace.toString());
@@ -25,11 +26,23 @@ public class Logger {
     }
 
     public static void writeException(Exception ex) {
-        writeError("An exception occurred");
+        writeError("An exception occurred....");
         if (level >= 0) ex.printStackTrace();
     }
 
     public static void writeAssignmentTrace(String trace) {
         System.out.println(trace);
+    }
+
+    public static void writeVerbose(String format, Object ... args) {
+        if (level >= 4) System.out.printf(format, args);
+    }
+
+    public static void writeWebServerLog(String format, Object ... args) {
+        if (showServerLog) System.out.printf(format, args);
+    }
+
+    public static void writeWebServerLog(Object trace) {
+        if (showServerLog) System.out.println(trace.toString());
     }
 }

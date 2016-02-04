@@ -32,7 +32,7 @@ public class ClientThread extends Thread {
 
     @SuppressWarnings("InfiniteLoopStatement")
     public void run() {
-        System.out.printf(started_msg, Thread.currentThread().getId());
+        Logger.writeWebServerLog(started_msg, Thread.currentThread().getId());
 
         try {
             while (true) {
@@ -43,15 +43,15 @@ public class ClientThread extends Thread {
                 int queueSize = queue.size();
                 Logger.writeAssignmentTrace(String.format("%s dequeue from their queue. number of items:%d", poolName, queueSize));
 
-                System.out.printf(task_picked, Thread.currentThread().getId());
+                Logger.writeWebServerLog(task_picked, Thread.currentThread().getId());
 
                 task.run();
                 handledTasksCount++;
 
-                System.out.printf(task_finished, Thread.currentThread().getId());
+                Logger.writeWebServerLog(task_finished, Thread.currentThread().getId());
             }
         } catch (InterruptedException e) {
-            System.out.printf(intrpt_msg, Thread.currentThread().getId());
+            Logger.writeWebServerLog(intrpt_msg, Thread.currentThread().getId());
         } catch (Exception e) {
             //TODO: consider a mechanism for reinstantiating new thread in case of lost ones.
             e.printStackTrace();
