@@ -17,40 +17,6 @@ public class RunnableDownloader implements Runnable {
         this.downloadUrl = downloadUrl;
     }
 
-
-
-    @Override
-    public void run() {
-        if (this.downloadUrl == null) return;
-
-        try {
-            Logger.writeAssignmentTrace("Downloader starts downloading URL: " + this.downloadUrl);
-            try (InputStream stream = this.downloadUrl.openStream()) {
-                if (stream == null) {
-                    Logger.writeInfo("RunnableDownloader - stream from URL was null");
-                    return;
-                }
-
-                try (BufferedReader buffer = new BufferedReader(new InputStreamReader(stream))) {
-                    // Reading from the socket the data
-                    String html = ConvertToNoLineEndString(buffer);
-
-                    // Checking if the read was successful
-                    if (html.isEmpty()) return;
-
-                    // Log
-                    Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + this.downloadUrl);
-                    Logger.writeInfo("The html data:" + html);
-
-                    // Sending to analyzer
-                    Root.Crawler.getInstance().pushAnzlyzeHtmlTask(new RunnableAnalyzer(this.downloadUrl, html));
-                }
-            }
-        } catch (Exception ex) {
-            Logger.writeException(ex);
-        }
-    }
-
     /**
      * This function converts the buffer to string and removes the line ending
      *
@@ -86,5 +52,37 @@ public class RunnableDownloader implements Runnable {
         }
 
         return text.toString();
+    }
+
+    @Override
+    public void run() {
+        if (this.downloadUrl == null) return;
+
+        try {
+            Logger.writeAssignmentTrace("Downloader starts downloading URL: " + this.downloadUrl);
+            try (InputStream stream = this.downloadUrl.openStream()) {
+                if (stream == null) {
+                    Logger.writeInfo("RunnableDownloader - stream from URL was null");
+                    return;
+                }
+
+                try (BufferedReader buffer = new BufferedReader(new InputStreamReader(stream))) {
+                    // Reading from the socket the data
+                    String html = ConvertToNoLineEndString(buffer);
+
+                    // Checking if the read was successful
+                    if (html.isEmpty()) return;
+
+                    // Log
+                    Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + this.downloadUrl);
+                    Logger.writeInfo("The html data:" + html);
+
+                    // Sending to analyzer
+                    Root.Crawler.getInstance().pushAnalyzeHtmlTask(new RunnableAnalyzer(this.downloadUrl, html));
+                }
+            }
+        } catch (Exception ex) {
+            Logger.writeException(ex);
+        }
     }
 }

@@ -173,6 +173,10 @@ public class HTTPRequest {
         return payloadDict;
     }
 
+    public String getPayload() {
+        return this.payload;
+    }
+
     public String getParams() {
         return this.headersDict.get(Common.http_parser_params);
     }

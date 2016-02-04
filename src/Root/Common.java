@@ -24,6 +24,7 @@ public class Common {
             put(200, "OK");
             put(404, "Not Found");
             put(400, "Bad Request");
+            put(403, "Forbidden");
             put(500, "Internal Server Error");
             put(501, "Not Implemented");
         }
