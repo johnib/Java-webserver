@@ -7,14 +7,16 @@ package Root;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
  * This is a lighter version of Java's URL class, requested by instructor to be implemented.
  */
-public class URL implements java.io.Closeable{
+public class URL implements java.io.Closeable {
 
     /* static properties */
     private static final URLParser parser = new URLParser();
@@ -34,13 +36,12 @@ public class URL implements java.io.Closeable{
     private Socket socket;
 
 
-
     private URL(String protocol, String domain, int port, String uri) {
         this.protocol = protocol;
         this.domain = domain;
         this.port = port;
         this.uri = uri;
-        this.fullURL = String.format("%s://%s:%d%s", protocol, domain, port, uri != null ? uri : "");
+        this.fullURL = String.format("%s://%s:%d%s", protocol, domain, port, uri != null ? uri : "/");
     }
 
     /**
@@ -68,7 +69,9 @@ public class URL implements java.io.Closeable{
     }
 
     public static URL makeURL(URL url, String uri) {
-        return new URL(url.protocol, url.domain, url.port, uri);
+        String normalizedUri = (uri.charAt(0) == '/') ? uri : "/" + uri;
+        String fullUrl = url.getFullURLWithoutURI() + normalizedUri;
+        return makeURL(fullUrl);
     }
 
     public String getProtocol() {
@@ -84,7 +87,7 @@ public class URL implements java.io.Closeable{
     }
 
     public String getUri() {
-        if(this.uri == null || this.uri.isEmpty()) return "/";
+        if (this.uri == null || this.uri.isEmpty()) return "/";
         return this.uri;
     }
 
@@ -107,7 +110,7 @@ public class URL implements java.io.Closeable{
 
     private InputStream openStreamInternal(boolean requestHead) {
         // Only handle http requests
-        if (this.getProtocol().compareToIgnoreCase(default_protocol) != 0){
+        if (this.getProtocol().compareToIgnoreCase(default_protocol) != 0) {
             return null;
         }
 
@@ -134,6 +137,13 @@ public class URL implements java.io.Closeable{
             socket.getOutputStream().write(headers);
             socket.getOutputStream().flush();
             return socket.getInputStream();
+        } catch (UnknownHostException e) {
+            //TODO: this exception is thrown when IP could be resolved for the URL's domain
+            //TODO: define behaviour
+            Logger.writeError("URL: + " + this.domain + " cannot be resolved, has no valid IP address");
+        } catch (ConnectException e) {
+            //TODO: define behaviour
+            Logger.writeError("Connecting to URL: " + this.getFullURL() + " resulted in timeout");
         } catch (IOException e) {
             Logger.writeException(e);
         }
@@ -186,10 +196,25 @@ public class URL implements java.io.Closeable{
     private void setSocket(Socket socket) {
         try {
             if (this.socket != null && !this.socket.isClosed()) this.socket.close();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             Logger.writeVerbose("Unable to close the socket in URL class");
         }
 
         this.socket = socket;
+    }
+
+    public String getExtension() {
+        String ext = "";
+        int lastDot = this.uri.lastIndexOf(".");
+        if (lastDot > 0) {
+            ext = this.uri.substring(lastDot + 1);
+        }
+
+        return ext;
+    }
+
+    public String getFullURLWithoutURI() {
+        String fullUrl = this.getFullURL();
+        return fullUrl.substring(0, fullUrl.lastIndexOf(":") + 1) + this.getPort();
     }
 }

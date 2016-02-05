@@ -82,7 +82,9 @@ public class RunnableDownloader implements Runnable {
 
                 // The minus one is because line brake count as one
                 contentLength = contentLength - line.getBytes().length -1;
-                Logger.writeVerbose("contentLength is: " + contentLength);
+
+                //TODO: remove this log line, it logs the content length for EVERY ITERATION
+//                Logger.writeVerbose("contentLength is: " + contentLength);
             }
 
             // Read empty line

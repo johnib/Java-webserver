@@ -24,26 +24,31 @@ public class RunnableAnalyzer implements Runnable {
 
     @Override
     public void run() {
-        ArrayList<URL> links = this.extractLinks(this.html);
+        ArrayList<URL> links = this.extractLinksFrom(this.html);
         for (URL link : links) {
-            boolean linkPushed = this.pushDownloadUrlTasks(link);
+            boolean linkAdded = false;
 
-            // count internal, external
-            if (this.sourceUrl.isInternalTo(link)) {
-                this.crawlerResult.increaseInternalLinks();
+            if (link.getProtocol().toLowerCase().equals("http")) {
+                if (this.sourceUrl.isInternalTo(link)) {
+                    if (this.tryAddLinkToDownloader(link)) {
+                        this.crawlerResult.increaseInternalLinks();
+                        linkAdded = true;
+                    }
+
+                } else {
+                    this.crawlerResult.increaseExternalLinks();
+                    if (crawler.recognizesFileExtension(link)) {
+                        this.tryAddLinkToDownloader(link);
+                        linkAdded = true;
+                    }
+                }
             } else {
                 this.crawlerResult.increaseExternalLinks();
             }
 
-
         }
-        this.analyzeHtml();
 
         Logger.writeInfo("Analyzer: number of links extracted from:\t" + this.sourceUrl.toString() + "\t" + links.size());
-    }
-
-    private void analyzeHtml() {
-
     }
 
     /**
@@ -52,7 +57,7 @@ public class RunnableAnalyzer implements Runnable {
      * @param html the html to parse
      * @return an array list of URL objects
      */
-    private ArrayList<URL> extractLinks(String html) {
+    private ArrayList<URL> extractLinksFrom(String html) {
         ArrayList<URL> links = new ArrayList<>();
 
         // the reason parsing is done here and not in the constructor
@@ -80,7 +85,7 @@ public class RunnableAnalyzer implements Runnable {
      *
      * @return true if url pushed and false otherwise.
      */
-    private boolean pushDownloadUrlTasks(URL url) {
+    private boolean tryAddLinkToDownloader(URL url) {
         boolean pushed = false;
 
         if (this.isNew(url)) {

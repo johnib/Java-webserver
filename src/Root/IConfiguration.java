@@ -1,6 +1,7 @@
 package Root;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -12,6 +13,8 @@ public interface IConfiguration {
     int getPort();
 
     int getMaxThreads();
+
+    HashMap getFileExtensions();
 
     String getRoot(HTTPRequest httpRequest);
 

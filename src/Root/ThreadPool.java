@@ -22,7 +22,7 @@ public class ThreadPool {
     private static final String started_err = "Thread pool already started.\n";
 
     /* Private fields */
-    private static final int queue_size = 10;
+    private static final int queue_size = 100;
     // the tasksQueue queue
     private LinkedBlockingQueue<Runnable> tasksQueue = new LinkedBlockingQueue<>(queue_size);
     // the threads array
@@ -82,6 +82,31 @@ public class ThreadPool {
         Logger.writeVerbose(task_added, tasksQueue.size());
 
         return true;
+    }
+
+    /**
+     * This method adds a new task to the tasksQueue queue.
+     * If no free space in queue, the method blocks until space is available.
+     *
+     * @param task the task
+     * @return true if task added succuessfully and false in case thread intruppted
+     * @throws IllegalStateException
+     */
+    public boolean addTaskBlocking(Runnable task) throws IllegalStateException{
+        if (!this.isRunning) {
+            throw new IllegalStateException(not_running);
+        }
+
+        boolean taskAdded = false;
+        try {
+            this.tasksQueue.put(task);
+            taskAdded = true;
+        } catch (InterruptedException e) {
+
+            e.printStackTrace();
+        }
+
+        return taskAdded;
     }
 
     /**

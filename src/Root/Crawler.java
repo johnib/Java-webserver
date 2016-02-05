@@ -8,6 +8,9 @@ package Root;
 import org.json.simple.JSONObject;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
 /**
  * This class will manage the whole crawler procedure once the Root.RunnableClient put the first URL task.
  */
@@ -18,10 +21,12 @@ public class Crawler {
     private ThreadPool downloaders;
     private ThreadPool analyzers;
     private CrawlerResult crawlerResult;
+    private final HashMap<String, HashSet> knownFileTypes;
 
     private Crawler(IConfiguration config) {
         this.downloaders = new ThreadPool(config.getMaxDownloaders(), "Downloader");
         this.analyzers = new ThreadPool(config.getMaxAnalyzers(), "Analyzer");
+        this.knownFileTypes = config.getFileExtensions();
     }
 
     /**
@@ -85,11 +90,11 @@ public class Crawler {
     }
 
     public void pushDownloadUrlTask(RunnableDownloader task) {
-        this.downloaders.addTask(task);
+        this.downloaders.addTaskBlocking(task);
     }
 
     public void pushAnalyzeHtmlTask(RunnableAnalyzer task) {
-        this.analyzers.addTask(task);
+        this.analyzers.addTaskBlocking(task);
     }
 
     public boolean isWorking() {
@@ -101,6 +106,7 @@ public class Crawler {
 
         if (config.ignoreRobots) {
             // TODO: add all the linked of robot.txt to the downloader
+            //TODO: note that some links contain '*' (wild card) - ignore these links
             throw new NotImplementedException();
         }
     }
@@ -116,6 +122,25 @@ public class Crawler {
         }
 
         return getCrawlerResult();
+    }
+
+    /**
+     * This method checks if the given link ends with knonw extension with relation to the config.ini file.
+     * @param url the url to check
+     * @return true if the url's extension is known, false otherwise.
+     */
+    public boolean recognizesFileExtension(URL url) {
+        boolean knownExt = false;
+
+        for (String type : this.knownFileTypes.keySet()) {
+            HashSet typeSet = this.knownFileTypes.get(type);
+            if (typeSet.contains(url.getExtension())) {
+                knownExt = true;
+                break;
+            }
+        }
+
+        return knownExt;
     }
 
     public CrawlerResult getCrawlerResult() {

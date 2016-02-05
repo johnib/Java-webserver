@@ -4,6 +4,7 @@ import Root.HTTPRequest;
 import Root.IConfiguration;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -37,6 +38,11 @@ public class MoqConfig implements IConfiguration {
     @Override
     public int getMaxThreads() {
         return maxThreads;
+    }
+
+    @Override
+    public HashMap getFileExtensions() {
+        return null;
     }
 
     public void setMaxThreads(int maxThreads) {

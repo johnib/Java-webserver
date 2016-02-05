@@ -1,10 +1,13 @@
 package Root;
 
+import sun.security.krb5.Config;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -24,11 +27,12 @@ public class Configuration implements IConfiguration {
     private final String root;
     private final String defaultPage;
     private String rootAbsolutePath = null;
-    private int maxDownloaders;
-    private int maxAnalyzers;
-    private HashSet<String> imageExtensions;
-    private HashSet<String> videoExtensions;
-    private HashSet<String> documentExtensions;
+    private final int maxDownloaders;
+    private final int maxAnalyzers;
+    private final HashSet<String> imageExtensions;
+    private final HashSet<String> videoExtensions;
+    private final HashSet<String> documentExtensions;
+    private final HashMap<String, HashSet> fileExtensions;
 
     /**
      * Creates a configuration object with all the details regarding the server settings.
@@ -64,6 +68,15 @@ public class Configuration implements IConfiguration {
         this.videoExtensions = new HashSet<>(Arrays.asList(dict.get("videoextensions").split(seperator)));
         this.documentExtensions = new HashSet<>(Arrays.asList(dict.get("documentextensions").split(seperator)));
 
+        final Configuration self = this;
+        this.fileExtensions = new HashMap<String, HashSet>() {
+            {
+                put("image", self.imageExtensions);
+                put("video", self.videoExtensions);
+                put("document", self.documentExtensions);
+            }
+        };
+
         Logger.writeWebServerLog(parsed_config, parser.toString());
     }
 
@@ -76,6 +89,11 @@ public class Configuration implements IConfiguration {
     @Override
     public int getMaxThreads() {
         return maxThreads;
+    }
+
+    @Override
+    public HashMap getFileExtensions() {
+        return this.fileExtensions;
     }
 
     @Override
