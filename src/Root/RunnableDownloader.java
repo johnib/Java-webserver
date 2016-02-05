@@ -53,7 +53,7 @@ public class RunnableDownloader implements Runnable {
                 // Adding the content len to the result.
                 // Adding it here because there are server that dose not
                 // return content-length on the HEAD request
-                long lenSoFare = Crawler.getInstance().getCrawlerResult().AddHtmlSize(contentLength);
+                long lenSoFare = Crawler.getInstance().getCrawlerResult().addHtmlSize(contentLength);
                 Logger.writeVerbose("The Html page size so far is: " + lenSoFare);
 
                 char[] arr = new char[contentLength];
@@ -73,7 +73,7 @@ public class RunnableDownloader implements Runnable {
         String line;
 
         while ((contentLength = Integer.parseInt(buffer.readLine(), 16)) > 0) {
-            long lenSoFare = Crawler.getInstance().getCrawlerResult().AddHtmlSize(contentLength);
+            long lenSoFare = Crawler.getInstance().getCrawlerResult().addHtmlSize(contentLength);
             Logger.writeVerbose("The Html page size so far is: " + lenSoFare);
 
             while (contentLength > 0) {
@@ -118,10 +118,24 @@ public class RunnableDownloader implements Runnable {
                 }
 
                 Map<String, String> headers = GetResponseHeaders(headersStream);
+                FileType fileType = urlEndsWithFileName(urlAndPath);
 
-                if (urlEndsWithFileName(urlAndPath)) {
-                    ////
-
+                if (fileType != FileType.Unknown && headers.containsKey("content-length")) {
+                    long contentLength = Long.parseLong(headers.get("content-length"));
+                    switch (fileType){
+                        case Image:
+                            long imageSize = Crawler.getInstance().getCrawlerResult().addImageSize(contentLength);
+                            Logger.writeVerbose("Total image size so far: " + imageSize);
+                            break;
+                        case Video:
+                            long videoSize = Crawler.getInstance().getCrawlerResult().addVideoSize(contentLength);
+                            Logger.writeVerbose("Total video size so far: " + videoSize);
+                            break;
+                        case Document:
+                            long docSize = Crawler.getInstance().getCrawlerResult().addDocSize(contentLength);
+                            Logger.writeVerbose("Total doc size so far: " + docSize);
+                            break;
+                    }
                 } else if (headers.containsKey("content-type") && headers.get("content-type").toLowerCase().contains("html")) {
                     // This is an html page
                     ProcessHtmlPage();
@@ -176,8 +190,13 @@ public class RunnableDownloader implements Runnable {
         return parser.parse(text.toString());
     }
 
-    private boolean urlEndsWithFileName(String urlAndPath) {
-        return false;
-        //throw new NotImplementedException();
+    private FileType urlEndsWithFileName(String urlAndPath) {
+        String fileExtension = urlAndPath.substring(urlAndPath.length() - 5,urlAndPath.length() - 1);
+        IConfiguration config = Crawler.getInstance().getConfig();
+
+        if (config.getImageExtensions().contains(fileExtension)) return FileType.Image;
+        if(config.getDocumentExtensions().contains(fileExtension)) return FileType.Document;
+        if(config.getVideoExtensions().contains(fileExtension)) return FileType.Video;
+        return FileType.Unknown;
     }
 }

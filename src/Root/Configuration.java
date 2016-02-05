@@ -32,7 +32,7 @@ public class Configuration implements IConfiguration {
     private final HashSet<String> imageExtensions;
     private final HashSet<String> videoExtensions;
     private final HashSet<String> documentExtensions;
-    private final HashMap<String, HashSet> fileExtensions;
+    private final HashMap<FileType, HashSet> fileExtensions;
 
     /**
      * Creates a configuration object with all the details regarding the server settings.
@@ -69,11 +69,11 @@ public class Configuration implements IConfiguration {
         this.documentExtensions = new HashSet<>(Arrays.asList(dict.get("documentextensions").split(seperator)));
 
         final Configuration self = this;
-        this.fileExtensions = new HashMap<String, HashSet>() {
+        this.fileExtensions = new HashMap<FileType, HashSet>() {
             {
-                put("image", self.imageExtensions);
-                put("video", self.videoExtensions);
-                put("document", self.documentExtensions);
+                put(FileType.Image, self.imageExtensions);
+                put(FileType.Video, self.videoExtensions);
+                put(FileType.Document, self.documentExtensions);
             }
         };
 

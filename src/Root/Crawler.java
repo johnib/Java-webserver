@@ -21,12 +21,12 @@ public class Crawler {
     private ThreadPool downloaders;
     private ThreadPool analyzers;
     private CrawlerResult crawlerResult;
-    private final HashMap<String, HashSet> knownFileTypes;
+    private IConfiguration config;
 
     private Crawler(IConfiguration config) {
+        this.config = config;
         this.downloaders = new ThreadPool(config.getMaxDownloaders(), "Downloader");
         this.analyzers = new ThreadPool(config.getMaxAnalyzers(), "Analyzer");
-        this.knownFileTypes = config.getFileExtensions();
     }
 
     /**
@@ -131,9 +131,10 @@ public class Crawler {
      */
     public boolean recognizesFileExtension(URL url) {
         boolean knownExt = false;
+        HashMap<FileType, HashSet> knownFileTypes = this.config.getFileExtensions();
 
-        for (String type : this.knownFileTypes.keySet()) {
-            HashSet typeSet = this.knownFileTypes.get(type);
+        for (FileType type : knownFileTypes.keySet()) {
+            HashSet typeSet = knownFileTypes.get(type);
             if (typeSet.contains(url.getExtension())) {
                 knownExt = true;
                 break;
@@ -145,6 +146,10 @@ public class Crawler {
 
     public CrawlerResult getCrawlerResult() {
         return crawlerResult;
+    }
+
+    public IConfiguration getConfig() {
+        return config;
     }
 }
 

@@ -19,7 +19,12 @@ public class CrawlerResult {
     private final AtomicInteger images = new AtomicInteger(0);
     private final AtomicInteger videos = new AtomicInteger(0);
     private final AtomicInteger documents = new AtomicInteger(0);
-    private final AtomicLong sumOfAllHtmlPages = new AtomicLong(0);
+
+    // Bytes lengths
+    private final AtomicLong sumOfAllHtmlPagesBytes = new AtomicLong(0);
+    private final AtomicLong sumOfAllImagesBytes = new AtomicLong(0);
+    private final AtomicLong sumOfAllVideosBytes = new AtomicLong(0);
+    private final AtomicLong sumOfAllDocsBytes = new AtomicLong(0);
 
     public CrawlerResult() {
         this.url_history = new ConcurrentHashMap<>(200, 0.75f, 2);
@@ -41,15 +46,40 @@ public class CrawlerResult {
         this.externalLinks.incrementAndGet();
     }
 
-    public long AddHtmlSize(long pageSize) {
-        return sumOfAllHtmlPages.addAndGet(pageSize);
+    public long addHtmlSize(long pageSize) {
+        return sumOfAllHtmlPagesBytes.addAndGet(pageSize);
     }
 
-    public long getSumOfAllHtmlPages(){
-        return sumOfAllHtmlPages.get();
+    public long addImageSize(long size) {
+        return sumOfAllImagesBytes.addAndGet(size);
     }
+
+    public long addVideoSize(long size) {
+        return sumOfAllVideosBytes.addAndGet(size);
+    }
+
+    public long addDocSize(long size) {
+        return sumOfAllDocsBytes.addAndGet(size);
+    }
+
+    public long getSumOfAllHtmlPagesBytes() { return sumOfAllHtmlPagesBytes.get(); }
+    public long getsumOfAllImagesBytes()    { return sumOfAllImagesBytes.get(); }
+    public long getsumOfAllVideosBytes()    { return sumOfAllVideosBytes.get(); }
+    public long getsumOfAllDocsBytes()      { return sumOfAllDocsBytes.get(); }
 
     public void createSummaryFile() {
 
+    }
+
+    public int getImages() {
+        return images.get();
+    }
+
+    public int getVideos() {
+        return videos.get();
+    }
+
+    public int getDocuments() {
+        return documents.get();
     }
 }
