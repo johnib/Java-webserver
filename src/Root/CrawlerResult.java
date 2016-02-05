@@ -10,16 +10,16 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class CrawlerResult {
 
-    private final AtomicLong sumOfAllHtmlPages = new AtomicLong(0);
     // use url.hashCode() to check if contained in this hashmap
-    private ConcurrentHashMap<Integer, URL> url_history;
-    /* statistics */
-    private AtomicInteger externalLinks = new AtomicInteger(0);
-    private AtomicInteger internalLinks = new AtomicInteger(0);
-    private AtomicInteger images = new AtomicInteger(0);
-    private AtomicInteger videos = new AtomicInteger(0);
-    private AtomicInteger documents = new AtomicInteger(0);
+    private final ConcurrentHashMap<Integer, URL> url_history;
 
+    /* statistics */
+    private final AtomicInteger externalLinks = new AtomicInteger(0);
+    private final AtomicInteger internalLinks = new AtomicInteger(0);
+    private final AtomicInteger images = new AtomicInteger(0);
+    private final AtomicInteger videos = new AtomicInteger(0);
+    private final AtomicInteger documents = new AtomicInteger(0);
+    private final AtomicLong sumOfAllHtmlPages = new AtomicLong(0);
 
     public CrawlerResult() {
         this.url_history = new ConcurrentHashMap<>(200, 0.75f, 2);
@@ -47,5 +47,9 @@ public class CrawlerResult {
 
     public long getSumOfAllHtmlPages(){
         return sumOfAllHtmlPages.get();
+    }
+
+    public void createSummaryFile() {
+
     }
 }
