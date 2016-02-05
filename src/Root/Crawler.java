@@ -112,13 +112,13 @@ public class Crawler {
     }
 
     private CrawlerResult getResult() {
-        while (this.isWorking()) {
-            try {
+        try {
+            while (this.isWorking()) {
                 Thread.sleep(1000 * 3);
-            } catch (InterruptedException e) {
-                // Left empty
-                Logger.writeVerbose(e);
             }
+        } catch (InterruptedException e) {
+            // Left empty
+            Logger.writeVerbose(e);
         }
 
         return getCrawlerResult();
@@ -126,6 +126,7 @@ public class Crawler {
 
     /**
      * This method checks if the given link ends with knonw extension with relation to the config.ini file.
+     *
      * @param url the url to check
      * @return true if the url's extension is known, false otherwise.
      */

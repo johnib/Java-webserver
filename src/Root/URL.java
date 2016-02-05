@@ -40,13 +40,12 @@ public class URL implements java.io.Closeable {
         this.protocol = protocol;
         this.domain = domain;
         this.port = port;
-        this.uri = uri;
-        this.fullURL = String.format("%s://%s:%d%s", protocol, domain, port, uri != null ? uri : "/");
+        this.uri = uri == null ? "/" : uri;
+        this.fullURL = String.format("%s://%s:%d%s", this.protocol, this.domain, this.port, this.uri);
     }
 
     /**
      * Returns a new URL instance representing the given url.
-     * *
      *
      * @param url a valid url
      * @return null if URL is not valid.
@@ -68,9 +67,32 @@ public class URL implements java.io.Closeable {
         return new URL(protocol, domain, port, uri);
     }
 
+    /**
+     * This method creates a new URL object with the new URI which is relative to the old URI's file path.
+     * <p/>
+     * For example:
+     * URL: http://google.com/a/b/c.html
+     * URI: hello.png
+     * <p/>
+     * Results in a URL instance representing this link:
+     * http://google.com/a/b/hello.png
+     * <p/>
+     * But, in case the URI: /hello.png, the result is:
+     * http://google.com/hello.png
+     *
+     * @param url the old URL instance
+     * @param uri the new relative URI
+     * @return new URL instance with updated URI
+     */
     public static URL makeURL(URL url, String uri) {
-        String normalizedUri = (uri.charAt(0) == '/') ? uri : "/" + uri;
-        String fullUrl = url.getFullURLWithoutURI() + normalizedUri;
+        boolean uriIsRelative = uri.charAt(0) != '/';
+        String fullUrl;
+        if (uriIsRelative) {
+            fullUrl = url.getFullURLWithoutURI().concat(url.getRelativeUri(uri));
+        } else {
+            fullUrl = url.getFullURLWithoutURI().concat(uri);
+        }
+
         return makeURL(fullUrl);
     }
 
@@ -216,5 +238,11 @@ public class URL implements java.io.Closeable {
     public String getFullURLWithoutURI() {
         String fullUrl = this.getFullURL();
         return fullUrl.substring(0, fullUrl.lastIndexOf(":") + 1) + this.getPort();
+    }
+
+    public String getRelativeUri(String uri) {
+        String oldUri = this.getUri();
+
+        return oldUri.substring(0, oldUri.lastIndexOf("/") + 1).concat(uri);
     }
 }
