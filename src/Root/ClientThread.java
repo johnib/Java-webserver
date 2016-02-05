@@ -41,7 +41,7 @@ public class ClientThread extends Thread {
                 // TODO: check the google docs question number 5
                 Runnable task = queue.take();
                 int queueSize = queue.size();
-                Logger.writeAssignmentTrace(String.format("%s dequeue from their queue. number of items:%d", poolName, queueSize));
+                Logger.writeAssignmentTrace(String.format("%s dequeue from their queue. number of items: %d", poolName, queueSize));
 
                 Logger.writeWebServerLog(task_picked, Thread.currentThread().getId());
 

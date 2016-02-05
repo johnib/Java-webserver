@@ -48,7 +48,7 @@ public class RunnableAnalyzer implements Runnable {
 
         }
 
-        Logger.writeInfo("Analyzer: number of links extracted from:\t" + this.sourceUrl.toString() + "\t" + links.size());
+        Logger.writeInfo("Analyzer: number of links extracted from:\t" + this.sourceUrl.toString() + "\t:" + links.size());
     }
 
     /**
