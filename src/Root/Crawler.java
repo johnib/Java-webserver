@@ -17,9 +17,11 @@ public class Crawler {
 
     private ThreadPool downloaders;
     private ThreadPool analyzers;
-    private CrawlerResult crawlerResult;
+    private Root.crawlerResult crawlerResult;
+    private IConfiguration config;
 
     private Crawler(IConfiguration config) {
+        this.config = config;
         this.downloaders = new ThreadPool(config.getMaxDownloaders(), "Downloader");
         this.analyzers = new ThreadPool(config.getMaxAnalyzers(), "Analyzer");
     }
@@ -62,7 +64,7 @@ public class Crawler {
      * @param config the JSON received from client.
      * @return the updated db.json
      */
-    public synchronized CrawlerResult crawl(JSONObject config) {
+    public synchronized Root.crawlerResult crawl(JSONObject config) {
         if (this.isWorking()) {
             Logger.writeInfo("The crawler is currently working");
             return null;
@@ -79,7 +81,7 @@ public class Crawler {
         }
 
         CrawlerConfig crawlerConfig = new CrawlerConfig(url, portScan, ignoreRobots);
-        this.crawlerResult = new CrawlerResult();
+        this.crawlerResult = new crawlerResult();
         this.startCrawlingOn(crawlerConfig);
         return this.getResult();
     }
@@ -105,7 +107,7 @@ public class Crawler {
         }
     }
 
-    private CrawlerResult getResult() {
+    private Root.crawlerResult getResult() {
         while (this.isWorking()) {
             try {
                 Thread.sleep(1000 * 3);
@@ -118,8 +120,12 @@ public class Crawler {
         return getCrawlerResult();
     }
 
-    public CrawlerResult getCrawlerResult() {
+    public Root.crawlerResult getCrawlerResult() {
         return crawlerResult;
+    }
+
+    public IConfiguration getConfig() {
+        return config;
     }
 }
 

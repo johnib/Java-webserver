@@ -189,7 +189,7 @@ public class RunnableClient implements Runnable {
                     return getResponseBadRequest();
                 }
 
-                CrawlerResult result = Crawler.getInstance().crawl(crawlerConfig);
+                crawlerResult result = Crawler.getInstance().crawl(crawlerConfig);
                 //TODO: when crawler is done, use case crawlHistoryPath to retrieve the new db.
 
             case crawlHistoryPath:
@@ -262,7 +262,7 @@ public class RunnableClient implements Runnable {
         throw new NotImplementedException();
     }
 
-    private HTTPResponse getResponseJson(CrawlerResult result, String s) {
+    private HTTPResponse getResponseJson(crawlerResult result, String s) {
         // TODO: this method
         throw new NotImplementedException();
     }

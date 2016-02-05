@@ -12,7 +12,7 @@ public class RunnableAnalyzer implements Runnable {
     private static final HtmlParser HTML_PARSER = new HtmlParser();
     private static final Crawler crawler = Crawler.getInstance();
 
-    private final CrawlerResult crawlerResult;
+    private final Root.crawlerResult crawlerResult;
     private final String html;
     private final URL sourceUrl;
 
