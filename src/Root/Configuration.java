@@ -1,7 +1,5 @@
 package Root;
 
-import sun.security.krb5.Config;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,18 +19,20 @@ public class Configuration implements IConfiguration {
     private final static String seperator = ",";
 
     /* private fields */
-    private final static String regex_string = "(.+)=(.+)";
+    private final static String regex_string = "(?<key>\\w+)\\s*=\\s*(?<value>\\S+)";
     private final int port;
     private final int maxThreads;
     private final String root;
     private final String defaultPage;
-    private String rootAbsolutePath = null;
     private final int maxDownloaders;
     private final int maxAnalyzers;
     private final HashSet<String> imageExtensions;
     private final HashSet<String> videoExtensions;
     private final HashSet<String> documentExtensions;
     private final HashMap<FileType, HashSet> fileExtensions;
+    private final File database;
+    private final String resultsPath;
+    private String rootAbsolutePath = null;
 
     /**
      * Creates a configuration object with all the details regarding the server settings.
@@ -59,6 +59,9 @@ public class Configuration implements IConfiguration {
             this.root = Paths.get(path).toAbsolutePath().normalize().toString();
         }
 
+        String databasePath = dict.get("database");
+        this.database = new File(Paths.get(databasePath).toAbsolutePath().normalize().toString());
+        this.resultsPath = Paths.get(dict.get("results")).toAbsolutePath().normalize().toString();
         this.port = Integer.parseInt(dict.get("port"));
         this.maxThreads = Integer.parseInt(dict.get("maxthreads"));
         this.defaultPage = dict.get("defaultpage");
@@ -156,5 +159,15 @@ public class Configuration implements IConfiguration {
     @Override
     public HashSet<String> getDocumentExtensions() {
         return documentExtensions;
+    }
+
+    @Override
+    public File getDatabase() {
+        return this.database;
+    }
+
+    @Override
+    public String getResultsPath() {
+        return this.resultsPath;
     }
 }

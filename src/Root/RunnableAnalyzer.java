@@ -19,7 +19,7 @@ public class RunnableAnalyzer implements Runnable {
     public RunnableAnalyzer(URL sourceUrl, String html) {
         this.html = html;
         this.sourceUrl = sourceUrl;
-        this.crawlerResult = crawler.getCrawlerResult();
+        this.crawlerResult = crawler.getTheCrawlerResultInstance();
     }
 
     @Override

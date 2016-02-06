@@ -1,5 +1,6 @@
 package Root;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,4 +37,8 @@ public interface IConfiguration {
     HashSet<String> getVideoExtensions();
 
     HashSet<String> getDocumentExtensions();
+
+    File getDatabase();
+
+    String getResultsPath();
 }

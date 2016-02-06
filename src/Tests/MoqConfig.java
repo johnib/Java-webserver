@@ -3,6 +3,7 @@ package Tests;
 import Root.HTTPRequest;
 import Root.IConfiguration;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,13 +41,13 @@ public class MoqConfig implements IConfiguration {
         return maxThreads;
     }
 
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
+    }
+
     @Override
     public HashMap getFileExtensions() {
         return null;
-    }
-
-    public void setMaxThreads(int maxThreads) {
-        this.maxThreads = maxThreads;
     }
 
     @Override
@@ -129,5 +130,15 @@ public class MoqConfig implements IConfiguration {
 
     public void setDocumentExtensions(HashSet<String> documentExtensions) {
         this.documentExtensions = documentExtensions;
+    }
+
+    @Override
+    public File getDatabase() {
+        return null;
+    }
+
+    @Override
+    public String getResultsPath() {
+        return null;
     }
 }

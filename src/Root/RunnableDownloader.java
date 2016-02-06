@@ -52,7 +52,7 @@ public class RunnableDownloader implements Runnable {
                 }
 
                 // updating CrawlerResult
-                long totalHtmlLength = Crawler.getInstance().getCrawlerResult().addHtmlSize(contentLength);
+                long totalHtmlLength = Crawler.getInstance().getTheCrawlerResultInstance().addHtmlSize(contentLength);
                 Logger.writeVerbose("The Html page size so far is: " + totalHtmlLength);
 
                 char[] arr = new char[contentLength];
@@ -76,7 +76,7 @@ public class RunnableDownloader implements Runnable {
         String line;
 
         while ((contentLength = Integer.parseInt(buffer.readLine(), 16)) > 0) {
-            long lenSoFare = Crawler.getInstance().getCrawlerResult().addHtmlSize(contentLength);
+            long lenSoFare = Crawler.getInstance().getTheCrawlerResultInstance().addHtmlSize(contentLength);
             Logger.writeVerbose("The Html page size so far is: " + lenSoFare);
 
             while (contentLength > 0) {
@@ -127,15 +127,15 @@ public class RunnableDownloader implements Runnable {
                     long contentLength = Long.parseLong(headers.get("content-length"));
                     switch (fileType) {
                         case Image:
-                            long imageSize = Crawler.getInstance().getCrawlerResult().addImageSize(contentLength);
+                            long imageSize = Crawler.getInstance().getTheCrawlerResultInstance().addImageSize(contentLength);
                             Logger.writeVerbose("Total image size so far: " + imageSize);
                             break;
                         case Video:
-                            long videoSize = Crawler.getInstance().getCrawlerResult().addVideoSize(contentLength);
+                            long videoSize = Crawler.getInstance().getTheCrawlerResultInstance().addVideoSize(contentLength);
                             Logger.writeVerbose("Total video size so far: " + videoSize);
                             break;
                         case Document:
-                            long docSize = Crawler.getInstance().getCrawlerResult().addDocSize(contentLength);
+                            long docSize = Crawler.getInstance().getTheCrawlerResultInstance().addDocSize(contentLength);
                             Logger.writeVerbose("Total doc size so far: " + docSize);
                             break;
                     }
