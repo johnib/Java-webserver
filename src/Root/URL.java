@@ -176,7 +176,7 @@ public class URL implements java.io.Closeable {
     private String CreateRequest(String method) {
         return String.format("%s %s HTTP/1.1" + Common.CRLF +
                         "Host: %s" + Common.CRLF +
-                        "Accept: text/plain" + Common.CRLF +
+                        "Accept: text/html" + Common.CRLF +
                         "User-Agent: CoolServer/1.1 (Windows NT 10.0; Win64; x64)" + Common.CRLF +
                         Common.CRLF,
                 method,

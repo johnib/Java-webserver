@@ -1,10 +1,8 @@
 package Root;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.SocketException;
 import java.util.Map;
 
 /**
@@ -55,10 +53,14 @@ public class RunnableDownloader implements Runnable {
                 Logger.writeVerbose("The Html page size so far is: " + totalHtmlLength);
 
                 char[] arr = new char[contentLength];
-                buffer.read(arr, 0, contentLength);
+                int charsRead = 0;
+                while (charsRead < contentLength && charsRead != -1) {
+                    charsRead += buffer.read(arr, charsRead, contentLength - charsRead);
+                }
+
                 text.append(arr);
             }
-        } catch (java.net.SocketException e) {
+        } catch (SocketException e) {
             Logger.writeVerbose("Reading from socket failed");
         }
 
@@ -79,7 +81,7 @@ public class RunnableDownloader implements Runnable {
                 text.append(line);
 
                 // The minus one is because line brake count as one
-                contentLength = contentLength - line.getBytes().length -1;
+                contentLength = contentLength - line.getBytes().length - 1;
 
                 //TODO: remove this log line, it logs the content length for EVERY ITERATION
 //                Logger.writeVerbose("contentLength is: " + contentLength);
@@ -120,7 +122,7 @@ public class RunnableDownloader implements Runnable {
 
                 if (fileType != FileType.Unknown && headers.containsKey("content-length")) {
                     long contentLength = Long.parseLong(headers.get("content-length"));
-                    switch (fileType){
+                    switch (fileType) {
                         case Image:
                             long imageSize = Crawler.getInstance().getCrawlerResult().addImageSize(contentLength);
                             Logger.writeVerbose("Total image size so far: " + imageSize);
@@ -173,8 +175,7 @@ public class RunnableDownloader implements Runnable {
             try (BufferedReader buffer = new BufferedReader(new InputStreamReader(stream))) {
                 // Reading headers
                 line = buffer.readLine();
-                while (line != null && !line.isEmpty())
-                {
+                while (line != null && !line.isEmpty()) {
                     text.append(line);
                     text.append(System.lineSeparator());
                     line = buffer.readLine();
@@ -189,12 +190,12 @@ public class RunnableDownloader implements Runnable {
     }
 
     private FileType urlEndsWithFileName(String urlAndPath) {
-        String fileExtension = urlAndPath.substring(urlAndPath.length() - 5,urlAndPath.length() - 1);
+        String fileExtension = urlAndPath.substring(urlAndPath.length() - 5, urlAndPath.length() - 1);
         IConfiguration config = Crawler.getInstance().getConfig();
 
         if (config.getImageExtensions().contains(fileExtension)) return FileType.Image;
-        if(config.getDocumentExtensions().contains(fileExtension)) return FileType.Document;
-        if(config.getVideoExtensions().contains(fileExtension)) return FileType.Video;
+        if (config.getDocumentExtensions().contains(fileExtension)) return FileType.Document;
+        if (config.getVideoExtensions().contains(fileExtension)) return FileType.Video;
         return FileType.Unknown;
     }
 }
