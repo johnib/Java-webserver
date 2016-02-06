@@ -8,6 +8,8 @@ package Root;
 import org.json.simple.JSONObject;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -83,10 +85,21 @@ public class Crawler {
             return null;
         }
 
-        CrawlerConfig crawlerConfig = new CrawlerConfig(url, portScan, ignoreRobots);
-        this.crawlerResult = new CrawlerResult();
+        CrawlerConfig crawlerConfig = new CrawlerConfig(url, portScan, ignoreRobots, this.config.getResultsPath());
+        this.crawlerResult = new CrawlerResult(crawlerConfig, this.config.getDatabase());
         this.startCrawlingOn(crawlerConfig);
-        return this.getResult();
+
+        this.waitForFinish();
+        try {
+            File summaryPage = this.crawlerResult.createSummaryFile();
+            this.crawlerResult.updateDatabase(summaryPage);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            //TODO: what happens when summary page cannot be created/written?
+        }
+
+        return this.crawlerResult;
     }
 
     public void pushDownloadUrlTask(RunnableDownloader task) {
@@ -111,7 +124,7 @@ public class Crawler {
         }
     }
 
-    private CrawlerResult getResult() {
+    private CrawlerResult waitForFinish() {
         try {
             while (this.isWorking()) {
                 Thread.sleep(3000);
@@ -126,7 +139,7 @@ public class Crawler {
             Logger.writeVerbose(e);
         }
 
-        return getCrawlerResult();
+        return getTheCrawlerResultInstance();
     }
 
     /**
@@ -150,7 +163,7 @@ public class Crawler {
         return knownExt;
     }
 
-    public CrawlerResult getCrawlerResult() {
+    public CrawlerResult getTheCrawlerResultInstance() {
         return crawlerResult;
     }
 
@@ -164,10 +177,12 @@ class CrawlerConfig {
     public final URL url;
     public final boolean portScan;
     public final boolean ignoreRobots;
+    public final String resultsPath;
 
-    public CrawlerConfig(URL url, boolean portScan, boolean ignoreRobots) {
+    public CrawlerConfig(URL url, boolean portScan, boolean ignoreRobots, String resultsPath) {
         this.url = url;
         this.portScan = portScan;
         this.ignoreRobots = ignoreRobots;
+        this.resultsPath = resultsPath;
     }
 }
