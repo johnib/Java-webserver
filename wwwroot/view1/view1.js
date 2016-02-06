@@ -14,6 +14,12 @@ angular.module('myApp.view1', ['ngRoute'])
         //TODO: put server address
         var serverUrl = "";
 
+        function logResults(results) {
+            results.forEach(function (result) {
+                console.log(result);
+            });
+        }
+
         this.getResults = function () {
             console.log("Retrieving history");
             var deferred = $q.defer();
@@ -21,6 +27,7 @@ angular.module('myApp.view1', ['ngRoute'])
             $http.get(serverUrl + '/get-history')
                 .then(function (res) {
                     deferred.resolve(res.data.results);
+                    logResults(res.data.results);
                 })
                 .catch(deferred.reject);
 
@@ -38,6 +45,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 .then(function (res) {
                     console.log("Received crawling information");
                     deferred.resolve(res.data.results);
+                    logResults(res.data.results);
                 })
                 .catch(deferred.reject);
 
