@@ -178,6 +178,7 @@ public class URL implements java.io.Closeable {
                         "Host: %s" + Common.CRLF +
                         "Accept: text/html" + Common.CRLF +
                         "User-Agent: CoolServer/1.1 (Windows NT 10.0; Win64; x64)" + Common.CRLF +
+                        "Connection: close" + Common.CRLF +
                         Common.CRLF,
                 method,
                 this.getUri(),

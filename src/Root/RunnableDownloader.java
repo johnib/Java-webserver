@@ -1,7 +1,10 @@
 package Root;
 
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.SocketException;
 import java.util.Map;
 
@@ -53,12 +56,13 @@ public class RunnableDownloader implements Runnable {
                 Logger.writeVerbose("The Html page size so far is: " + totalHtmlLength);
 
                 char[] arr = new char[contentLength];
-                int charsRead = 0;
-                while (charsRead < contentLength && charsRead != -1) {
-                    charsRead += buffer.read(arr, charsRead, contentLength - charsRead);
+                int charsRead = 0, ch;
+                while (charsRead < contentLength && (ch = buffer.read()) != -1) {
+                    arr[charsRead] = (char) ch;
+                    charsRead++;
                 }
 
-                text.append(arr);
+                text.append(arr, 0, charsRead);
             }
         } catch (SocketException e) {
             Logger.writeVerbose("Reading from socket failed");
