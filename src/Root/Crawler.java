@@ -98,7 +98,7 @@ public class Crawler {
     }
 
     public boolean isWorking() {
-        return !this.analyzers.isQueueEmpty() || !this.downloaders.isQueueEmpty();
+        return this.downloaders.isActive() || this.analyzers.isActive();
     }
 
     private void startCrawlingOn(CrawlerConfig config) {
@@ -106,7 +106,7 @@ public class Crawler {
 
         if (config.ignoreRobots) {
             // TODO: add all the linked of robot.txt to the downloader
-            //TODO: note that some links contain '*' (wild card) - ignore these links
+            // TODO: note that some links contain '*' (wild card) - ignore these links
             throw new NotImplementedException();
         }
     }
@@ -114,10 +114,15 @@ public class Crawler {
     private CrawlerResult getResult() {
         try {
             while (this.isWorking()) {
-                Thread.sleep(1000 * 3);
+                Thread.sleep(3000);
+            }
+
+            for (int i = 0; i < 10; i++) {
+                while (this.isWorking()) {
+                    Thread.sleep(150);
+                }
             }
         } catch (InterruptedException e) {
-            // Left empty
             Logger.writeVerbose(e);
         }
 

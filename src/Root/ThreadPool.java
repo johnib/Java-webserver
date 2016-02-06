@@ -2,6 +2,7 @@ package Root;
 
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/6/2015.
@@ -22,7 +23,8 @@ public class ThreadPool {
     private static final String started_err = "Thread pool already started.\n";
 
     /* Private fields */
-    private static final int queue_size = 100;
+    private static final int queue_size = 10000;
+    private final AtomicInteger activeCount;
     // the tasksQueue queue
     private LinkedBlockingQueue<Runnable> tasksQueue = new LinkedBlockingQueue<>(queue_size);
     // the threads array
@@ -38,8 +40,11 @@ public class ThreadPool {
     public ThreadPool(int numOfThreads, String poolName) {
         this.threads = new ArrayList<>(numOfThreads);
 
+        // holds the number of active threads
+        this.activeCount = new AtomicInteger(0);
+
         for (int i = 0; i < numOfThreads; i++) {
-            threads.add(new ClientThread(tasksQueue, poolName));
+            threads.add(new ClientThread(this.tasksQueue, poolName, this.activeCount));
         }
 
         Logger.writeInfo(init_msg);
@@ -147,6 +152,13 @@ public class ThreadPool {
     }
 
     public boolean isQueueEmpty() {
-        return tasksQueue.isEmpty();
+        return this.tasksQueue.isEmpty();
+    }
+
+    /**
+     * @return true if all threads are not active and queue is empty
+     */
+    public boolean isActive() {
+        return this.activeCount.get() > 0 || !this.isQueueEmpty();
     }
 }

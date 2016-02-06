@@ -12,8 +12,8 @@ import java.util.Map;
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 public class RunnableDownloader implements Runnable {
-    private final URL downloadUrl;
     private static final Parser parser = new Parser("(.*): (.*)");
+    private final URL downloadUrl;
 
     public RunnableDownloader(URL downloadUrl) {
         this.downloadUrl = downloadUrl;
@@ -50,11 +50,9 @@ public class RunnableDownloader implements Runnable {
                     return text.toString();
                 }
 
-                // Adding the content len to the result.
-                // Adding it here because there are server that dose not
-                // return content-length on the HEAD request
-                long lenSoFare = Crawler.getInstance().getCrawlerResult().addHtmlSize(contentLength);
-                Logger.writeVerbose("The Html page size so far is: " + lenSoFare);
+                // updating CrawlerResult
+                long totalHtmlLength = Crawler.getInstance().getCrawlerResult().addHtmlSize(contentLength);
+                Logger.writeVerbose("The Html page size so far is: " + totalHtmlLength);
 
                 char[] arr = new char[contentLength];
                 buffer.read(arr, 0, contentLength);

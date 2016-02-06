@@ -162,7 +162,7 @@ public class URL implements java.io.Closeable {
         } catch (UnknownHostException e) {
             //TODO: this exception is thrown when IP could be resolved for the URL's domain
             //TODO: define behaviour
-            Logger.writeError("URL: + " + this.domain + " cannot be resolved, has no valid IP address");
+            Logger.writeError("URL: " + this.domain + " cannot be resolved, has no valid IP address");
         } catch (ConnectException e) {
             //TODO: define behaviour
             Logger.writeError("Connecting to URL: " + this.getFullURL() + " resulted in timeout");
