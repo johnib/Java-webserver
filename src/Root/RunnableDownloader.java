@@ -32,6 +32,7 @@ public class RunnableDownloader implements Runnable {
         StringBuilder text = new StringBuilder();
         int contentLength = 0;
         boolean isChunked = false;
+        char[] arr = null;
 
         try {
             try (BufferedReader buffer = new BufferedReader(new InputStreamReader(stream, "US-ASCII"))) {
@@ -55,7 +56,7 @@ public class RunnableDownloader implements Runnable {
                 long totalHtmlLength = Crawler.getInstance().getTheCrawlerResultInstance().addHtmlSize(contentLength);
                 Logger.writeVerbose("The Html page size so far is: " + totalHtmlLength);
 
-                char[] arr = new char[contentLength];
+                arr = new char[contentLength];
                 int charsRead = 0;
                 while (charsRead != -1 && charsRead < contentLength) {
                     charsRead += buffer.read(arr, charsRead, contentLength - charsRead);
@@ -65,6 +66,9 @@ public class RunnableDownloader implements Runnable {
             }
         } catch (SocketException e) {
             Logger.writeVerbose("Reading from socket failed");
+            if (arr != null && text.length() == 0) {
+                text.append(arr);
+            }
         }
 
         return text.toString();
