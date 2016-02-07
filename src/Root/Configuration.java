@@ -50,14 +50,8 @@ public class Configuration implements IConfiguration {
 
         String path = dict.get("root");
 
-        File file = new File(path);
-        if (file.exists()) { //TODO: why do we need this IF?
-//            this.root = path;
-            this.root = Paths.get(path).toAbsolutePath().normalize().toString();
-        } else {
-//            this.root = Paths.get(".", "/").toAbsolutePath().normalize().toString() + File.separator + path;
-            this.root = Paths.get(path).toAbsolutePath().normalize().toString();
-        }
+        new File(path);
+        this.root = Paths.get(path).toAbsolutePath().normalize().toString();
 
         String databasePath = dict.get("database");
         this.database = new File(Paths.get(databasePath).toAbsolutePath().normalize().toString());

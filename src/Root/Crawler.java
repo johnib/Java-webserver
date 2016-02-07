@@ -8,8 +8,6 @@ package Root;
 import org.json.simple.JSONObject;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -19,6 +17,7 @@ import java.util.HashSet;
 public class Crawler {
     private static Crawler instance = null;
     private static boolean wasInit = false;
+    private static PortScanner scanner;
 
     private ThreadPool downloaders;
     private ThreadPool analyzers;
@@ -40,6 +39,8 @@ public class Crawler {
     public static void Init(IConfiguration config) {
         if (instance != null)
             throw new UnsupportedOperationException("The crawler is already init. only one instance of the class is allowed.");
+
+        scanner = PortScanner.getInstance();
         instance = new Crawler(config);
         instance.analyzers.start();
         instance.downloaders.start();
@@ -89,15 +90,12 @@ public class Crawler {
         this.crawlerResult = new CrawlerResult(crawlerConfig, this.config.getDatabase());
         this.startCrawlingOn(crawlerConfig);
 
-        this.waitForFinish();
-        try {
-            File summaryPage = this.crawlerResult.createSummaryFile();
-            this.crawlerResult.updateDatabase(summaryPage);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            //TODO: what happens when summary page cannot be created/written?
+        if (crawlerConfig.portScan) {
+            scanner.scan(crawlerConfig.url);
         }
+
+        this.waitForFinish();
+        this.crawlerResult.updateLocalFiles(scanner.getResults());
 
         return this.crawlerResult;
     }
@@ -111,7 +109,7 @@ public class Crawler {
     }
 
     public boolean isWorking() {
-        return this.downloaders.isActive() || this.analyzers.isActive();
+        return this.downloaders.isActive() || this.analyzers.isActive() || scanner.isActive();
     }
 
     private void startCrawlingOn(CrawlerConfig config) {

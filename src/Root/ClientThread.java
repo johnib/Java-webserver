@@ -41,14 +41,9 @@ public class ClientThread extends Thread {
             while (true) {
                 // get the next task and handle it
                 // System.out.printf(task_pop, Thread.currentThread().getId());
-                // TODO: check the google docs question number 5
                 Runnable task = queue.take();
 
                 int activeCount = this.activeCount.incrementAndGet();
-                if (activeCount > 10 || activeCount < 0) {
-                    throw new IllegalStateException("Active count is: " + activeCount);
-                }
-
                 int queueSize = queue.size();
                 Logger.writeAssignmentTrace(String.format("%s dequeue from their queue. number of items: %d", poolName, queueSize));
 
@@ -58,10 +53,6 @@ public class ClientThread extends Thread {
                 handledTasksCount++;
 
                 activeCount = this.activeCount.decrementAndGet();
-                if (activeCount > 10 || activeCount < 0) {
-                    throw new IllegalStateException("Active count is: " + activeCount);
-                }
-
                 Logger.writeWebServerLog(task_finished, Thread.currentThread().getId());
             }
         } catch (InterruptedException e) {

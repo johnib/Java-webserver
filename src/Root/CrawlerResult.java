@@ -6,7 +6,10 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -72,8 +75,10 @@ public class CrawlerResult {
             put("internalLinks", "Number of internal links: %d.");
             put("externalLinks", "Number of external links: %d.");
             put("sumHtmlSize", "Total size of pages: %d bytes.");
+            put("openPorts", "Open ports: %s.");
         }
     };
+    private String openPorts;
 
     public CrawlerResult(CrawlerConfig config, File database) {
         this.config = config;
@@ -148,6 +153,11 @@ public class CrawlerResult {
             listItems.append(itemHtmlCode);
         }
 
+        // port list
+        String itemValue = String.format(propertiesTextualMapping.get("openPorts"), this.openPorts);
+        String itemHtmlCode = String.format(listItemFormat, itemValue);
+        listItems.append(itemHtmlCode);
+
         fw.write(String.format(summaryPageFormat, listItems.toString()));
         fw.flush();
 
@@ -159,7 +169,6 @@ public class CrawlerResult {
      *
      * @param summaryFile the summary file that was already written to disk
      * @throws IOException    in case of File construction/writing error
-     * @throws ParseException in case of JSON parsing error
      */
     public void updateDatabase(File summaryFile) throws IOException {
         JSONObject db = null;
@@ -174,6 +183,7 @@ public class CrawlerResult {
         } catch (ParseException | FileNotFoundException e) {
             Logger.writeError("Current database is bad format, creating a new one instead.");
         } catch (IOException e) {
+            //TODO: define behaviour
             e.printStackTrace();
         }
 
@@ -197,6 +207,25 @@ public class CrawlerResult {
         PrintWriter pw = new PrintWriter(this.database);
         pw.write(db.toJSONString());
         pw.flush();
+    }
+
+    public void updateLocalFiles(HashSet portScan) {
+        if (portScan.isEmpty()) {
+            this.openPorts = "not scanned";
+        } else {
+            ArrayList<Integer> portList = new ArrayList<>(portScan);
+            Collections.sort(portList);
+            this.openPorts = portList.toString();
+        }
+
+        File summaryPage = null;
+        try {
+            summaryPage = this.createSummaryFile();
+            this.updateDatabase(summaryPage);
+        } catch (IOException e) {
+            e.printStackTrace();
+            //TODO: what happens when summary page cannot be created/written?
+        }
     }
 
     public long getImages() {
