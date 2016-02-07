@@ -30,7 +30,7 @@ public class RunnableDownloader implements Runnable {
     private static String ConvertStreamToString(InputStream stream) throws IOException {
         String line;
         StringBuilder text = new StringBuilder();
-        int contentLength = 0;
+        int contentLength = 0, lengthRead, charsRead = 0;
         boolean isChunked = false;
         char[] arr = null;
 
@@ -47,59 +47,72 @@ public class RunnableDownloader implements Runnable {
                 } while (line != null && !line.isEmpty());
 
                 if (isChunked) {
-                    // There is no content-length in chucked
-                    HandelChunkedResponse(buffer, text);
-                    return text.toString();
+                    lengthRead = readChunks(buffer, text);
+
+                } else {
+                    arr = read(buffer, contentLength);
+                    lengthRead = contentLength;
+
+                    text.append(arr);
                 }
 
-                // updating CrawlerResult
-                long totalHtmlLength = Crawler.getInstance().getTheCrawlerResultInstance().addHtmlSize(contentLength);
-                Logger.writeVerbose("The Html page size so far is: " + totalHtmlLength);
-
-                arr = new char[contentLength];
-                int charsRead = 0;
-                while (charsRead != -1 && charsRead < contentLength) {
-                    charsRead += buffer.read(arr, charsRead, contentLength - charsRead);
-                }
-
-                text.append(arr);
+                // update statistics
+                Crawler.getInstance().getTheCrawlerResultInstance().addHtmlSize(lengthRead);
             }
         } catch (SocketException e) {
             Logger.writeVerbose("Reading from socket failed");
-            if (arr != null && text.length() == 0) {
-                text.append(arr);
-            }
+
+            //TODO: jonathan: the condition is always false.
+//            if (arr != null && text.length() == 0) {
+//                text.append(arr);
+//            }
         }
 
         return text.toString();
     }
 
-    private static void HandelChunkedResponse(BufferedReader buffer, StringBuilder text) throws IOException {
+    /**
+     * Returns a char[] containing contentLength chars read from the buffer.
+     *
+     * @param buffer input source
+     * @param contentLength amount to read
+     * @return char[] of the content
+     * @throws IOException
+     */
+    private static char[] read(BufferedReader buffer, int contentLength) throws IOException {
+        char[] content = new char[contentLength];
+        int charsRead = 0;
 
-        int contentLength;
-        String line;
-
-        while ((contentLength = Integer.parseInt(buffer.readLine(), 16)) > 0) {
-            long lenSoFare = Crawler.getInstance().getTheCrawlerResultInstance().addHtmlSize(contentLength);
-            Logger.writeVerbose("The Html page size so far is: " + lenSoFare);
-
-            while (contentLength > 0) {
-                line = buffer.readLine();
-                text.append(line);
-
-                // The minus one is because line brake count as one
-                contentLength = contentLength - line.getBytes().length - 1;
-
-                //TODO: remove this log line, it logs the content length for EVERY ITERATION
-//                Logger.writeVerbose("contentLength is: " + contentLength);
-            }
-
-            // Read empty line
-            line = buffer.readLine();
-            if (line == null || !line.isEmpty()) {
-                Logger.writeError("HandelChunkedResponse - there is an empty line missing");
-            }
+        while (charsRead != -1 && charsRead < contentLength) {
+            charsRead += buffer.read(content, charsRead, contentLength - charsRead);
         }
+
+        return content;
+    }
+
+    /**
+     * Reads response in chunks
+     *
+     * @param buffer the input source
+     * @param text where to push the contents
+     * @return the number of chars read
+     * @throws IOException
+     */
+    private static int readChunks(BufferedReader buffer, StringBuilder text) throws IOException {
+        int contentLength = Integer.parseInt(buffer.readLine(), 16), totalLength = 0;
+        char[] content;
+
+        while (contentLength > 0) {
+            content = read(buffer, contentLength);
+
+            text.append(content);
+            totalLength += contentLength;
+
+            buffer.readLine(); // read empty line before new chunk's length
+            contentLength = Integer.parseInt(buffer.readLine(), 16); // read new chunk's length
+        }
+
+        return totalLength;
     }
 
     @Override

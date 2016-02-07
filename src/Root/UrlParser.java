@@ -8,16 +8,16 @@ import java.util.regex.Matcher;
  * Created by Jonathan Yaniv and Nitsan Bracha on {$Date}.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
-public class URLParser extends Parser {
+public class UrlParser extends Parser {
 
     private static final String[] capture_groups = new String[]{"protocol", "domain", "uri", "port", "ext"};
     private static final String url_regex = "((?<protocol>http[s]?)\\:\\/\\/)?[.*\\@]?((?<credentials>[\\w\\:]*)@)?(?<domain>([\\w\\-]+\\.[\\w\\-]+[\\.[\\w\\-]+]*)|localhost)(\\:(?<port>\\d{2,5}))?(?<uri>[^\\s\\:\\.\\?]*(\\.(?<ext>[a-z0-9]{1,5}))?)";
 
-    public URLParser() {
+    public UrlParser() {
         this(url_regex);
     }
 
-    public URLParser(String regex) {
+    public UrlParser(String regex) {
         super(regex);
     }
 

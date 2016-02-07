@@ -105,7 +105,10 @@ public class CrawlerResult {
     }
 
     public long addHtmlSize(long pageSize) {
-        return sumOfAllHtmlPagesBytes.addAndGet(pageSize);
+        long currentSize = sumOfAllHtmlPagesBytes.addAndGet(pageSize);
+        Logger.writeVerbose("The Html page size so far is: " + currentSize);
+
+        return currentSize;
     }
 
     public long addImageSize(long size) {
