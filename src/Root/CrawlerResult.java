@@ -105,22 +105,31 @@ public class CrawlerResult {
     }
 
     public long addHtmlSize(long pageSize) {
-        long currentSize = sumOfAllHtmlPagesBytes.addAndGet(pageSize);
-        Logger.writeVerbose("The Html page size so far is: " + currentSize);
+        long totalHtmlSize = sumOfAllHtmlPagesBytes.addAndGet(pageSize);
+        Logger.writeVerbose("The Html page size so far is: " + totalHtmlSize);
 
-        return currentSize;
+        return totalHtmlSize;
     }
 
     public long addImageSize(long size) {
-        return sumOfAllImagesBytes.addAndGet(size);
+        long totalImageSize = sumOfAllImagesBytes.addAndGet(size);
+        Logger.writeVerbose("Total image size so far: " + totalImageSize);
+
+        return totalImageSize;
     }
 
     public long addVideoSize(long size) {
-        return sumOfAllVideosBytes.addAndGet(size);
+        long totalVideoSize = sumOfAllVideosBytes.addAndGet(size);
+        Logger.writeVerbose("Total video size so far: " + totalVideoSize);
+
+        return totalVideoSize;
     }
 
     public long addDocSize(long size) {
-        return sumOfAllDocsBytes.addAndGet(size);
+        long totalDocumentSize = sumOfAllDocsBytes.addAndGet(size);
+        Logger.writeVerbose("Total doc size so far: " + totalDocumentSize);
+
+        return totalDocumentSize;
     }
 
     public long getSumOfAllHtmlPagesBytes() {
@@ -171,7 +180,7 @@ public class CrawlerResult {
      * Updates the data base with the new summary file
      *
      * @param summaryFile the summary file that was already written to disk
-     * @throws IOException    in case of File construction/writing error
+     * @throws IOException in case of File construction/writing error
      */
     public void updateDatabase(File summaryFile) throws IOException {
         JSONObject db = null;

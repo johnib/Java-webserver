@@ -74,7 +74,7 @@ public class RunnableDownloader implements Runnable {
     /**
      * Returns a char[] containing contentLength chars read from the buffer.
      *
-     * @param buffer input source
+     * @param buffer        input source
      * @param contentLength amount to read
      * @return char[] of the content
      * @throws IOException
@@ -94,7 +94,7 @@ public class RunnableDownloader implements Runnable {
      * Reads response in chunks
      *
      * @param buffer the input source
-     * @param text where to push the contents
+     * @param text   where to push the contents
      * @return the number of chars read
      * @throws IOException
      */
@@ -119,6 +119,7 @@ public class RunnableDownloader implements Runnable {
     public void run() {
         if (this.downloadUrl == null) return;
 
+        CrawlerResult crawlerResultInstance = Crawler.getInstance().getTheCrawlerResultInstance();
         try {
             Logger.writeAssignmentTrace("Downloader starts downloading URL: " + this.downloadUrl);
             try (InputStream headersStream = this.downloadUrl.openHeadStream()) {
@@ -144,16 +145,13 @@ public class RunnableDownloader implements Runnable {
                     long contentLength = Long.parseLong(headers.get("content-length"));
                     switch (fileType) {
                         case Image:
-                            long imageSize = Crawler.getInstance().getTheCrawlerResultInstance().addImageSize(contentLength);
-                            Logger.writeVerbose("Total image size so far: " + imageSize);
+                            crawlerResultInstance.addImageSize(contentLength);
                             break;
                         case Video:
-                            long videoSize = Crawler.getInstance().getTheCrawlerResultInstance().addVideoSize(contentLength);
-                            Logger.writeVerbose("Total video size so far: " + videoSize);
+                            crawlerResultInstance.addVideoSize(contentLength);
                             break;
                         case Document:
-                            long docSize = Crawler.getInstance().getTheCrawlerResultInstance().addDocSize(contentLength);
-                            Logger.writeVerbose("Total doc size so far: " + docSize);
+                            crawlerResultInstance.addDocSize(contentLength);
                             break;
                     }
                 } else if (headers.containsKey("content-type") && headers.get("content-type").toLowerCase().contains("html")) {
