@@ -18,7 +18,7 @@
     <br/>
     <ul class="list-group">
         <li class="list-group-item" ng-repeat="result in results">
-            <a ng-href="#/results/{{result.link}}" role="button" class="btn btn-link">
+            <a ng-href="#/{{result.link}}" role="button" class="btn btn-link">
                 {{result.domain}} - {{result.dateStart | date:'dd.MM.yyyy'}} - {{result.dateStart | date:'HH:mm:ss'}}
             </a>
         </li>

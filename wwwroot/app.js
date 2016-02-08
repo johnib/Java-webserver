@@ -8,7 +8,7 @@ angular.module('myApp', [
 
     .config(['$routeProvider', function ($routeProvider) {
         $routeProvider
-            .when('/results/:fileName', {
+            .when('/:fileName', {
                 templateUrl: function (params) {
                     //noinspection JSUnresolvedVariable
                     return './results/' + params.fileName;

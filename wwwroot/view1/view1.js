@@ -15,9 +15,13 @@ angular.module('myApp.view1', ['ngRoute'])
         var serverUrl = "";
 
         function logResults(results) {
-            results.forEach(function (result) {
-                console.log(result);
-            });
+            if (results) {
+                results.forEach(function (result) {
+                    console.log(result);
+                });
+            } else {
+                console.log("No history");
+            }
         }
 
         this.getResults = function () {

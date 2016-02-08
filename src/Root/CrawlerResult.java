@@ -36,7 +36,7 @@ public class CrawlerResult {
                     "            %s\n" + // contains the information
                     "        </li>\n";
 
-    private static final String externalDomainLinkFormat = "<a ng-href=\"%s\">%s</a>";
+    private static final String externalDomainLinkFormat = "<a ng-href=\"#/%s\">%s</a>";
 
     // use url.hashCode() to check if contained in this hashmap
     private final ConcurrentHashMap<Integer, URL> url_history;
@@ -145,10 +145,11 @@ public class CrawlerResult {
     /**
      * Creates and writes the domain_startTime.html file for the crawled domain.
      *
+     * @param db json containing the database
      * @return a reference to the written file
      * @throws IOException in case of File construction/writing error
      */
-    public File createSummaryFile() throws IOException {
+    public File createSummaryFile(JSONObject db) throws IOException {
         File summaryFile = new File(String.format(fileNameConvention, this.config.resultsPath, this.domain.getDomain(), this.dateStart));
         FileWriter fw = new FileWriter(summaryFile);
 
@@ -168,7 +169,7 @@ public class CrawlerResult {
         }
 
         // external domain statistics
-        String externals = this.stringifyExternalDomains();
+        String externals = this.stringifyExternalDomains(db);
         if (!externals.isEmpty()) {
             String itemValue = String.format(propertiesTextualMapping.get("externalDomains"), externals);
             String itemHtmlCode = String.format(listItemFormat, itemValue);
@@ -187,26 +188,17 @@ public class CrawlerResult {
      * @param summaryFile the summary file that was already written to disk
      * @throws IOException in case of File construction/writing error
      */
-    public void updateDatabase(File summaryFile) throws IOException {
-        JSONObject db = null;
-        JSONArray results = null;
-        boolean usingExistingDatabase = false;
+    private void updateDatabase(File summaryFile, JSONObject db) throws IOException {
+        JSONArray results;
 
-        try {
-            FileReader reader = new FileReader(this.database);
-            db = (JSONObject) new JSONParser().parse(reader);
-            results = (JSONArray) db.get("results");
-            usingExistingDatabase = true;
-        } catch (ParseException | FileNotFoundException e) {
-            Logger.writeError("Current database is bad format, creating a new one instead.");
-        } catch (IOException e) {
-            //TODO: define behaviour
-            e.printStackTrace();
-        }
-
-        if (!usingExistingDatabase) {
+        if (db == null) {
             db = new JSONObject();
             results = new JSONArray();
+        } else {
+            results = (JSONArray) db.get("results");
+            if (results == null) {
+                results = new JSONArray();
+            }
         }
 
         final String link = summaryFile.getName();
@@ -221,9 +213,25 @@ public class CrawlerResult {
 
         results.add(newEntity);
         db.put("results", results);
+
         PrintWriter pw = new PrintWriter(this.database);
         pw.write(db.toJSONString());
         pw.flush();
+    }
+
+    private JSONObject readFromJSON(File file) {
+        JSONObject json = null;
+
+        try {
+            FileReader reader = new FileReader(file);
+            json = (JSONObject) new JSONParser().parse(reader);
+        } catch (ParseException | FileNotFoundException e) {
+            Logger.writeError("Current database is bad format, creating a new one instead.");
+        } catch (IOException ignored) {
+            ignored.printStackTrace();
+        }
+
+        return json;
     }
 
     public void updateLocalFiles(HashSet portScan) {
@@ -234,8 +242,9 @@ public class CrawlerResult {
         }
 
         try {
-            File summaryPage = this.createSummaryFile();
-            this.updateDatabase(summaryPage);
+            JSONObject db = this.readFromJSON(this.database);
+            File summaryPage = this.createSummaryFile(db);
+            this.updateDatabase(summaryPage, db);
         } catch (IOException e) {
             e.printStackTrace();
             //TODO: what happens when summary page cannot be created/written?
@@ -247,14 +256,41 @@ public class CrawlerResult {
      *
      * @return a string containing all the external domains.
      */
-    private String stringifyExternalDomains() {
+    private String stringifyExternalDomains(JSONObject db) {
         StringBuilder list = new StringBuilder("");
+        HashMap<String, String> crawlerHistory = this.getCrawlerHistory(db);
+
         HashSet<URL> externalDomains = this.getExternalDomains();
         for (URL external : externalDomains) {
-            list.append(String.format(externalDomainLinkFormat, external.getFullURLWithoutURI(), external.getDomain()).concat(", "));
+            String value;
+            if (crawlerHistory.containsKey(external.getDomain())) {
+                value = String.format(externalDomainLinkFormat, crawlerHistory.get(external.getDomain()), external.getDomain());
+            } else {
+                value = external.getDomain();
+            }
+
+            list.append(value.concat(", "));
         }
 
-        return list.toString().substring(0, list.toString().lastIndexOf(", "));
+        return list.toString().isEmpty() ? list.toString() : list.toString().substring(0, list.toString().lastIndexOf(", "));
+    }
+
+    private HashMap<String, String> getCrawlerHistory(JSONObject db) {
+        HashMap<String, String> history = new HashMap<>();
+
+        if (db != null && !db.isEmpty()) {
+            JSONArray domains = (JSONArray) db.get("results");
+            for (Object domain : domains) {
+                String domainString = ((String) ((JSONObject) domain).get("domain"));
+                String domainStatisticsPage = ((String) ((JSONObject) domain).get("link"));
+
+                if (domainString != null && !domainString.isEmpty()) {
+                    history.put(domainString, domainStatisticsPage);
+                }
+            }
+        }
+
+        return history;
     }
 
     private HashSet<URL> getExternalDomains() {
