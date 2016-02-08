@@ -134,8 +134,8 @@ public class Crawler {
         boolean myUserAgent = false;
         HashSet<Pattern> result = new HashSet<>();
 
-        Pattern regexPatternUri = Pattern.compile("Disallow: (?<uri>.*)", Pattern.CASE_INSENSITIVE);
-        Pattern regexPatternUserAgent = Pattern.compile("User-agent: (?<usaragent>.*)", Pattern.CASE_INSENSITIVE);
+        Pattern regexPatternUri = Pattern.compile("^\\s{0,}Disallow: (?<uri>.*)", Pattern.CASE_INSENSITIVE);
+        Pattern regexPatternUserAgent = Pattern.compile("^\\s{0,}User-agent: (?<usaragent>.*)", Pattern.CASE_INSENSITIVE);
 
         // Going over the robots txt line by line
         BufferedReader reader = new BufferedReader(new StringReader(robotsTxt));
@@ -150,8 +150,8 @@ public class Crawler {
                     String uri = m.group("uri");
 
                     // Converting to regex
-                    uri = uri.replaceAll("/", "\\/");
-                    uri = uri.replaceAll("\\?", "\\?");
+                    uri = uri.replaceAll("/", "\\\\/");
+                    uri = uri.replaceAll("\\?", "\\\\?");
                     uri = uri.replaceAll("\\*", ".*");
 
                     try {
@@ -168,7 +168,8 @@ public class Crawler {
 
     private static String GetRobotsTxtFile(URL domainToCrawlOn) {
         try {
-            try (InputStream inputStream = domainToCrawlOn.openStream()) {
+            URL url = URL.makeURL(domainToCrawlOn, "/robots.txt");
+            try (InputStream inputStream = url.openStream()) {
                 return RunnableDownloader.ConvertStreamToString(inputStream);
             }
         }catch (IOException ex) {
