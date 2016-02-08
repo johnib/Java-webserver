@@ -208,7 +208,7 @@ public class RunnableDownloader implements Runnable {
     }
 
     private FileType urlEndsWithFileName(String urlAndPath) {
-        String fileExtension = urlAndPath.substring(urlAndPath.length() - 5, urlAndPath.length() - 1);
+        String fileExtension = urlAndPath.substring(urlAndPath.lastIndexOf('.') + 1);
         IConfiguration config = Crawler.getInstance().getConfig();
 
         if (config.getImageExtensions().contains(fileExtension)) return FileType.Image;

@@ -36,11 +36,11 @@ public class Logger {
         System.out.println(trace);
     }
 
-    public static void writeVerbose(String format, Object ... args) {
+    public static void writeVerbose(String format, Object... args) {
         if (level >= 4) System.out.printf(format, args);
     }
 
-    public static void writeWebServerLog(String format, Object ... args) {
+    public static void writeWebServerLog(String format, Object... args) {
         if (showServerLog) System.out.printf(format, args);
     }
 

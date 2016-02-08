@@ -113,6 +113,7 @@ public class CrawlerResult {
 
     public long addImageSize(long size) {
         long totalImageSize = sumOfAllImagesBytes.addAndGet(size);
+        this.images.incrementAndGet();
         Logger.writeVerbose("Total image size so far: " + totalImageSize);
 
         return totalImageSize;
@@ -120,6 +121,7 @@ public class CrawlerResult {
 
     public long addVideoSize(long size) {
         long totalVideoSize = sumOfAllVideosBytes.addAndGet(size);
+        this.videos.incrementAndGet();
         Logger.writeVerbose("Total video size so far: " + totalVideoSize);
 
         return totalVideoSize;
@@ -127,25 +129,10 @@ public class CrawlerResult {
 
     public long addDocSize(long size) {
         long totalDocumentSize = sumOfAllDocsBytes.addAndGet(size);
+        this.documents.incrementAndGet();
         Logger.writeVerbose("Total doc size so far: " + totalDocumentSize);
 
         return totalDocumentSize;
-    }
-
-    public long getSumOfAllHtmlPagesBytes() {
-        return sumOfAllHtmlPagesBytes.get();
-    }
-
-    public long getsumOfAllImagesBytes() {
-        return sumOfAllImagesBytes.get();
-    }
-
-    public long getsumOfAllVideosBytes() {
-        return sumOfAllVideosBytes.get();
-    }
-
-    public long getsumOfAllDocsBytes() {
-        return sumOfAllDocsBytes.get();
     }
 
     /**
@@ -165,10 +152,11 @@ public class CrawlerResult {
             listItems.append(itemHtmlCode);
         }
 
-        // port list
-        String itemValue = String.format(propertiesTextualMapping.get("openPorts"), this.openPorts);
-        String itemHtmlCode = String.format(listItemFormat, itemValue);
-        listItems.append(itemHtmlCode);
+        if (this.openPorts != null && !this.openPorts.isEmpty()) {
+            String itemValue = String.format(propertiesTextualMapping.get("openPorts"), this.openPorts);
+            String itemHtmlCode = String.format(listItemFormat, itemValue);
+            listItems.append(itemHtmlCode);
+        }
 
         fw.write(String.format(summaryPageFormat, listItems.toString()));
         fw.flush();
@@ -222,34 +210,18 @@ public class CrawlerResult {
     }
 
     public void updateLocalFiles(HashSet portScan) {
-        if (portScan.isEmpty()) {
-            this.openPorts = "not scanned";
-        } else {
+        if (!portScan.isEmpty()) {
             ArrayList<Integer> portList = new ArrayList<>(portScan);
             Collections.sort(portList);
             this.openPorts = portList.toString();
         }
 
-        File summaryPage = null;
         try {
-            summaryPage = this.createSummaryFile();
+            File summaryPage = this.createSummaryFile();
             this.updateDatabase(summaryPage);
         } catch (IOException e) {
             e.printStackTrace();
             //TODO: what happens when summary page cannot be created/written?
         }
     }
-
-    public long getImages() {
-        return this.images.get();
-    }
-
-    public long getVideos() {
-        return this.videos.get();
-    }
-
-    public long getDocuments() {
-        return this.documents.get();
-    }
-
 }

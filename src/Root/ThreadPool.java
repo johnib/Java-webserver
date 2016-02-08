@@ -97,7 +97,7 @@ public class ThreadPool {
      * @return true if task added succuessfully and false in case thread intruppted
      * @throws IllegalStateException
      */
-    public boolean addTaskBlocking(Runnable task) throws IllegalStateException{
+    public boolean addTaskBlocking(Runnable task) throws IllegalStateException {
         if (!this.isRunning) {
             throw new IllegalStateException(not_running);
         }
