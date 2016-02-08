@@ -28,7 +28,8 @@ public class RunnableAnalyzer implements Runnable {
         for (URL link : links) {
             boolean linkAdded = false;
 
-            if (link.getProtocol().toLowerCase().equals("http")) {
+            if (link.getProtocol().toLowerCase().equals("http") &&
+                    Crawler.getInstance().allowUri(link.getUri())) {
                 if (this.sourceUrl.isInternalTo(link)) {
                     if (this.tryAddLinkToDownloader(link)) {
                         this.crawlerResult.increaseInternalLinks();
