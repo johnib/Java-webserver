@@ -13,7 +13,7 @@ import java.util.Locale;
  * Created by Jonathan Rubin Yaniv and Nitsan Bracha on 12/7/2015.
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
-public class HTTPResponse {
+public class HttpResponse {
     /* Constants */
     private final static String CRLF = Common.CRLF;
     private final static String statusLine = "HTTP/1.1 %1d %2s" + CRLF + "Date: %3s" + CRLF;
@@ -37,7 +37,7 @@ public class HTTPResponse {
     private String contentType;
     private byte[] body = null;
 
-    public HTTPResponse(File file, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
+    public HttpResponse(File file, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
 
         this.file = file;
         this.statusCode = statusCode;
@@ -68,7 +68,7 @@ public class HTTPResponse {
         }
     }
 
-    public HTTPResponse(byte[] body, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
+    public HttpResponse(byte[] body, int statusCode, String contentType, HTTPRequest request, IConfiguration config) {
         this((File) null, statusCode, contentType, request, config);
         this.body = body;
     }
