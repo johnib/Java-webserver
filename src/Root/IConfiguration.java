@@ -15,7 +15,7 @@ public interface IConfiguration {
 
     int getMaxThreads();
 
-    HashMap getFileExtensions();
+    HashMap<FileType, HashSet> getFileExtensions();
 
     String getRoot(HTTPRequest httpRequest);
 

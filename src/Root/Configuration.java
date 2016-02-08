@@ -89,7 +89,7 @@ public class Configuration implements IConfiguration {
     }
 
     @Override
-    public HashMap getFileExtensions() {
+    public HashMap<FileType, HashSet> getFileExtensions() {
         return this.fileExtensions;
     }
 

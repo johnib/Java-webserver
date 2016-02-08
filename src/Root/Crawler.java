@@ -6,10 +6,15 @@ package Root;
  */
 
 import org.json.simple.JSONObject;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class will manage the whole crawler procedure once the Root.RunnableClient put the first URL task.
@@ -23,6 +28,7 @@ public class Crawler {
     private ThreadPool analyzers;
     private CrawlerResult crawlerResult;
     private IConfiguration config;
+    private HashSet<Pattern> robotsTxt;
 
     private Crawler(IConfiguration config) {
         this.config = config;
@@ -80,19 +86,14 @@ public class Crawler {
         boolean portScan = (boolean) config.get("portScan");
         boolean ignoreRobots = (boolean) config.get("ignoreRobots");
 
-        if (!ignoreRobots) {
-
-        } else {
-            // TODO: add all the path from ignore robot to the downloader
-        }
-
         if (url == null) {
             Logger.writeError("Crawler.crawl cannot create URL object from the url received in the JSON");
             //TODO: define behaviour
             return null;
         }
 
-        CrawlerConfig crawlerConfig = new CrawlerConfig(URL.stripUri(url), portScan, ignoreRobots, this.config.getResultsPath());
+        URL domainToCrawlOn = URL.stripUri(url);
+        CrawlerConfig crawlerConfig = new CrawlerConfig(domainToCrawlOn, portScan, ignoreRobots, this.config.getResultsPath());
         this.crawlerResult = new CrawlerResult(crawlerConfig, this.config.getDatabase());
         this.startCrawlingOn(crawlerConfig);
 
@@ -104,6 +105,78 @@ public class Crawler {
         this.crawlerResult.updateLocalFiles(scanner.getResults());
 
         return this.crawlerResult;
+    }
+
+    private HashSet<String> getRobotsTxtAllLinks(URL domainToCrawlOn) {
+        String robotsTxt = GetRobotsTxtFile(domainToCrawlOn);
+        if (robotsTxt == null) return new HashSet<>();
+
+        Pattern regexPattern = Pattern.compile(".*: (?<uri>.*)");
+
+        Matcher m = regexPattern.matcher(robotsTxt);
+        HashSet<String> result = new HashSet<>();
+
+        while (m.find()) {
+            String relativeUri = m.group("uri");
+            if (!relativeUri.contains("*") && !relativeUri.contains("$")) {
+                result.add(relativeUri);
+            }
+        }
+
+        return result;
+    }
+
+    private HashSet<Pattern> getRobotsTxtDisallow(URL domainToCrawlOn) throws IOException {
+        String robotsTxt = GetRobotsTxtFile(domainToCrawlOn);
+        if (robotsTxt == null) return new HashSet<>();
+
+        String line;
+        boolean myUserAgent = false;
+        HashSet<Pattern> result = new HashSet<>();
+
+        Pattern regexPatternUri = Pattern.compile("Disallow: (?<uri>.*)", Pattern.CASE_INSENSITIVE);
+        Pattern regexPatternUserAgent = Pattern.compile("User-agent: (?<usaragent>.*)", Pattern.CASE_INSENSITIVE);
+
+        // Going over the robots txt line by line
+        BufferedReader reader = new BufferedReader(new StringReader(robotsTxt));
+        while ((line = reader.readLine()) != null) {
+            Matcher m = regexPatternUserAgent.matcher(line);
+            if (m.find()) {
+                String userAgent = m.group("usaragent");
+                myUserAgent = userAgent.contains("*") || userAgent.toLowerCase().contains("coolserver");
+            } else if (myUserAgent) {
+                m = regexPatternUri.matcher(line);
+                if (m.find()) {
+                    String uri = m.group("uri");
+
+                    // Converting to regex
+                    uri = uri.replaceAll("/", "\\/");
+                    uri = uri.replaceAll("\\?", "\\?");
+                    uri = uri.replaceAll("\\*", "\\*");
+
+                    try {
+                        result.add(Pattern.compile(uri));
+                    } catch (Exception ex) {
+                        Logger.writeError("Regex pater is wrong." + ex.toString());
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static String GetRobotsTxtFile(URL domainToCrawlOn) {
+        try {
+            try (InputStream inputStream = domainToCrawlOn.openStream()) {
+                return RunnableDownloader.ConvertStreamToString(inputStream);
+            }
+        }catch (IOException ex) {
+            Logger.writeException(ex);
+            // Ignoring the problem probably 404
+        }
+
+        return null;
     }
 
     public void pushDownloadUrlTask(RunnableDownloader task) {
@@ -121,11 +194,37 @@ public class Crawler {
     private void startCrawlingOn(CrawlerConfig config) {
         this.pushDownloadUrlTask(new RunnableDownloader(config.url));
 
-        if (config.ignoreRobots) {
-            // TODO: add all the linked of robot.txt to the downloader
-            // TODO: note that some links contain '*' (wild card) - ignore these links
-            throw new NotImplementedException();
+        if (!config.ignoreRobots) {
+            try {
+                this.robotsTxt = getRobotsTxtDisallow(config.url);
+            } catch (IOException e) {
+                Logger.writeException(e);
+                this.robotsTxt = new HashSet<>();
+            }
+        } else {
+            // add all the linked of robot.txt to the downloader
+            // note that some links contain '*' (wild card) - ignore these links
+            // note that some links contain '$' (end of url) - ignore these links
+            this.robotsTxt = new HashSet<>();
+            HashSet<String> robotsTxtFull = getRobotsTxtAllLinks(config.url);
+            for (String uri : robotsTxtFull) {
+                this.pushDownloadUrlTask(new RunnableDownloader(URL.makeURL(config.url, uri)));
+            }
         }
+    }
+
+
+    /**
+     * @param uri the relative url of the url
+     * @return This method takes the uri and checks against the robots txt
+     */
+    public boolean allowUri(String uri) {
+        for (Pattern p : this.robotsTxt) {
+            Matcher m = p.matcher(uri);
+            if (m.find()) return false;
+        }
+
+        return true;
     }
 
     private CrawlerResult waitForFinish() {
@@ -173,6 +272,10 @@ public class Crawler {
 
     public IConfiguration getConfig() {
         return config;
+    }
+
+    public HashSet<Pattern> getRobotsTxt() {
+        return robotsTxt;
     }
 }
 

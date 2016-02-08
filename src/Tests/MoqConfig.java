@@ -1,5 +1,6 @@
 package Tests;
 
+import Root.FileType;
 import Root.HTTPRequest;
 import Root.IConfiguration;
 
@@ -46,7 +47,7 @@ public class MoqConfig implements IConfiguration {
     }
 
     @Override
-    public HashMap getFileExtensions() {
+    public HashMap<FileType, HashSet> getFileExtensions() {
         return null;
     }
 
