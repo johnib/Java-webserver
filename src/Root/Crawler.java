@@ -152,7 +152,7 @@ public class Crawler {
                     // Converting to regex
                     uri = uri.replaceAll("/", "\\/");
                     uri = uri.replaceAll("\\?", "\\?");
-                    uri = uri.replaceAll("\\*", "\\*");
+                    uri = uri.replaceAll("\\*", ".*");
 
                     try {
                         result.add(Pattern.compile(uri));
