@@ -80,13 +80,19 @@ public class Crawler {
         boolean portScan = (boolean) config.get("portScan");
         boolean ignoreRobots = (boolean) config.get("ignoreRobots");
 
+        if (!ignoreRobots) {
+
+        } else {
+            // TODO: add all the path from ignore robot to the downloader
+        }
+
         if (url == null) {
             Logger.writeError("Crawler.crawl cannot create URL object from the url received in the JSON");
             //TODO: define behaviour
             return null;
         }
 
-        CrawlerConfig crawlerConfig = new CrawlerConfig(url, portScan, ignoreRobots, this.config.getResultsPath());
+        CrawlerConfig crawlerConfig = new CrawlerConfig(URL.stripUri(url), portScan, ignoreRobots, this.config.getResultsPath());
         this.crawlerResult = new CrawlerResult(crawlerConfig, this.config.getDatabase());
         this.startCrawlingOn(crawlerConfig);
 
