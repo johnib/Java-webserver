@@ -19,12 +19,13 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class CrawlerResult {
 
+    /* conventions */
     private static final String fileNameConvention = "%s/%s_%s.html";
     private static final String summaryPageFormat =
             "<br/>\n" +
                     "<div class=\"container\">\n" +
                     "    <ul class=\"list-group\">\n" +
-                    "%s" + // contains the list items
+                    "%s" + // contains the list of items
                     "    </ul>\n" +
                     "    <a ng-href=\"#/view1\">\n" +
                     "        <span class=\"btn btn-danger\">Back</span>\n" +
@@ -34,8 +35,12 @@ public class CrawlerResult {
             "        <li class=\"list-group-item\">\n" +
                     "            %s\n" + // contains the information
                     "        </li>\n";
+
+    private static final String externalDomainLinkFormat = "<a ng-href=\"%s\">%s</a>";
+
     // use url.hashCode() to check if contained in this hashmap
     private final ConcurrentHashMap<Integer, URL> url_history;
+
     /* statistics */
     private final AtomicLong images = new AtomicLong(0);
     private final AtomicLong videos = new AtomicLong(0);
@@ -48,6 +53,7 @@ public class CrawlerResult {
     private final AtomicLong sumOfAllImagesBytes = new AtomicLong(0);
     private final AtomicLong sumOfAllVideosBytes = new AtomicLong(0);
     private final AtomicLong sumOfAllDocsBytes = new AtomicLong(0);
+
     private final File database;
     private final URL domain;
     private final CrawlerConfig config;
@@ -76,6 +82,7 @@ public class CrawlerResult {
             put("externalLinks", "Number of external links: %d.");
             put("sumHtmlSize", "Total size of pages: %d bytes.");
             put("openPorts", "Open ports: %s.");
+            put("externalDomains", "External Domains: %s.");
         }
     };
     private String openPorts;
@@ -85,7 +92,7 @@ public class CrawlerResult {
         this.domain = config.url;
         this.dateStart = System.currentTimeMillis();
         this.database = database;
-        this.url_history = new ConcurrentHashMap<>(200, 0.75f, 2);
+        this.url_history = new ConcurrentHashMap<>(1000, 0.75f, 2);
     }
 
     public boolean hasURL(URL url) {
@@ -106,7 +113,7 @@ public class CrawlerResult {
 
     public long addHtmlSize(long pageSize) {
         long totalHtmlSize = sumOfAllHtmlPagesBytes.addAndGet(pageSize);
-        Logger.writeVerbose("The Html page size so far is: " + totalHtmlSize);
+        Logger.writeVerbose("Total HTML size so far: " + totalHtmlSize);
 
         return totalHtmlSize;
     }
@@ -145,6 +152,7 @@ public class CrawlerResult {
         File summaryFile = new File(String.format(fileNameConvention, this.config.resultsPath, this.domain.getDomain(), this.dateStart));
         FileWriter fw = new FileWriter(summaryFile);
 
+        // numeric statistics
         StringBuilder listItems = new StringBuilder("");
         for (String property : properties.keySet()) {
             String itemValue = String.format(propertiesTextualMapping.get(property), properties.get(property).get());
@@ -152,8 +160,17 @@ public class CrawlerResult {
             listItems.append(itemHtmlCode);
         }
 
+        // port scan statistics
         if (this.openPorts != null && !this.openPorts.isEmpty()) {
             String itemValue = String.format(propertiesTextualMapping.get("openPorts"), this.openPorts);
+            String itemHtmlCode = String.format(listItemFormat, itemValue);
+            listItems.append(itemHtmlCode);
+        }
+
+        // external domain statistics
+        String externals = this.stringifyExternalDomains();
+        if (!externals.isEmpty()) {
+            String itemValue = String.format(propertiesTextualMapping.get("externalDomains"), externals);
             String itemHtmlCode = String.format(listItemFormat, itemValue);
             listItems.append(itemHtmlCode);
         }
@@ -223,5 +240,32 @@ public class CrawlerResult {
             e.printStackTrace();
             //TODO: what happens when summary page cannot be created/written?
         }
+    }
+
+    /**
+     * Creates a String containing all the external domains.
+     *
+     * @return a string containing all the external domains.
+     */
+    private String stringifyExternalDomains() {
+        StringBuilder list = new StringBuilder("");
+        HashSet<URL> externalDomains = this.getExternalDomains();
+        for (URL external : externalDomains) {
+            list.append(String.format(externalDomainLinkFormat, external.getFullURLWithoutURI(), external.getDomain()).concat(", "));
+        }
+
+        return list.toString().substring(0, list.toString().lastIndexOf(", "));
+    }
+
+    private HashSet<URL> getExternalDomains() {
+        HashSet<URL> externals = new HashSet<>();
+
+        for (URL external : this.url_history.values()) {
+            if (!external.getDomain().equals(this.domain.getDomain())) {
+                externals.add(external);
+            }
+        }
+
+        return externals;
     }
 }

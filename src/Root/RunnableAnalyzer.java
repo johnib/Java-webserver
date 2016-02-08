@@ -25,20 +25,22 @@ public class RunnableAnalyzer implements Runnable {
     @Override
     public void run() {
         ArrayList<URL> links = this.extractLinksFrom(this.html);
-        for (URL link : links) {
+        for (URL url : links) {
             boolean linkAdded = false;
 
-            if (link.getProtocol().toLowerCase().equals("http")) {
-                if (this.sourceUrl.isInternalTo(link)) {
-                    if (this.tryAddLinkToDownloader(link)) {
+            if (url.getProtocol().toLowerCase().equals("http")) {
+                if (this.sourceUrl.isInternalTo(url)) {
+                    if (this.tryAddLinkToDownloader(url)) {
                         this.crawlerResult.increaseInternalLinks();
                         linkAdded = true;
                     }
 
                 } else {
                     this.crawlerResult.increaseExternalLinks();
-                    if (crawler.recognizesFileExtension(link)) {
-                        this.tryAddLinkToDownloader(link);
+                    this.crawlerResult.markVisited(url); // will be used when generating external domains statistics
+
+                    if (crawler.recognizesFileExtension(url)) {
+                        this.tryAddLinkToDownloader(url);
                         linkAdded = true;
                     }
                 }
@@ -86,16 +88,16 @@ public class RunnableAnalyzer implements Runnable {
      * @return true if url pushed and false otherwise.
      */
     private boolean tryAddLinkToDownloader(URL url) {
-        boolean pushed = false;
+        boolean added = false;
 
         if (this.isNew(url)) {
             crawler.pushDownloadUrlTask(new RunnableDownloader(url));
             this.crawlerResult.markVisited(url);
 
-            pushed = true;
+            added = true;
         }
 
-        return pushed;
+        return added;
     }
 
     /**
