@@ -61,11 +61,6 @@ public class RunnableDownloader implements Runnable {
             }
         } catch (SocketException e) {
             Logger.writeVerbose("Reading from socket failed");
-
-            //TODO: jonathan: the condition is always false.
-//            if (arr != null && text.length() == 0) {
-//                text.append(arr);
-//            }
         }
 
         return text.toString();
@@ -128,18 +123,9 @@ public class RunnableDownloader implements Runnable {
                     return;
                 }
 
-                String urlAndPath = this.downloadUrl.getFullURL();
-                if (urlAndPath.contains("?") ||
-                        urlAndPath.contains("#")) {
-
-                    int index = urlAndPath.indexOf("?");
-                    if (index > 0) urlAndPath = urlAndPath.substring(0, index - 1);
-                    index = urlAndPath.indexOf("#");
-                    if (index > 0) urlAndPath = urlAndPath.substring(0, index - 1);
-                }
-
+                String fullURL = this.downloadUrl.getFullURL();
                 Map<String, String> headers = GetResponseHeaders(headersStream);
-                FileType fileType = urlEndsWithFileName(urlAndPath);
+                FileType fileType = urlEndsWithFileName(fullURL);
 
                 if (fileType != FileType.Unknown && headers.containsKey("content-length")) {
                     long contentLength = Long.parseLong(headers.get("content-length"));

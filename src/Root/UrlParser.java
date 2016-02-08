@@ -10,8 +10,10 @@ import java.util.regex.Matcher;
  */
 public class UrlParser extends Parser {
 
-    private static final String[] capture_groups = new String[]{"protocol", "domain", "uri", "port", "ext"};
-    private static final String url_regex = "((?<protocol>http[s]?)\\:\\/\\/)?[.*\\@]?((?<credentials>[\\w\\:]*)@)?(?<domain>([\\w\\-]+\\.[\\w\\-]+[\\.[\\w\\-]+]*)|localhost)(\\:(?<port>\\d{2,5}))?(?<uri>[^\\s\\:\\.\\?]*(\\.(?<ext>[a-z0-9]{1,5}))?)";
+    private static final String[] capture_groups = new String[]{"protocol", "domain", "uri", "port"};
+    private static final String url_regex = "((?<protocol>http[s]?)\\:\\/\\/)?[.*\\@]?(www\\.|.*@)?(?<domain>([\\w\\-]+\\.[\\w\\-]+[\\.[\\w\\-]+]*)|localhost|([0-9]{1,3}\\.){4,4})(\\:(?<port>\\d{2,5}))?(?<uri>[^\\s\\:?\\#]*)";
+    private static final String uri_normalizer_regex = "(?<redundant>/\\w+/\\.\\./)";
+
 
     public UrlParser() {
         this(url_regex);
@@ -30,12 +32,23 @@ public class UrlParser extends Parser {
             for (String groupName : capture_groups) {
                 String value = m.group(groupName);
 
+                if (groupName.equals("uri")) {
+                    value = this.normalizeUri(value);
+                }
+
                 if (value != null && !value.isEmpty()) {
-                    dict.put(groupName, m.group(groupName));
+                    dict.put(groupName, value);
                 }
             }
         }
 
         return dict;
+    }
+
+    private String normalizeUri(String uri) {
+        while (uri.contains("/../")) {
+            uri = uri.replaceAll(uri_normalizer_regex, "/");
+        }
+        return uri;
     }
 }
