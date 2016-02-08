@@ -245,4 +245,8 @@ public class URL implements java.io.Closeable {
 
         return oldUri.substring(0, oldUri.lastIndexOf("/") + 1).concat(uri);
     }
+
+    public static URL stripUri(URL url) {
+        return new URL(url.getProtocol(), url.getDomain(), url.getPort(), "/");
+    }
 }

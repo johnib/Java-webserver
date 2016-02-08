@@ -27,7 +27,7 @@ public class RunnableDownloader implements Runnable {
      * @return a string containing all the data
      * @throws IOException
      */
-    private static String ConvertStreamToString(InputStream stream) throws IOException {
+    public static String ConvertStreamToString(InputStream stream) throws IOException {
         String line;
         StringBuilder text = new StringBuilder();
         int contentLength = 0, lengthRead, charsRead = 0;
