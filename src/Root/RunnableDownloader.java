@@ -154,10 +154,13 @@ public class RunnableDownloader implements Runnable {
     }
 
     private void ProcessHtmlPage() throws IOException {
+        Stopwatch stopwatch = new Stopwatch();
         // Processing an html page
         try (InputStream stream = this.downloadUrl.openStream()) {
             // Reading from the socket the data
             String html = ConvertStreamToString(stream);
+            Crawler.getInstance().getTheCrawlerResultInstance().addRtt(stopwatch.elapsedTime());
+            Logger.writeVerbose("Average Rtt so far: " + Crawler.getInstance().getTheCrawlerResultInstance().getAvrageRtt());
 
             // Checking if the read was successful
             if (html.isEmpty()) return;

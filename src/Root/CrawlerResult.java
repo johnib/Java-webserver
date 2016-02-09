@@ -47,6 +47,9 @@ public class CrawlerResult {
     private final AtomicLong externalLinks = new AtomicLong(0);
     private final AtomicLong pages = new AtomicLong(0);
     private final long dateStart;
+    private final AtomicLong totalRtt = new AtomicLong(0);
+    private final AtomicLong numRtt = new AtomicLong(0);
+
     // Bytes lengths
     private final AtomicLong sumOfAllHtmlPagesBytes = new AtomicLong(0);
     private final AtomicLong sumOfAllImagesBytes = new AtomicLong(0);
@@ -305,5 +308,14 @@ public class CrawlerResult {
         }
 
         return externals;
+    }
+
+    public long addRtt(double rtt) {
+        numRtt.incrementAndGet();
+        return totalRtt.addAndGet((long) rtt);
+    }
+
+    public long getAvrageRtt() {
+        return totalRtt.get() / numRtt.get();
     }
 }
