@@ -155,6 +155,9 @@ public class Crawler {
                     uri = uri.replaceAll("/", "\\\\/");
                     uri = uri.replaceAll("\\?", "\\\\?");
                     uri = uri.replaceAll("\\*", ".*");
+
+                    if ((uri.lastIndexOf('$') == uri.length() - 1) && uri.length() > 0) uri = uri.substring(0, uri.length() - 2);
+
                     uri += "\\/{0,1}$";
 
                     try {
