@@ -1,20 +1,63 @@
-<div class="container">
-    <h2>Crawler App</h2>
-    <form role="form">
-        <div class="form-group">
-            <label for="url">URL:</label>
-            <input type="text" class="form-control" id="url" placeholder="google.com" ng-model="config.url">
-        </div>
-        <div class="checkbox">
-            <label><input type="checkbox" ng-model="config.portScan"> Perform full TCP port scan</label>
-        </div>
-        <div class="checkbox">
-            <label><input type="checkbox" ng-model="config.ignoreRobots"> Disrespect robots.txt</label>
-        </div>
-        <button type="reset" class="btn btn-danger" ng-click="reset()">Clear</button>
-        <button type="submit" class="btn btn-primary" ng-disabled="crawling" ng-click="crawl(config)">Crawl</button>
-    </form>
+<style>
+    .glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+    }
 
+    @-webkit-keyframes spin2 {
+    from {
+    -webkit-transform: rotate(0deg);
+    }
+    to {
+    -webkit-transform: rotate(360deg);
+    }
+    }
+
+    @keyframes spin {
+    from {
+    transform: scale(1) rotate(0deg);
+    }
+    to {
+    transform: scale(1) rotate(360deg);
+    }
+    }
+</style>
+<ng-form role="form">
+    <div class="form-group">
+        <label for="url">URL:</label>
+        <input type="text" class="form-control" id="url" placeholder="google.com" ng-model="config.url">
+    </div>
+    <div class="checkbox">
+        <label><input type="checkbox" ng-model="config.portScan"> Perform full TCP port scan</label>
+    </div>
+    <div class="checkbox">
+        <label><input type="checkbox" ng-model="config.ignoreRobots"> Disrespect robots.txt</label>
+    </div>
+    <button type="reset" class="btn btn-danger" ng-disabled="crawling" ng-click="reset()">Clear</button>
+    <button type="submit" class="btn btn-primary" ng-disabled="crawling" ng-click="crawl(config)">
+        <text ng-hide="crawling"> Crawl</text>
+        <text ng-show="crawling"> Processing</text>
+        <span ng-show="crawling" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+    </button>
+</ng-form>
+
+<div ng-show="finished">
+    <br/>
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Success!</strong> Crawling has finished.
+    </div>
+</div>
+
+<div ng-show="failure">
+    <br/>
+    <div class="alert alert-danger">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Error!</strong> Crawler is currently busy.
+    </div>
+</div>
+
+<div>
     <br/>
     <ul class="list-group">
         <li class="list-group-item" ng-repeat="result in results">

@@ -23,14 +23,12 @@ public class CrawlerResult {
     private static final String fileNameConvention = "%s/%s_%s.html";
     private static final String summaryPageFormat =
             "<br/>\n" +
-                    "<div class=\"container\">\n" +
-                    "    <ul class=\"list-group\">\n" +
+                    "<ul class=\"list-group\">\n" +
                     "%s" + // contains the list of items
-                    "    </ul>\n" +
-                    "    <a ng-href=\"#/view1\">\n" +
-                    "        <span class=\"btn btn-danger\">Back</span>\n" +
-                    "    </a>\n" +
-                    "</div>\n";
+                    "</ul>\n" +
+                    "<a ng-href=\"#/view1\">\n" +
+                    "    <span class=\"btn btn-danger\">Back</span>\n" +
+                    "</a>\n";
     private static final String listItemFormat =
             "        <li class=\"list-group-item\">\n" +
                     "            %s\n" + // contains the information
@@ -47,6 +45,7 @@ public class CrawlerResult {
     private final AtomicLong documents = new AtomicLong(0);
     private final AtomicLong internalLinks = new AtomicLong(0);
     private final AtomicLong externalLinks = new AtomicLong(0);
+    private final AtomicLong pages = new AtomicLong(0);
     private final long dateStart;
     // Bytes lengths
     private final AtomicLong sumOfAllHtmlPagesBytes = new AtomicLong(0);
@@ -68,6 +67,7 @@ public class CrawlerResult {
             put("internalLinks", internalLinks);
             put("externalLinks", externalLinks);
             put("sumHtmlSize", sumOfAllHtmlPagesBytes);
+            put("pages", pages);
         }
     };
     private final HashMap<String, String> propertiesTextualMapping = new HashMap() {
@@ -83,6 +83,7 @@ public class CrawlerResult {
             put("sumHtmlSize", "Total size of pages: %d bytes.");
             put("openPorts", "Open ports: %s.");
             put("externalDomains", "External Domains: %s.");
+            put("pages", "Number of pages: %d.");
         }
     };
     private String openPorts;
@@ -113,6 +114,7 @@ public class CrawlerResult {
 
     public long addHtmlSize(long pageSize) {
         long totalHtmlSize = sumOfAllHtmlPagesBytes.addAndGet(pageSize);
+        this.pages.incrementAndGet();
         Logger.writeVerbose("Total HTML size so far: " + totalHtmlSize);
 
         return totalHtmlSize;
