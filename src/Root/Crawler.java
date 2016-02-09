@@ -150,9 +150,12 @@ public class Crawler {
                     String uri = m.group("uri");
 
                     // Converting to regex
+                    // removing the last / to add a regex in the end
+                    if ((uri.lastIndexOf('/') == uri.length() - 1) && uri.length() > 0) uri = uri.substring(0, uri.length() - 2);
                     uri = uri.replaceAll("/", "\\\\/");
                     uri = uri.replaceAll("\\?", "\\\\?");
                     uri = uri.replaceAll("\\*", ".*");
+                    uri += "\\/{0,1}$";
 
                     try {
                         result.add(Pattern.compile(uri));
@@ -222,7 +225,9 @@ public class Crawler {
     public boolean allowUri(String uri) {
         for (Pattern p : this.robotsTxt) {
             Matcher m = p.matcher(uri);
-            if (m.find()) return false;
+            if (m.find()) {
+                return false;
+            }
         }
 
         return true;
