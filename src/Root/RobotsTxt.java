@@ -33,6 +33,7 @@ public class RobotsTxt {
             // note that some links contain '*' (wild card) - ignore these links
             // note that some links contain '$' (end of url) - ignore these links
             this.robotsTxtDisallow = new HashSet<>();
+            this.robotsTxtAllow = new HashSet<>();
             HashSet<String> robotsTxtFull = getRobotsTxtAllLinks(this.robotsFile);
             for (String uri : robotsTxtFull) {
                 URL robotsUri = URL.makeURL(url, uri);

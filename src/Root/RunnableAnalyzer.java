@@ -27,6 +27,8 @@ public class RunnableAnalyzer implements Runnable {
         ArrayList<URL> links = this.extractLinksFrom(this.html);
         for (URL url : links) {
 
+            if(url == null) continue;
+
             if (url.getProtocol().toLowerCase().equals("http") &&
                     Crawler.getInstance().getRobots().allowUri(url.getUri())) {
                 if (this.sourceUrl.isInternalTo(url)) {
