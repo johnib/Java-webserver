@@ -51,6 +51,7 @@ public class CrawlerResult {
     private final AtomicLong sumOfRTT = new AtomicLong(0);
     private final AtomicLong RTTCount = new AtomicLong(0);
     private final AtomicLong averageRTT = new AtomicLong(0);
+    private final AtomicLong externalDomains = new AtomicLong(0);
     private final long dateStart;
 
     // Bytes lengths
@@ -75,6 +76,7 @@ public class CrawlerResult {
             put("sumHtmlSize", sumOfAllHtmlPagesBytes);
             put("pages", pages);
             put("averageRTT", averageRTT);
+            put("externalDomainsCount", externalDomains);
         }
     };
     private final HashMap<String, String> propertiesTextualMapping = new HashMap() {
@@ -93,6 +95,7 @@ public class CrawlerResult {
             put("pages", "Number of pages: %d.");
             put("averageRTT", "Average RTT: %dms.");
             put("disrespectRobots", "The crawler %s robots.txt.");
+            put("externalDomainsCount", "Number of external domains linked: %d.");
         }
     };
     private String openPorts;
@@ -176,24 +179,10 @@ public class CrawlerResult {
      * @throws IOException in case of File construction/writing error
      */
     public File createSummaryFile(JSONObject db) throws IOException {
+        StringBuilder listItems = new StringBuilder("");
         String itemValue, itemHtmlCode;
         File summaryFile = new File(String.format(fileNameConvention, this.config.resultsPath, this.domain.getDomain(), this.dateStart));
         FileWriter fw = new FileWriter(summaryFile);
-
-        // numeric statistics
-        StringBuilder listItems = new StringBuilder("");
-        for (String property : properties.keySet()) {
-            itemValue = String.format(propertiesTextualMapping.get(property), properties.get(property).get());
-            itemHtmlCode = String.format(listItemFormat, itemValue);
-            listItems.append(itemHtmlCode);
-        }
-
-        // port scan statistics
-        if (this.openPorts != null && !this.openPorts.isEmpty()) {
-            itemValue = String.format(propertiesTextualMapping.get("openPorts"), this.openPorts);
-            itemHtmlCode = String.format(listItemFormat, itemValue);
-            listItems.append(itemHtmlCode);
-        }
 
         // Disrespect robots.txt
         itemValue = String.format(propertiesTextualMapping.get("disrespectRobots"), this.disrespectRobots ? "disrespected" : "respected");
@@ -204,6 +193,20 @@ public class CrawlerResult {
         String externals = this.stringifyExternalDomains(db);
         if (!externals.isEmpty()) {
             itemValue = String.format(propertiesTextualMapping.get("externalDomains"), externals);
+            itemHtmlCode = String.format(listItemFormat, itemValue);
+            listItems.append(itemHtmlCode);
+        }
+
+        // numeric statistics
+        for (String property : properties.keySet()) {
+            itemValue = String.format(propertiesTextualMapping.get(property), properties.get(property).get());
+            itemHtmlCode = String.format(listItemFormat, itemValue);
+            listItems.append(itemHtmlCode);
+        }
+
+        // port scan statistics
+        if (this.openPorts != null && !this.openPorts.isEmpty()) {
+            itemValue = String.format(propertiesTextualMapping.get("openPorts"), this.openPorts);
             itemHtmlCode = String.format(listItemFormat, itemValue);
             listItems.append(itemHtmlCode);
         }
@@ -337,6 +340,8 @@ public class CrawlerResult {
                 externals.add(external);
             }
         }
+
+        this.externalDomains.set(externals.size());
 
         return externals;
     }
