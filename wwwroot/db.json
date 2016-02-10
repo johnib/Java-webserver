@@ -1,1 +1,14 @@
-{"results":[{"link":"google.com_1455142071207.html","domain":"google.com","dateStart":1455142071207}]}
+{
+  "results": [
+    {
+      "link": "google.com_1455142071207.html",
+      "domain": "google.com",
+      "dateStart": 1455142071207
+    },
+    {
+      "link": "google.com_1455145691056.html",
+      "domain": "google.com",
+      "dateStart": 1455145691056
+    }
+  ]
+}

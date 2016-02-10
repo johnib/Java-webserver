@@ -23,7 +23,7 @@ public class CrawlerResult {
     private static final String fileNameConvention = "%s/%s_%s.html";
     private static final String summaryPageFormat =
             "<div class=\"page-header\">\n" +
-                    "    <h1>%s Crawling Summary</h1>\n" +
+                    "    <h1>%s</h1>\n" +
                     "</div>" +
                     "<ul class=\"list-group\">\n" +
                     "%s" + // contains the list of items
@@ -176,36 +176,35 @@ public class CrawlerResult {
      * @throws IOException in case of File construction/writing error
      */
     public File createSummaryFile(JSONObject db) throws IOException {
+        String itemValue, itemHtmlCode;
         File summaryFile = new File(String.format(fileNameConvention, this.config.resultsPath, this.domain.getDomain(), this.dateStart));
         FileWriter fw = new FileWriter(summaryFile);
 
         // numeric statistics
         StringBuilder listItems = new StringBuilder("");
         for (String property : properties.keySet()) {
-            String itemValue = String.format(propertiesTextualMapping.get(property), properties.get(property).get());
-            String itemHtmlCode = String.format(listItemFormat, itemValue);
+            itemValue = String.format(propertiesTextualMapping.get(property), properties.get(property).get());
+            itemHtmlCode = String.format(listItemFormat, itemValue);
             listItems.append(itemHtmlCode);
         }
 
         // port scan statistics
         if (this.openPorts != null && !this.openPorts.isEmpty()) {
-            String itemValue = String.format(propertiesTextualMapping.get("openPorts"), this.openPorts);
-            String itemHtmlCode = String.format(listItemFormat, itemValue);
+            itemValue = String.format(propertiesTextualMapping.get("openPorts"), this.openPorts);
+            itemHtmlCode = String.format(listItemFormat, itemValue);
             listItems.append(itemHtmlCode);
         }
 
         // Disrespect robots.txt
-        {
-            String itemValue = String.format(propertiesTextualMapping.get("disrespectRobots"), this.disrespectRobots ? "disrespect" : "respect");
-            String itemHtmlCode = String.format(listItemFormat, itemValue);
-            listItems.append(itemHtmlCode);
-        }
+        itemValue = String.format(propertiesTextualMapping.get("disrespectRobots"), this.disrespectRobots ? "disrespected" : "respected");
+        itemHtmlCode = String.format(listItemFormat, itemValue);
+        listItems.append(itemHtmlCode);
 
         // external domain statistics
         String externals = this.stringifyExternalDomains(db);
         if (!externals.isEmpty()) {
-            String itemValue = String.format(propertiesTextualMapping.get("externalDomains"), externals);
-            String itemHtmlCode = String.format(listItemFormat, itemValue);
+            itemValue = String.format(propertiesTextualMapping.get("externalDomains"), externals);
+            itemHtmlCode = String.format(listItemFormat, itemValue);
             listItems.append(itemHtmlCode);
         }
 
