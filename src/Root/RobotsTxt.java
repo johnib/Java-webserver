@@ -82,9 +82,13 @@ public class RobotsTxt {
                     if ((uri.lastIndexOf('$') == uri.length() - 1) && uri.length() > 0) {
                         uri = uri.substring(0, uri.length() - 1);
                         uri += "\\/{0,1}$";
+                    } else if ((uri.lastIndexOf('*') == uri.length() - 1) && (uri.lastIndexOf('/') == uri.length() - 3)) {
+                        uri = uri.substring(0, uri.length() - 4);
+                        uri = "(" + uri + "\\/{0,1}$" + ")|(" + uri + "\\/.*)";
                     } else {
                         uri += "\\/{0,1}";
                     }
+
 
                     try {
                         result.add(Pattern.compile(uri));
