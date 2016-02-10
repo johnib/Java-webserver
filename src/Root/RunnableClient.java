@@ -190,10 +190,10 @@ public class RunnableClient implements Runnable {
                 }
 
                 CrawlerResult result = Crawler.getInstance().crawl(crawlerConfig);
-                String phoneNumber = crawlerConfig.get("phoneNumber").toString();
+                Object phoneNumber = crawlerConfig.get("phoneNumber");
 
-                if (phoneNumber != null && !phoneNumber.isEmpty()) {
-                    SmsSender.sendSms(crawlerConfig.get("phoneNumber").toString(), result);
+                if (phoneNumber != null && !phoneNumber.toString().isEmpty()) {
+                    SmsSender.sendSms(phoneNumber.toString(), result);
                     //SmsSender.sendSms("+972546368549", result);
                 }
                 //TODO: when crawler is done, use case crawlHistoryPath to retrieve the new db.
