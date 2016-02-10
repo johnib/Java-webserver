@@ -43,7 +43,7 @@ public class ClientThread extends Thread {
                 // System.out.printf(task_pop, Thread.currentThread().getId());
                 Runnable task = queue.take();
 
-                int activeCount = this.activeCount.incrementAndGet();
+                this.activeCount.incrementAndGet();
                 int queueSize = queue.size();
                 Logger.writeAssignmentTrace(String.format("%s dequeue from their queue. number of items: %d", poolName, queueSize));
 
@@ -52,7 +52,7 @@ public class ClientThread extends Thread {
                 task.run();
                 handledTasksCount++;
 
-                activeCount = this.activeCount.decrementAndGet();
+                this.activeCount.decrementAndGet();
                 Logger.writeWebServerLog(task_finished, Thread.currentThread().getId());
             }
         } catch (InterruptedException e) {

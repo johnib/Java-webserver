@@ -1,5 +1,6 @@
 package Root;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -190,10 +191,10 @@ public class RunnableClient implements Runnable {
                 }
 
                 CrawlerResult result = Crawler.getInstance().crawl(crawlerConfig);
-                String phoneNumber = crawlerConfig.get("phoneNumber").toString();
+                String phoneNumber = crawlerConfig.get("phone").toString();
 
-                if (phoneNumber != null && !phoneNumber.isEmpty()) {
-                    SmsSender.sendSms(crawlerConfig.get("phoneNumber").toString(), result);
+                if (NumberUtils.isNumber(phoneNumber)) {
+                    SmsSender.sendSms(phoneNumber, result);
                     //SmsSender.sendSms("+972546368549", result);
                 }
                 //TODO: when crawler is done, use case crawlHistoryPath to retrieve the new db.

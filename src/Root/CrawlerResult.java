@@ -6,7 +6,10 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -19,7 +22,9 @@ public class CrawlerResult {
     /* conventions */
     private static final String fileNameConvention = "%s/%s_%s.html";
     private static final String summaryPageFormat =
-            "<br/>\n" +
+            "<div class=\"page-header\">\n" +
+                    "    <h1>%s Crawling Summary</h1>\n" +
+                    "</div>" +
                     "<ul class=\"list-group\">\n" +
                     "%s" + // contains the list of items
                     "</ul>\n" +
@@ -195,10 +200,14 @@ public class CrawlerResult {
             listItems.append(itemHtmlCode);
         }
 
-        fw.write(String.format(summaryPageFormat, listItems.toString()));
+        fw.write(String.format(summaryPageFormat, this.textualDomain(this.domain), listItems.toString()));
         fw.flush();
 
         return summaryFile;
+    }
+
+    private String textualDomain(URL domain) {
+        return domain.getDomain().substring(0, 1).toUpperCase().concat(domain.getDomain().substring(1));
     }
 
     /**
@@ -324,10 +333,11 @@ public class CrawlerResult {
         return externals;
     }
 
-    @Override public String toString(){
+    @Override
+    public String toString() {
         StringBuilder result = new StringBuilder();
 
-        for (String key : properties.keySet()){
+        for (String key : properties.keySet()) {
             result.append(String.format(propertiesTextualMapping.get(key), properties.get(key).get()));
             result.append(System.lineSeparator());
         }

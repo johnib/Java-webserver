@@ -87,7 +87,8 @@ angular.module('myApp.view1', ['ngRoute'])
             $scope.config = {
                 portScan: false,
                 ignoreRobots: false,
-                url: "google.com"
+                url: "",
+                phone: ""
             };
 
             $scope.results = [];

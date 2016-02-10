@@ -33,13 +33,16 @@ public class RobotsTxt {
             // note that some links contain '*' (wild card) - ignore these links
             // note that some links contain '$' (end of url) - ignore these links
             this.robotsTxtDisallow = new HashSet<>();
+            this.robotsTxtAllow = new HashSet<>();
             HashSet<String> robotsTxtFull = getRobotsTxtAllLinks(this.robotsFile);
+
+            Crawler crawler = Crawler.getInstance();
+            CrawlerResult crawlerResult = crawler.getTheCrawlerResultInstance();
+
             for (String uri : robotsTxtFull) {
                 URL robotsUri = URL.makeURL(url, uri);
-                if (!Crawler.getInstance().getTheCrawlerResultInstance().hasURL(robotsUri)) {
-                    Crawler.getInstance().getTheCrawlerResultInstance().markVisited(robotsUri);
-                    Crawler.getInstance().pushDownloadUrlTask(new RunnableDownloader(robotsUri));
-                }
+                crawlerResult.markVisited(robotsUri);
+                crawler.pushDownloadUrlTask(new RunnableDownloader(robotsUri));
             }
         }
     }
@@ -74,7 +77,8 @@ public class RobotsTxt {
 
                     // Converting to regex
                     // removing the last / to add a regex in the end
-                    if ((uri.lastIndexOf('/') == uri.length() - 1) && uri.length() > 0) uri = uri.substring(0, uri.length() - 1);
+                    if ((uri.lastIndexOf('/') == uri.length() - 1) && uri.length() > 0)
+                        uri = uri.substring(0, uri.length() - 1);
                     uri = uri.replaceAll("/", "\\\\/");
                     uri = uri.replaceAll("\\?", "\\\\?");
                     uri = uri.replaceAll("\\*", ".*");
@@ -141,7 +145,7 @@ public class RobotsTxt {
             try (InputStream inputStream = url.openStream()) {
                 return RunnableDownloader.ConvertStreamToString(inputStream, false);
             }
-        }catch (IOException ex) {
+        } catch (IOException ex) {
             Logger.writeException(ex);
             // Ignoring the problem probably 404
         }
@@ -154,6 +158,7 @@ public class RobotsTxt {
      * @return This method takes the uri and checks against the robots txt
      */
     public boolean allowUri(String uri) {
+        //TODO: remove? if it's not in the robotsTxtDisallow, then the URI is allowed... no?
         for (Pattern p : this.robotsTxtAllow) {
             Matcher m = p.matcher(uri);
             if (m.find()) {
