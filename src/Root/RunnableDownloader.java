@@ -23,7 +23,7 @@ public class RunnableDownloader implements Runnable {
     /**
      * This function converts the buffer to string and sometimes removes the line ending
      *
-     * @param stream The data to read from
+     * @param stream          The data to read from
      * @param addToStatistics true to add the page to the result statistics (will be false for robots.txt for example)
      * @return a string containing all the data
      * @throws IOException
@@ -169,7 +169,6 @@ public class RunnableDownloader implements Runnable {
 
             // Log
             Logger.writeAssignmentTrace("Downloader ends downloading the URL: " + this.downloadUrl);
-            Logger.writeInfo("The html data:" + html);
 
             // Sending to analyzer
             Crawler.getInstance().pushAnalyzeHtmlTask(new RunnableAnalyzer(this.downloadUrl, html));

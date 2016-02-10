@@ -86,18 +86,4 @@ public class Server {
         }
     }
 
-    /**
-     * Terminates the server and all the worker threads.
-     */
-    public void terminate() {
-        serverRunning = false;
-
-        try {
-            serverSocket.close();
-        } catch (IOException ignored) {
-            // Left empty
-        }
-
-        pool.terminate();
-    }
 }

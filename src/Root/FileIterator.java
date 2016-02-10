@@ -13,8 +13,8 @@ import java.util.Iterator;
  */
 public class FileIterator implements Iterable<byte[]>, Iterator<byte[]> {
 
+    private static final int OneKB = 1024 * 1024 * 8;
     private final FileInputStream fis;
-    private final int OneKB = 1024 * 1024 * 8;
     private int chuckSize;
     private boolean errorOccurred = false;
 

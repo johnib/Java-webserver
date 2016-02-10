@@ -13,17 +13,16 @@ import java.util.regex.Pattern;
  * Copyright (c) 2015 Jonathan Yaniv and Nitsan Bracha . All rights reserved.
  */
 public class RobotsTxt {
-    private final String robotsFile;
     private HashSet<Pattern> robotsTxtDisallow;
     private HashSet<Pattern> robotsTxtAllow;
 
     public RobotsTxt(boolean ignoreRobots, URL url) {
-        this.robotsFile = GetRobotsTxtFile(url);
+        String robotsFile = GetRobotsTxtFile(url);
 
         if (!ignoreRobots) {
             try {
-                this.robotsTxtDisallow = getRobotsTxtDisallow(this.robotsFile);
-                this.robotsTxtAllow = getRobotsTxtAllow(this.robotsFile);
+                this.robotsTxtDisallow = getRobotsTxtDisallow(robotsFile);
+                this.robotsTxtAllow = getRobotsTxtAllow(robotsFile);
             } catch (IOException e) {
                 Logger.writeException(e);
                 this.robotsTxtDisallow = new HashSet<>();
@@ -34,7 +33,7 @@ public class RobotsTxt {
             // note that some links contain '$' (end of url) - ignore these links
             this.robotsTxtDisallow = new HashSet<>();
             this.robotsTxtAllow = new HashSet<>();
-            HashSet<String> robotsTxtFull = getRobotsTxtAllLinks(this.robotsFile);
+            HashSet<String> robotsTxtFull = getRobotsTxtAllLinks(robotsFile);
 
             Crawler crawler = Crawler.getInstance();
             CrawlerResult crawlerResult = crawler.getTheCrawlerResultInstance();
@@ -45,6 +44,20 @@ public class RobotsTxt {
                 crawler.pushDownloadUrlTask(new RunnableDownloader(robotsUri));
             }
         }
+    }
+
+    private static String GetRobotsTxtFile(URL domainToCrawlOn) {
+        try {
+            URL url = URL.makeURL(domainToCrawlOn, "/robots.txt");
+            try (InputStream inputStream = url.openStream()) {
+                return RunnableDownloader.ConvertStreamToString(inputStream, false);
+            }
+        } catch (IOException ex) {
+            Logger.writeException(ex);
+            // Ignoring the problem probably 404
+        }
+
+        return null;
     }
 
     private HashSet<Pattern> getRobotsTxtAllow(String robotsTxt) throws IOException {
@@ -137,20 +150,6 @@ public class RobotsTxt {
 
 
         return result;
-    }
-
-    private static String GetRobotsTxtFile(URL domainToCrawlOn) {
-        try {
-            URL url = URL.makeURL(domainToCrawlOn, "/robots.txt");
-            try (InputStream inputStream = url.openStream()) {
-                return RunnableDownloader.ConvertStreamToString(inputStream, false);
-            }
-        } catch (IOException ex) {
-            Logger.writeException(ex);
-            // Ignoring the problem probably 404
-        }
-
-        return null;
     }
 
     /**

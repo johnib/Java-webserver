@@ -85,12 +85,12 @@ public class HttpResponse {
         return lastModified;
     }
 
-    public void setLastModified(Date lastModified) {
-        this.lastModified = Common.toISO2616DateFormat(lastModified);
-    }
-
     public void setLastModified(long lastModified) {
         this.lastModified = Common.ConvertLongToTimeString(lastModified);
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = Common.toISO2616DateFormat(lastModified);
     }
 
     public long getContentLength() {
@@ -108,10 +108,6 @@ public class HttpResponse {
 
     public String getContentType() {
         return contentType;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
     }
 
     /**
@@ -174,8 +170,8 @@ public class HttpResponse {
 
         if (this.body != null) {
             for (int i = 0; i < this.body.length; i += chunkSize) {
-                int nextChunkSize = Math.min(this.body.length - i, chunkSize);
-                stream.write(this.getChunckHeaders(nextChunkSize));
+                @SuppressWarnings("ConstantConditions") int nextChunkSize = Math.min(this.body.length - i, chunkSize);
+                stream.write(this.getChunkHeaders(nextChunkSize));
                 stream.write(this.body, i, nextChunkSize);
                 stream.write(Common.CRLF_BYTES);
                 stream.flush();
@@ -187,7 +183,7 @@ public class HttpResponse {
 
         for (byte[] data : fileData) {
             if (this.request.getIsChunked()) {
-                stream.write(getChunckHeaders(data.length));
+                stream.write(getChunkHeaders(data.length));
                 stream.write(data);
                 stream.write(Common.CRLF_BYTES);
             } else {
@@ -198,7 +194,7 @@ public class HttpResponse {
         }
     }
 
-    private byte[] getChunckHeaders(int nextChunkSize) {
+    private byte[] getChunkHeaders(int nextChunkSize) {
         String data = nextChunkSize + Common.CRLF;
         return data.getBytes(StandardCharsets.US_ASCII);
     }

@@ -183,13 +183,5 @@ public class HTTPRequest {
         return this.headersDict.get(Common.http_parser_params);
     }
 
-    public String getJsonParam(String postParams) {
-        if (postParams.equals("crawlUrl")) {
-            // TODO: Change this
-            Logger.writeError("The getJsonParam is not implimented yet returning http://computernetworkstest.azurewebsites.net/ just for test");
-            return "http://computernetworkstest.azurewebsites.net/";
-        }
-        return "false";
-    }
 }
 

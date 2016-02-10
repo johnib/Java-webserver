@@ -9,7 +9,6 @@ import org.json.simple.JSONObject;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.regex.Pattern;
 
 /**
  * This class will manage the whole crawler procedure once the Root.RunnableClient put the first URL task.
@@ -23,7 +22,6 @@ public class Crawler {
     private ThreadPool analyzers;
     private CrawlerResult crawlerResult;
     private IConfiguration config;
-    private HashSet<Pattern> robotsTxt;
     private RobotsTxt robots;
 
     private Crawler(IConfiguration config) {
@@ -85,7 +83,6 @@ public class Crawler {
 
         if (url == null) {
             Logger.writeError("Crawler.crawl cannot create URL object from the url received in the JSON");
-            //TODO: define behaviour
             return null;
         }
 

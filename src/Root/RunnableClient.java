@@ -4,7 +4,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -24,8 +23,7 @@ import java.nio.charset.StandardCharsets;
 public class RunnableClient implements Runnable {
     /* Constants */
     private final static String closed_by_the_client = "Connection was forced closed by the client\n";
-    private final static byte[] parameter_response_body_up = "<html><body>".getBytes(StandardCharsets.US_ASCII);
-    private static final String crawlPath = "/crawl"; //TODO: can be changed to execResult.html later
+    private static final String crawlPath = "/crawl";
     private static final String crawlHistoryPath = "/get-history";
     private static final String dbFileName = "db.json";
     private static final String resultsDir = "results";
@@ -179,7 +177,7 @@ public class RunnableClient implements Runnable {
                 Logger.writeError("crawl path");
                 if (Crawler.getInstance().isWorking()) {
                     Logger.writeInfo("The crawler is currently working");
-                    return getResponseJsonCrawlerBusy();
+                    return getResponseInternalServerError();
                 }
 
                 JSONObject crawlerConfig;
@@ -191,16 +189,13 @@ public class RunnableClient implements Runnable {
                 }
 
                 CrawlerResult result = Crawler.getInstance().crawl(crawlerConfig);
-                String phoneNumber = crawlerConfig.get("phone").toString();
 
-                if (NumberUtils.isNumber(phoneNumber)) {
+                String phoneNumber = crawlerConfig.get("phone").toString();
+                if (NumberUtils.isNumber(phoneNumber) && result != null) {
                     SmsSender.sendSms(phoneNumber, result);
-                    //SmsSender.sendSms("+972546368549", result);
                 }
-                //TODO: when crawler is done, use case crawlHistoryPath to retrieve the new db.
 
             case crawlHistoryPath:
-                //TODO: define behaviour to extract history crawling
                 System.err.println("crawl history path");
 
                 return this.getResponseFile(this.crawlerDataBaseFilePath, "application/json; charset=utf-8");
@@ -262,16 +257,6 @@ public class RunnableClient implements Runnable {
                 // This is the default behavior
                 return getResponseFile(file, "application/octet-stream");
         }
-    }
-
-    private HttpResponse getResponseJsonCrawlerBusy() {
-        // TODO: this method
-        throw new NotImplementedException();
-    }
-
-    private HttpResponse getResponseJson(CrawlerResult result, String s) {
-        // TODO: this method
-        throw new NotImplementedException();
     }
 
     private boolean isPathTraversalAttack(File file, HTTPRequest httpRequest, IConfiguration config) {
@@ -389,8 +374,7 @@ public class RunnableClient implements Runnable {
             try {
                 Logger.writeWebServerLog("Closing socket");
                 socket.close();
-            } catch (IOException e) {
-                //TODO: implement
+            } catch (IOException ignored) {
             }
         }
     }
