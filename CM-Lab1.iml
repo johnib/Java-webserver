@@ -18,5 +18,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="json-simple-1.1" level="project" />
+    <orderEntry type="library" name="twilio-java-sdk-6.3.0-jar-with-dependencies" level="project" />
   </component>
 </module>

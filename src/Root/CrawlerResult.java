@@ -6,10 +6,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -325,5 +322,16 @@ public class CrawlerResult {
         }
 
         return externals;
+    }
+
+    @Override public String toString(){
+        StringBuilder result = new StringBuilder();
+
+        for (String key : properties.keySet()){
+            result.append(String.format(propertiesTextualMapping.get(key), properties.get(key).get()));
+            result.append(System.lineSeparator());
+        }
+
+        return result.toString();
     }
 }
