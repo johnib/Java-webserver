@@ -92,9 +92,11 @@ public class CrawlerResult {
             put("externalDomains", "External Domains: %s.");
             put("pages", "Number of pages: %d.");
             put("averageRTT", "Average RTT: %dms.");
+            put("disrespectRobots", "The crawler %s robots.txt.");
         }
     };
     private String openPorts;
+    private boolean disrespectRobots;
 
     public CrawlerResult(CrawlerConfig config, File database) {
         this.config = config;
@@ -188,6 +190,13 @@ public class CrawlerResult {
         // port scan statistics
         if (this.openPorts != null && !this.openPorts.isEmpty()) {
             String itemValue = String.format(propertiesTextualMapping.get("openPorts"), this.openPorts);
+            String itemHtmlCode = String.format(listItemFormat, itemValue);
+            listItems.append(itemHtmlCode);
+        }
+
+        // Disrespect robots.txt
+        {
+            String itemValue = String.format(propertiesTextualMapping.get("disrespectRobots"), this.disrespectRobots ? "disrespect" : "respect");
             String itemHtmlCode = String.format(listItemFormat, itemValue);
             listItems.append(itemHtmlCode);
         }
@@ -343,5 +352,9 @@ public class CrawlerResult {
         }
 
         return result.toString();
+    }
+
+    public void setDisrespectRobots(boolean disrespectRobots) {
+        this.disrespectRobots = disrespectRobots;
     }
 }

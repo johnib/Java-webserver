@@ -1,7 +1,6 @@
 package Root;
 
 import com.twilio.sdk.TwilioRestClient;
-import com.twilio.sdk.TwilioRestException;
 import com.twilio.sdk.resource.factory.MessageFactory;
 import com.twilio.sdk.resource.instance.Message;
 import org.apache.http.NameValuePair;
@@ -21,6 +20,10 @@ public class SmsSender {
 
     public static void sendSms(String number, CrawlerResult result) {
         try {
+            if (number.startsWith("0")) {
+                number = number.replaceFirst("0", "\\+972");
+            }
+
             Logger.writeVerbose("Sending Sms Start.");
             TwilioRestClient client = new TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN);
 

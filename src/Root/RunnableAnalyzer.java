@@ -24,36 +24,42 @@ public class RunnableAnalyzer implements Runnable {
 
     @Override
     public void run() {
-        ArrayList<URL> links = this.extractLinksFrom(this.html);
-        for (URL url : links) {
+        try {
+            ArrayList<URL> links = this.extractLinksFrom(this.html);
+            for (URL url : links) {
 
-            if (url.getProtocol().toLowerCase().equals("http") &&
-                    Crawler.getInstance().getRobots().allowUri(url.getUri())) {
-                if (this.sourceUrl.isInternalTo(url)) {
-                    if (this.tryAddLinkToDownloader(url)) {
+                if (url == null) continue;
+
+                if (url.getProtocol().toLowerCase().equals("http") &&
+                        Crawler.getInstance().getRobots().allowUri(url.getUri())) {
+                    if (this.sourceUrl.isInternalTo(url)) {
+                        if (this.tryAddLinkToDownloader(url)) {
+                            this.crawlerResult.increaseInternalLinks();
+                        }
+
+                    } else {
+                        this.crawlerResult.increaseExternalLinks();
+
+                        if (crawler.recognizesFileExtension(url)) {
+                            this.tryAddLinkToDownloader(url);
+                        }
+
+                        this.crawlerResult.markVisited(url); // will be used when generating external domains statistics
+                    }
+                } else {
+                    if (this.sourceUrl.isInternalTo(url)) {
                         this.crawlerResult.increaseInternalLinks();
+                    } else {
+                        this.crawlerResult.increaseExternalLinks();
                     }
-
-                } else {
-                    this.crawlerResult.increaseExternalLinks();
-
-                    if (crawler.recognizesFileExtension(url)) {
-                        this.tryAddLinkToDownloader(url);
-                    }
-
-                    this.crawlerResult.markVisited(url); // will be used when generating external domains statistics
                 }
-            } else {
-                if (this.sourceUrl.isInternalTo(url)) {
-                    this.crawlerResult.increaseInternalLinks();
-                } else {
-                    this.crawlerResult.increaseExternalLinks();
-                }
+
             }
 
+            Logger.writeInfo("Analyzer: number of links extracted from:\t" + this.sourceUrl.toString() + "\t:" + links.size());
+        } catch (Exception ex) {
+            Logger.writeException(ex);
         }
-
-        Logger.writeInfo("Analyzer: number of links extracted from:\t" + this.sourceUrl.toString() + "\t:" + links.size());
     }
 
     /**
