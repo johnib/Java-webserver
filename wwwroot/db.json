@@ -1,14 +1,1 @@
-{
-  "results": [
-    {
-      "link": "google.com_1455062359610.html",
-      "domain": "google.com",
-      "dateStart": 1455062359610
-    },
-    {
-      "link": "computernetworkstest.azurewebsites.net_1455062817850.html",
-      "domain": "computernetworkstest.azurewebsites.net",
-      "dateStart": 1455062817850
-    }
-  ]
-}
+{"results":[{"link":"google.com_1455062359610.html","domain":"google.com","dateStart":1455062359610},{"link":"computernetworkstest.azurewebsites.net_1455062817850.html","domain":"computernetworkstest.azurewebsites.net","dateStart":1455062817850},{"link":"computernetworkstest.azurewebsites.net_1455132836410.html","domain":"computernetworkstest.azurewebsites.net","dateStart":1455132836410},{"link":"computernetworkstest.azurewebsites.net_1455132931993.html","domain":"computernetworkstest.azurewebsites.net","dateStart":1455132931993},{"link":"computernetworkstest.azurewebsites.net_1455133410815.html","domain":"computernetworkstest.azurewebsites.net","dateStart":1455133410815},{"link":"computernetworkstest.azurewebsites.net_1455133781268.html","domain":"computernetworkstest.azurewebsites.net","dateStart":1455133781268}]}

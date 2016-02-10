@@ -24,10 +24,11 @@ public class RunnableDownloader implements Runnable {
      * This function converts the buffer to string and sometimes removes the line ending
      *
      * @param stream The data to read from
+     * @param addToStatistics true to add the page to the result statistics (will be false for robots.txt for example)
      * @return a string containing all the data
      * @throws IOException
      */
-    public static String ConvertStreamToString(InputStream stream) throws IOException {
+    public static String ConvertStreamToString(InputStream stream, boolean addToStatistics) throws IOException {
         String line;
         StringBuilder text = new StringBuilder();
         int contentLength = 0, lengthRead;
@@ -56,8 +57,10 @@ public class RunnableDownloader implements Runnable {
                     text.append(arr);
                 }
 
-                // update statistics
-                Crawler.getInstance().getTheCrawlerResultInstance().addHtmlSize(lengthRead);
+                if (addToStatistics) {
+                    // update statistics
+                    Crawler.getInstance().getTheCrawlerResultInstance().addHtmlSize(lengthRead);
+                }
             }
         } catch (SocketException e) {
             Logger.writeVerbose("Reading from socket failed");
@@ -158,7 +161,7 @@ public class RunnableDownloader implements Runnable {
         // Processing an html page
         try (InputStream stream = this.downloadUrl.openStream()) {
             // Reading from the socket the data
-            String html = ConvertStreamToString(stream);
+            String html = ConvertStreamToString(stream, true);
             Crawler.getInstance().getTheCrawlerResultInstance().addRTT(stopwatch.elapsedTime());
 
             // Checking if the read was successful

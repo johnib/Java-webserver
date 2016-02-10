@@ -26,14 +26,12 @@ public class RunnableAnalyzer implements Runnable {
     public void run() {
         ArrayList<URL> links = this.extractLinksFrom(this.html);
         for (URL url : links) {
-            boolean linkAdded = false;
 
             if (url.getProtocol().toLowerCase().equals("http") &&
-                    Crawler.getInstance().allowUri(url.getUri())) {
+                    Crawler.getInstance().getRobots().allowUri(url.getUri())) {
                 if (this.sourceUrl.isInternalTo(url)) {
                     if (this.tryAddLinkToDownloader(url)) {
                         this.crawlerResult.increaseInternalLinks();
-                        linkAdded = true;
                     }
 
                 } else {
@@ -41,13 +39,16 @@ public class RunnableAnalyzer implements Runnable {
 
                     if (crawler.recognizesFileExtension(url)) {
                         this.tryAddLinkToDownloader(url);
-                        linkAdded = true;
                     }
 
                     this.crawlerResult.markVisited(url); // will be used when generating external domains statistics
                 }
             } else {
-                this.crawlerResult.increaseExternalLinks();
+                if (this.sourceUrl.isInternalTo(url)) {
+                    this.crawlerResult.increaseInternalLinks();
+                } else {
+                    this.crawlerResult.increaseExternalLinks();
+                }
             }
 
         }
