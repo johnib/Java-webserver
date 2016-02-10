@@ -30,9 +30,9 @@ public class RunnableDownloader implements Runnable {
     public static String ConvertStreamToString(InputStream stream) throws IOException {
         String line;
         StringBuilder text = new StringBuilder();
-        int contentLength = 0, lengthRead, charsRead = 0;
+        int contentLength = 0, lengthRead;
         boolean isChunked = false;
-        char[] arr = null;
+        char[] arr;
 
         try {
             try (BufferedReader buffer = new BufferedReader(new InputStreamReader(stream, "US-ASCII"))) {
@@ -159,8 +159,7 @@ public class RunnableDownloader implements Runnable {
         try (InputStream stream = this.downloadUrl.openStream()) {
             // Reading from the socket the data
             String html = ConvertStreamToString(stream);
-            Crawler.getInstance().getTheCrawlerResultInstance().addRtt(stopwatch.elapsedTime());
-            Logger.writeVerbose("Average Rtt so far: " + Crawler.getInstance().getTheCrawlerResultInstance().getAvrageRtt());
+            Crawler.getInstance().getTheCrawlerResultInstance().addRTT(stopwatch.elapsedTime());
 
             // Checking if the read was successful
             if (html.isEmpty()) return;

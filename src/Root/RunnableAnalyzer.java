@@ -38,12 +38,13 @@ public class RunnableAnalyzer implements Runnable {
 
                 } else {
                     this.crawlerResult.increaseExternalLinks();
-                    this.crawlerResult.markVisited(url); // will be used when generating external domains statistics
 
                     if (crawler.recognizesFileExtension(url)) {
                         this.tryAddLinkToDownloader(url);
                         linkAdded = true;
                     }
+
+                    this.crawlerResult.markVisited(url); // will be used when generating external domains statistics
                 }
             } else {
                 this.crawlerResult.increaseExternalLinks();

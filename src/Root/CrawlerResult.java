@@ -46,9 +46,10 @@ public class CrawlerResult {
     private final AtomicLong internalLinks = new AtomicLong(0);
     private final AtomicLong externalLinks = new AtomicLong(0);
     private final AtomicLong pages = new AtomicLong(0);
+    private final AtomicLong sumOfRTT = new AtomicLong(0);
+    private final AtomicLong RTTCount = new AtomicLong(0);
+    private final AtomicLong averageRTT = new AtomicLong(0);
     private final long dateStart;
-    private final AtomicLong totalRtt = new AtomicLong(0);
-    private final AtomicLong numRtt = new AtomicLong(0);
 
     // Bytes lengths
     private final AtomicLong sumOfAllHtmlPagesBytes = new AtomicLong(0);
@@ -71,6 +72,7 @@ public class CrawlerResult {
             put("externalLinks", externalLinks);
             put("sumHtmlSize", sumOfAllHtmlPagesBytes);
             put("pages", pages);
+            put("averageRTT", averageRTT);
         }
     };
     private final HashMap<String, String> propertiesTextualMapping = new HashMap() {
@@ -87,6 +89,7 @@ public class CrawlerResult {
             put("openPorts", "Open ports: %s.");
             put("externalDomains", "External Domains: %s.");
             put("pages", "Number of pages: %d.");
+            put("averageRTT", "Average RTT: %dms.");
         }
     };
     private String openPorts;
@@ -116,7 +119,7 @@ public class CrawlerResult {
     }
 
     public long addHtmlSize(long pageSize) {
-        long totalHtmlSize = sumOfAllHtmlPagesBytes.addAndGet(pageSize);
+        long totalHtmlSize = this.sumOfAllHtmlPagesBytes.addAndGet(pageSize);
         this.pages.incrementAndGet();
         Logger.writeVerbose("Total HTML size so far: " + totalHtmlSize);
 
@@ -124,7 +127,7 @@ public class CrawlerResult {
     }
 
     public long addImageSize(long size) {
-        long totalImageSize = sumOfAllImagesBytes.addAndGet(size);
+        long totalImageSize = this.sumOfAllImagesBytes.addAndGet(size);
         this.images.incrementAndGet();
         Logger.writeVerbose("Total image size so far: " + totalImageSize);
 
@@ -132,7 +135,7 @@ public class CrawlerResult {
     }
 
     public long addVideoSize(long size) {
-        long totalVideoSize = sumOfAllVideosBytes.addAndGet(size);
+        long totalVideoSize = this.sumOfAllVideosBytes.addAndGet(size);
         this.videos.incrementAndGet();
         Logger.writeVerbose("Total video size so far: " + totalVideoSize);
 
@@ -140,11 +143,25 @@ public class CrawlerResult {
     }
 
     public long addDocSize(long size) {
-        long totalDocumentSize = sumOfAllDocsBytes.addAndGet(size);
+        long totalDocumentSize = this.sumOfAllDocsBytes.addAndGet(size);
         this.documents.incrementAndGet();
         Logger.writeVerbose("Total doc size so far: " + totalDocumentSize);
 
         return totalDocumentSize;
+    }
+
+    public long addRTT(long rtt) {
+        long totalRtt = this.sumOfRTT.addAndGet(rtt);
+        this.RTTCount.incrementAndGet();
+        Logger.writeVerbose("Average RTT so far: " + this.getAverageRTT() + "ms.");
+
+        return totalRtt;
+    }
+
+    public long getAverageRTT() {
+        this.averageRTT.set(this.sumOfRTT.get() / this.RTTCount.get());
+
+        return this.averageRTT.get();
     }
 
     /**
@@ -308,14 +325,5 @@ public class CrawlerResult {
         }
 
         return externals;
-    }
-
-    public long addRtt(double rtt) {
-        numRtt.incrementAndGet();
-        return totalRtt.addAndGet((long) rtt);
-    }
-
-    public long getAvrageRtt() {
-        return totalRtt.get() / numRtt.get();
     }
 }
