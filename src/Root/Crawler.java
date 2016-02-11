@@ -118,6 +118,7 @@ public class Crawler {
     private void startCrawlingOn(CrawlerConfig config) {
         this.robots = new RobotsTxt(config.ignoreRobots, config.url);
         this.pushDownloadUrlTask(new RunnableDownloader(config.url));
+        Crawler.getInstance().getTheCrawlerResultInstance().markVisited(config.url);
     }
 
     private CrawlerResult waitForFinish() {
