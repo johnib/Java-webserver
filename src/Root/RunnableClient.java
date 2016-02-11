@@ -191,7 +191,7 @@ public class RunnableClient implements Runnable {
                 CrawlerResult result = Crawler.getInstance().crawl(crawlerConfig);
 
                 String phoneNumber = crawlerConfig.get("phone").toString();
-                if (NumberUtils.isNumber(phoneNumber) && result != null) {
+                if (!phoneNumber.isEmpty() && result != null) {
                     SmsSender.sendSms(phoneNumber, result);
                 }
 
